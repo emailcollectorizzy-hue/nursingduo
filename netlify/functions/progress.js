@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 const isValidUser = (u) => typeof u === "string" && /^[a-z0-9_-]{2,32}$/i.test(u);
 const isValidPin  = (p) => typeof p === "string" && /^\d{4,8}$/.test(p);
 const hash = (p) => crypto.createHash("sha256").update(String(p)).digest("hex");
+const safeStorageKey = (k) => String(k).replace(/[^a-z0-9:_-]/gi, "_");
 
 export default async (req) => {
   if (req.method !== "POST") {
@@ -13,14 +14,10 @@ export default async (req) => {
   try { body = await req.json(); }
   catch { return new Response("bad json", { status: 400 }); }
 
-  const { action, user, pin, storageKey } = body || {};
+  const { action, user, pin } = body || {};
   if (!isValidUser(user) || !isValidPin(pin)) {
     return new Response("bad credentials format", { status: 400 });
   }
-  if (typeof storageKey !== "string" || storageKey.length < 1 || storageKey.length > 128) {
-    return new Response("bad storageKey", { status: 400 });
-  }
-  const safeKey = storageKey.replace(/[^a-z0-9:_-]/gi, "_");
 
   const store = getStore("quizpage-progress");
   const metaKey = `meta/${user}`;
@@ -34,6 +31,25 @@ export default async (req) => {
     return new Response("unauthorized", { status: 401 });
   }
 
+  // list: returns all course blobs for this user
+  if (action === "list") {
+    const prefix = `data/${user}/`;
+    const out = {};
+    const { blobs } = await store.list({ prefix });
+    for (const b of blobs) {
+      const sk = b.key.slice(prefix.length);
+      const v = await store.get(b.key, { type: "json" });
+      if (v) out[sk] = v;
+    }
+    return Response.json({ courses: out });
+  }
+
+  // get / put require storageKey
+  const { storageKey } = body;
+  if (typeof storageKey !== "string" || storageKey.length < 1 || storageKey.length > 128) {
+    return new Response("bad storageKey", { status: 400 });
+  }
+  const safeKey = safeStorageKey(storageKey);
   const dataKey = `data/${user}/${safeKey}`;
 
   if (action === "get") {

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<title>NursingDuo</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #15151c;
+    --card-hover: #1c1c25;
+    --border: #26262f;
+    --text: #f4f4f6;
+    --muted: #8a8a98;
+    --accent: #6366f1;
+    --accent-2: #ec4899;
+    --success: #10b981;
+    --warning: #f59e0b;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; min-height: 100vh; }
+  body { padding: max(20px, env(safe-area-inset-top)) 20px max(40px, env(safe-area-inset-bottom)); max-width: 720px; margin: 0 auto; }
+
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+  .brand { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .who { font-size: 13px; color: var(--muted); }
+  .who button { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; font: inherit; font-size: 12px; cursor: pointer; margin-left: 8px; }
+  .who button:hover { color: var(--text); border-color: var(--muted); }
+
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+  .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; }
+  .stat-value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+  .stat-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 8px 0 14px; font-weight: 600; }
+
+  .course { display: block; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 12px; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
+  .course:hover { background: var(--card-hover); border-color: #36363f; }
+  .course:active { transform: scale(0.99); }
+  .course-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .course-name { font-size: 18px; font-weight: 700; }
+  .course-xp { font-size: 14px; color: var(--accent); font-weight: 600; }
+  .course-meta { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
+  .course-meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .course-bar { margin-top: 10px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .course-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.4s; }
+  .course.soon { opacity: 0.55; cursor: not-allowed; }
+  .course.soon .course-xp { color: var(--warning); }
+
+  .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 14px; }
+
+  /* sign-in modal — copy of the per-course shim modal */
+  #cs_modal { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  #cs_modal .mbox { background: #1a1a1a; color: #fff; padding: 24px; border-radius: 14px; max-width: 360px; width: 100%; font: 14px/1.5 system-ui, sans-serif; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  #cs_modal h2 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+  #cs_modal .desc { opacity: 0.7; margin-bottom: 16px; }
+  #cs_modal label { display: block; margin-bottom: 10px; }
+  #cs_modal input { width: 100%; padding: 8px; margin-top: 4px; background: #000; color: #fff; border: 1px solid #444; border-radius: 6px; font: inherit; box-sizing: border-box; }
+  #cs_modal .btns { display: flex; gap: 8px; margin-top: 4px; }
+  #cs_modal button { padding: 10px; border: 0; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; }
+  #cs_modal .primary { flex: 1; background: var(--accent); color: #fff; }
+  #cs_modal .hint { font-size: 12px; opacity: 0.55; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">NursingDuo</div>
+  <div class="who" id="who"></div>
+</div>
+
+<div class="stat-row">
+  <div class="stat">
+    <div class="stat-label">Total XP</div>
+    <div class="stat-value" id="totalXp">—</div>
+    <div class="stat-sub" id="xpSub">across all courses</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Day Streak</div>
+    <div class="stat-value" id="streak">—</div>
+    <div class="stat-sub" id="streakSub">best: —</div>
+  </div>
+</div>
+
+<div class="section-title">Your Courses</div>
+<div id="courses"></div>
+
+<script>
+const COURSES = [
+  { id: "ns250", name: "NS250 — Med-Surg", storageKey: "quizpage:ns250medsurg-master", href: "/ns250", status: "live" },
+  { id: "ns216", name: "NS216 — Maternal-Newborn", storageKey: "quizpage:ns216maternalnewborn-master", href: "/ns216", status: "live" },
+  { id: "ns221", name: "NS221 — Pharmacology", storageKey: "quizpage:ns221pharmacology-master", href: "#", status: "soon" },
+];
+
+const AUTH_KEY = "quizpage:cloudauth";
+const getAuth = () => { try { return JSON.parse(localStorage.getItem(AUTH_KEY) || "null"); } catch { return null; } };
+const setAuth = (a) => { try { localStorage.setItem(AUTH_KEY, JSON.stringify(a)); } catch {} };
+const clearAuth = () => { try { localStorage.removeItem(AUTH_KEY); } catch {} };
+
+async function api(action, extra = {}) {
+  const auth = getAuth(); if (!auth) return null;
+  let res;
+  try {
+    res = await fetch("/api/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, user: auth.user, pin: auth.pin, ...extra })
+    });
+  } catch { return null; }
+  if (res.status === 401) { clearAuth(); promptAuth(true); return null; }
+  if (!res.ok) return null;
+  return res.json();
+}
+
+function promptAuth(wrong) {
+  if (document.getElementById("cs_modal")) return;
+  const m = document.createElement("div");
+  m.id = "cs_modal";
+  m.innerHTML = `
+    <div class="mbox">
+      <h2>☁️ Sign in</h2>
+      <div class="desc">${wrong ? "Wrong PIN. Try again." : "Sign in to see your progress across all courses."}</div>
+      <label>Username<br><input id="cs_u" autocomplete="username" autocapitalize="none" autocorrect="off"></label>
+      <label>PIN (4–8 digits)<br><input id="cs_p" type="password" inputmode="numeric" pattern="\\d*" autocomplete="current-password"></label>
+      <div class="btns">
+        <button class="primary" id="cs_ok">Sign in</button>
+      </div>
+      <div class="hint">Use the same username + PIN you set in any course master.</div>
+    </div>`;
+  document.body.appendChild(m);
+  const ok = () => {
+    const u = m.querySelector("#cs_u").value.trim();
+    const p = m.querySelector("#cs_p").value.trim();
+    if (!/^[a-z0-9_-]{2,32}$/i.test(u)) return alert("Username: 2–32 chars (letters, numbers, _ or -)");
+    if (!/^\d{4,8}$/.test(p)) return alert("PIN: 4–8 digits");
+    setAuth({ user: u, pin: p });
+    m.remove();
+    boot();
+  };
+  m.querySelector("#cs_ok").onclick = ok;
+  m.querySelector("#cs_p").addEventListener("keydown", e => { if (e.key === "Enter") ok(); });
+  setTimeout(() => m.querySelector("#cs_u").focus(), 50);
+}
+
+function fmt(n) { return n == null ? "—" : new Intl.NumberFormat().format(n); }
+function relTime(ts) {
+  if (!ts) return "never";
+  const d = Math.floor((Date.now() - ts) / 1000);
+  if (d < 60) return "just now";
+  if (d < 3600) return `${Math.floor(d/60)}m ago`;
+  if (d < 86400) return `${Math.floor(d/3600)}h ago`;
+  if (d < 604800) return `${Math.floor(d/86400)}d ago`;
+  return new Date(ts).toLocaleDateString();
+}
+
+function renderCourses(courseData) {
+  const wrap = document.getElementById("courses");
+  wrap.innerHTML = "";
+  for (const c of COURSES) {
+    const d = courseData && courseData[c.storageKey];
+    const state = d && d.state || null;
+    const xp = state ? (state.xp | 0) : 0;
+    const read = state && Array.isArray(state.read) ? state.read.length : 0;
+    const lastTs = d ? d.updatedAt : null;
+    const totalSections = state && state._totalSections ? state._totalSections : null; // optional hint
+    const pct = totalSections ? Math.min(100, Math.round(100 * read / totalSections)) : 0;
+
+    const isSoon = c.status === "soon";
+    const tag = `
+      <a class="course${isSoon ? " soon" : ""}" href="${isSoon ? "#" : c.href}"${isSoon ? ' onclick="return false"' : ""}>
+        <div class="course-head">
+          <div class="course-name">${c.name}</div>
+          <div class="course-xp">${isSoon ? "coming soon" : fmt(xp) + " XP"}</div>
+        </div>
+        <div class="course-meta">
+          ${isSoon ? `<span>build the master via /quizpage --course ${c.id.toUpperCase()}</span>` : `
+            <span>📚 ${read} section${read===1?"":"s"} read</span>
+            <span>⏱️ last: ${relTime(lastTs)}</span>
+          `}
+        </div>
+        ${isSoon || !totalSections ? "" : `<div class="course-bar"><div class="course-bar-fill" style="width:${pct}%"></div></div>`}
+      </a>`;
+    wrap.insertAdjacentHTML("beforeend", tag);
+  }
+}
+
+function renderEmpty() {
+  document.getElementById("courses").innerHTML = `<div class="empty">No progress yet. Open a course to start.</div>`;
+  for (const c of COURSES) {
+    // still show the tiles even if no data
+  }
+  renderCourses({});
+}
+
+function renderTotals(courseData) {
+  let totalXp = 0;
+  let bestStreak = 0;
+  let currStreak = 0;
+  for (const c of COURSES) {
+    const d = courseData && courseData[c.storageKey];
+    const s = d && d.state;
+    if (!s) continue;
+    totalXp += (s.xp | 0);
+    const ds = s.dayStreak || {};
+    if ((ds.count | 0) > currStreak) currStreak = ds.count | 0;
+    if ((ds.best  | 0) > bestStreak) bestStreak = ds.best  | 0;
+  }
+  document.getElementById("totalXp").textContent = fmt(totalXp);
+  document.getElementById("streak").textContent = currStreak + "🔥";
+  document.getElementById("streakSub").textContent = "best: " + bestStreak;
+}
+
+function renderWho() {
+  const a = getAuth();
+  const el = document.getElementById("who");
+  if (!a) { el.innerHTML = ""; return; }
+  el.innerHTML = `${a.user} <button id="signout">sign out</button>`;
+  document.getElementById("signout").onclick = () => { clearAuth(); location.reload(); };
+}
+
+async function boot() {
+  renderWho();
+  if (!getAuth()) { promptAuth(false); renderCourses({}); return; }
+  const res = await api("list");
+  const courses = (res && res.courses) || {};
+  renderTotals(courses);
+  renderCourses(courses);
+}
+
+boot();
+</script>
+</body>
+</html>

@@ -3,6 +3,11 @@
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "/"
+  from = "/ns250"
   to = "/NS250MedSurg - Master.html"
+  status = 200
+
+[[redirects]]
+  from = "/ns216"
+  to = "/NS216MaternalNewborn - Master.html"
   status = 200
