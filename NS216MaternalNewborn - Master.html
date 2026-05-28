@@ -8211,6 +8211,24 @@ body.codex-on.on-cards main { padding-bottom: 28px !important; }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else setTimeout(boot, 0);
+
+  // Keyboard answer selection on Quiz tab — J/K/L/; (+ 1-4) click options 1-4
+  document.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const tgt = e.target;
+    if (tgt && tgt.matches && tgt.matches("input, textarea, select, [contenteditable='true']")) return;
+    // Only when Quiz tab is the active panel
+    const quizPanel = document.querySelector("#tab-quiz.active, .tab-panel#tab-quiz.active, .tab-panel.active#tab-quiz");
+    if (!quizPanel) return;
+    const map = { "j":0, "k":1, "l":2, ";":3, "m":3, "1":0, "2":1, "3":2, "4":3 };
+    const idx = map[e.key.toLowerCase ? e.key.toLowerCase() : e.key];
+    if (idx === undefined) return;
+    const opts = quizPanel.querySelectorAll(".q-option");
+    if (!opts.length || idx >= opts.length) return;
+    e.preventDefault();
+    opts[idx].click();
+  });
+
   window.addEventListener("storage", (e) => { if (e.key === "quizpage:prefs") { applyTheme(); updateHero(); } });
 })();
 </script>
