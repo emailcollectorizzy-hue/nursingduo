@@ -51,6 +51,20 @@
 
   .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 14px; }
 
+  .today { background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(236,72,153,0.10)); border: 1px solid rgba(99,102,241,0.3); border-radius: 14px; padding: 18px; margin-bottom: 12px; }
+  .today-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .today-title { font-size: 16px; font-weight: 700; }
+  .today-total { font-size: 14px; color: var(--accent-2); font-weight: 600; }
+  .today-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06); }
+  .today-row:first-of-type { border-top: 0; }
+  .today-course { font-size: 14px; font-weight: 500; }
+  .today-due { font-size: 13px; color: var(--muted); margin-left: 8px; }
+  .today-btn { background: var(--accent); color: #fff; text-decoration: none; padding: 7px 14px; border-radius: 8px; font: inherit; font-size: 13px; font-weight: 600; transition: background 0.15s, transform 0.1s; }
+  .today-btn:hover { background: #5559e8; }
+  .today-btn:active { transform: scale(0.96); }
+  .today-btn.disabled { background: transparent; color: var(--muted); border: 1px solid var(--border); pointer-events: none; }
+  .today-zero { text-align: center; color: var(--muted); padding: 6px 0; font-size: 13px; }
+
   /* sign-in modal — copy of the per-course shim modal */
   #cs_modal { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; }
   #cs_modal .mbox { background: #1a1a1a; color: #fff; padding: 24px; border-radius: 14px; max-width: 360px; width: 100%; font: 14px/1.5 system-ui, sans-serif; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
@@ -84,7 +98,10 @@
   </div>
 </div>
 
-<div class="section-title">Your Courses</div>
+<div class="section-title">Today's Set</div>
+<div id="todaysSet"></div>
+
+<div class="section-title" style="margin-top:28px;">Your Courses</div>
 <div id="courses"></div>
 
 <script>
@@ -144,6 +161,22 @@ function promptAuth(wrong) {
   setTimeout(() => m.querySelector("#cs_u").focus(), 50);
 }
 
+// SRS due calculation — matches master's BOX_INTERVAL + epochDay logic
+const BOX_INTERVAL = { 1:1, 2:2, 3:4, 4:8, 5:16 };
+function epochDay(d) { return Math.floor((d || Date.now()) / 86400000); }
+function countDue(state) {
+  if (!state || !state.srs || typeof state.srs !== "object") return 0;
+  const today = epochDay();
+  let n = 0;
+  for (const id in state.srs) {
+    const r = state.srs[id]; if (!r) continue;
+    const box = r.box || 1;
+    const due = (r.lastSeen || 0) + (BOX_INTERVAL[box] || 1);
+    if (due <= today) n++;
+  }
+  return n;
+}
+
 function fmt(n) { return n == null ? "—" : new Intl.NumberFormat().format(n); }
 function relTime(ts) {
   if (!ts) return "never";
@@ -186,12 +219,43 @@ function renderCourses(courseData) {
   }
 }
 
-function renderEmpty() {
-  document.getElementById("courses").innerHTML = `<div class="empty">No progress yet. Open a course to start.</div>`;
+function renderTodaysSet(courseData) {
+  const wrap = document.getElementById("todaysSet");
+  // Per-course due counts (live courses only)
+  const rows = [];
+  let total = 0;
   for (const c of COURSES) {
-    // still show the tiles even if no data
+    if (c.status !== "live") continue;
+    const d = courseData && courseData[c.storageKey];
+    const due = countDue(d && d.state);
+    total += due;
+    rows.push({ c, due });
   }
-  renderCourses({});
+  const SUGGESTED_PER_COURSE = 7;
+  const html = `
+    <div class="today">
+      <div class="today-head">
+        <div class="today-title">🔁 Due now</div>
+        <div class="today-total">${total} card${total===1?"":"s"} across courses</div>
+      </div>
+      ${rows.length === 0 ? `<div class="today-zero">No courses live yet.</div>` :
+        total === 0 ? `<div class="today-zero">🎉 All caught up — nothing due today.</div>` :
+        rows.map(r => {
+          const pick = Math.min(r.due, SUGGESTED_PER_COURSE);
+          if (r.due === 0) return `
+            <div class="today-row">
+              <div><span class="today-course">${r.c.name}</span><span class="today-due">all clear</span></div>
+              <a class="today-btn disabled" href="#">—</a>
+            </div>`;
+          return `
+            <div class="today-row">
+              <div><span class="today-course">${r.c.name}</span><span class="today-due">${r.due} due${pick < r.due ? ` · do ${pick}` : ""}</span></div>
+              <a class="today-btn" href="${r.c.href}#tab=review">Study →</a>
+            </div>`;
+        }).join("")
+      }
+    </div>`;
+  wrap.innerHTML = html;
 }
 
 function renderTotals(courseData) {
@@ -226,6 +290,7 @@ async function boot() {
   const res = await api("list");
   const courses = (res && res.courses) || {};
   renderTotals(courses);
+  renderTodaysSet(courses);
   renderCourses(courses);
 }
 

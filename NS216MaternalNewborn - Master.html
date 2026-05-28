@@ -7361,5 +7361,37 @@ if (!state.pipHidden) {
   else boot();
 })();
 </script>
+<script>
+/* ===== Hub integration: back button + hash-router ===== */
+(function hubLink(){
+  function addBackBtn() {
+    if (document.getElementById("hub-back-btn")) return;
+    const btn = document.createElement("a");
+    btn.id = "hub-back-btn";
+    btn.href = "/";
+    btn.innerHTML = "← NursingDuo";
+    btn.title = "Back to course select";
+    btn.style.cssText = "position:fixed;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));z-index:9998;font:600 12px/1 -apple-system,system-ui,sans-serif;text-decoration:none;color:#fff;background:rgba(20,20,28,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .1s ease,background .15s;";
+    btn.addEventListener("mouseenter", () => { btn.style.background = "rgba(35,35,45,.92)"; });
+    btn.addEventListener("mouseleave", () => { btn.style.background = "rgba(20,20,28,.88)"; });
+    btn.addEventListener("touchstart", () => { btn.style.transform = "scale(.94)"; }, {passive:true});
+    btn.addEventListener("touchend",   () => { btn.style.transform = ""; }, {passive:true});
+    document.body.appendChild(btn);
+  }
+  function applyHash() {
+    const h = location.hash.slice(1);
+    if (!h) return;
+    const params = new URLSearchParams(h);
+    const tab = params.get("tab");
+    if (tab && typeof switchTab === "function") {
+      try { switchTab(tab); } catch {}
+    }
+  }
+  function boot() { addBackBtn(); setTimeout(applyHash, 120); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+  window.addEventListener("hashchange", applyHash);
+})();
+</script>
 </body>
 </html>
