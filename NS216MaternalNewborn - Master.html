@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NS216MaternalNewborn - Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=DM+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Source+Sans+3:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --accent-1: #0d9488;
@@ -7251,293 +7254,728 @@ if (!state.pipHidden) {
   setTimeout(() => floatPip.setState("happy", "Welcome back. Tap me if you need a tip.", 2800), 600);
 }
 </script>
-<style id="cozy-reskin-css">
-/* Theme palettes — WCAG AA tuned. All text accents ≥4.5:1 on theme surface. */
-:root {
-  --bg: #f4ead0 !important;
-  --surface: #fcf5e0 !important;
-  --surface-2: #f0e0b0 !important;
-  --border: #b89c66 !important;
-  --text: #3a2a18 !important;
-  --text-dim: #5d4424 !important;
-  --accent-1: #b05a0e !important;
-  --accent-2: #7d3d05 !important;
-  --gold: #c98a18 !important;
-  --due: #9c2a20 !important;
-  --success: #4f6a25 !important;
+<style id="codex-reskin-css">
+/* ============================================================================
+   Illuminated Codex visual layer — applied on top of the master's existing CSS.
+   Tokens defined per body[data-course-theme]. Activated via .codex-on body class.
+   Existing master IDs, JS, dark/catppuccin themes left untouched.
+   ============================================================================ */
+
+body.codex-on, body[data-course-theme="cozy"] {
+  --bg: #f1e6c8;
+  --bg-2: #e4d2a4;
+  --surface: #fbf4dc;
+  --surface-2: #f3e6bc;
+  --surface-3: #ecdba0;
+  --border: #b89c66;
+  --border-soft: #d4ba7e;
+  --border-dim: #e6d2a0;
+  --text: #2a1d10;
+  --text-soft: #4d3520;
+  --text-dim: #8a6f4a;
+  --accent-1: #a85a10;
+  --accent-2: oklch(38% 0.055 205);
+  --accent-1-light: #c08a18;
+  --accent-1-glow: rgba(168,90,16,0.18);
+  --success: #4f6a25;
+  --warn: #c08a18;
+  --danger: #9c2a20;
+  --info: oklch(45% 0.06 220);
+  --gold: #c08a18;
+  --gold-soft: #e9bf5c;
+  --due: var(--accent-2);
+  --font-display: "EB Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+  --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --bg-image: radial-gradient(1200px 600px at 50% -200px, rgba(192,138,24,0.18), transparent 60%),
+              radial-gradient(900px 500px at 100% 110%, rgba(79,106,37,0.10), transparent 60%);
+  --card-bg-image: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  --radius: 14px;
+  --radius-lg: 18px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 2px rgba(58,42,24,0.06), 0 2px 6px rgba(58,42,24,0.08);
+  --shadow: 0 4px 14px rgba(58,42,24,0.10), 0 2px 4px rgba(58,42,24,0.08);
+  --shadow-lg: 0 16px 40px rgba(58,42,24,0.22), 0 6px 14px rgba(58,42,24,0.12);
+  --border-style: dashed;
+  --ornament-glyph: "❦";
 }
-body[data-theme="naruto"] {
-  --bg: #f0e6d2 !important;
-  --surface: #fff5d6 !important;
-  --surface-2: #fae09c !important;
-  --border: #b8965c !important;
-  --text: #241c10 !important;
-  --text-dim: #4a3318 !important;
-  --accent-1: #a8420a !important;
-  --accent-2: #6e2906 !important;
-  --gold: #b88018 !important;
-  --due: #9c2a20 !important;
-  --success: #2e6238 !important;
+
+body[data-course-theme="naruto"] {
+  --bg: #fbf2dc;
+  --bg-2: #f1dfa8;
+  --surface: #fffaea;
+  --surface-2: #fbecc4;
+  --surface-3: #f4d792;
+  --border: #d49a3e;
+  --border-soft: #e8c576;
+  --border-dim: #f1dfa8;
+  --text: #1f1206;
+  --text-soft: #3a2710;
+  --text-dim: #7a5a2e;
+  --accent-1: #d05a14;
+  --accent-2: #2f6b2c;
+  --accent-1-light: #ef7a1c;
+  --accent-1-glow: rgba(208,90,20,0.22);
+  --success: #2f6b2c;
+  --warn: #c97a14;
+  --danger: #b8281c;
+  --info: #1f5a8e;
+  --gold: #c98a18;
+  --gold-soft: #f0c160;
+  --due: var(--accent-2);
+  --font-display: "Shippori Mincho", "EB Garamond", Georgia, serif;
+  --font-body: "Noto Sans", -apple-system, system-ui, sans-serif;
+  --bg-image: radial-gradient(1400px 700px at 50% -250px, rgba(239,122,28,0.28), transparent 60%),
+              radial-gradient(900px 500px at 100% 110%, rgba(47,107,44,0.16), transparent 60%);
+  --card-bg-image: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 2px 4px rgba(31,18,6,0.08);
+  --shadow: 0 6px 18px rgba(31,18,6,0.14), 0 2px 5px rgba(31,18,6,0.08);
+  --shadow-lg: 0 20px 50px rgba(31,18,6,0.26), 0 8px 16px rgba(31,18,6,0.14);
+  --border-style: solid;
+  --ornament-glyph: "◈";
 }
-body[data-theme="onepiece"] {
-  --bg: #e8dec2 !important;
-  --surface: #f4ead0 !important;
-  --surface-2: #e0c890 !important;
-  --border: #a8895a !important;
-  --text: #241a0e !important;
-  --text-dim: #463218 !important;
-  --accent-1: #a02018 !important;
-  --accent-2: #6e140e !important;
-  --gold: #b88c1c !important;
-  --due: #6e140e !important;
-  --success: #14506e !important;
+
+body[data-course-theme="onepiece"] {
+  --bg: #ecdfb8;
+  --bg-2: #d4c084;
+  --surface: #f5ead0;
+  --surface-2: #e9d8a4;
+  --surface-3: #d8c082;
+  --border: #8a6e3a;
+  --border-soft: #b8965e;
+  --border-dim: #d4ba80;
+  --text: #1a1408;
+  --text-soft: #3a2a14;
+  --text-dim: #6e5a2e;
+  --accent-1: #143b5e;
+  --accent-2: #a02018;
+  --accent-1-light: #235b8e;
+  --accent-1-glow: rgba(20,59,94,0.22);
+  --success: #2e6238;
+  --warn: #b8801c;
+  --danger: #a02018;
+  --info: #143b5e;
+  --gold: #b8801c;
+  --gold-soft: #dfb74e;
+  --due: var(--accent-2);
+  --font-display: "IM Fell English SC", "EB Garamond", Georgia, serif;
+  --font-body: "Source Sans 3", -apple-system, system-ui, sans-serif;
+  --bg-image: radial-gradient(1400px 700px at 50% -250px, rgba(20,59,94,0.22), transparent 60%),
+              radial-gradient(900px 500px at 100% 110%, rgba(160,32,24,0.14), transparent 60%);
+  --card-bg-image: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  --radius: 8px;
+  --radius-lg: 10px;
+  --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(26,20,8,0.10);
+  --shadow: 0 4px 14px rgba(26,20,8,0.18), 0 2px 4px rgba(26,20,8,0.10);
+  --shadow-lg: 0 18px 44px rgba(26,20,8,0.32), 0 6px 14px rgba(26,20,8,0.18);
+  --border-style: double;
+  --ornament-glyph: "✦";
 }
-body.cozy-on {
-  background:
-    radial-gradient(ellipse at top, rgba(212,160,57,0.18), transparent 60%),
-    radial-gradient(ellipse at bottom right, rgba(107,138,58,0.10), transparent 60%),
-    var(--bg) !important;
+
+/* ============================================================
+   Base — apply tokens to body, hide the master's amber-gradient
+   top header (we've already moved its contents to the floating
+   cluster + hero), tune main padding for the floating chrome.
+   ============================================================ */
+body.codex-on {
+  background: var(--bg-image), var(--bg) !important;
   background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-body) !important;
+  font-feature-settings: "ss01";
 }
-body.cozy-on header.app-header {
-  background: linear-gradient(180deg, var(--surface), var(--surface-2)) !important;
-  color: var(--text) !important;
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 2px 8px rgba(74,53,32,0.08);
-}
-body.cozy-on header.app-header .brand {
-  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
-  color: var(--accent-2);
-  font-size: 18px;
-}
-body.cozy-on header.app-header .brand small { color: var(--text-dim); }
-body.cozy-on .tabs { display: none !important; }
-body.cozy-on .streak {
-  background: rgba(185,66,54,0.12) !important;
-  color: #8c2a1e !important;
-  border: 1px solid rgba(185,66,54,0.28);
-  border-radius: 12px !important;
-  font-weight: 700;
-}
-body.cozy-on #dark-toggle { display: none !important; }
-body.cozy-on main { padding-bottom: 90px !important; }
+body.codex-on ::selection { background: var(--accent-1-glow); }
+body.codex-on header.app-header { display: none !important; }
+body.codex-on main { padding: 18px 18px 110px !important; max-width: 980px; margin: 0 auto; }
+body.codex-on .activity-strip { display: none !important; }
+body.codex-on #hub-back-btn { display: none !important; }
 
-.cozy-bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  z-index: 100;
-  background: linear-gradient(180deg, #e6d2a3, #c9b58a);
-  border-top: 1px solid #a8956a;
-  padding: 4px max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
-  display: flex; gap: 2px;
-  justify-content: space-around;
-  box-shadow: 0 -4px 14px rgba(74,53,32,0.18);
-}
-.cozy-bottom-nav button {
-  flex: 1; min-width: 0;
-  background: transparent;
-  border: 1px solid transparent;
-  padding: 6px 2px 4px;
-  font: 700 10px/1.2 -apple-system, system-ui, sans-serif;
-  color: #5a3f24;
-  cursor: pointer;
-  border-radius: 10px;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  min-height: 50px;
-  transition: background 0.15s, transform 0.1s;
-}
-.cozy-bottom-nav button .cn-icon { font-size: 19px; line-height: 1; }
-.cozy-bottom-nav button .cn-label { letter-spacing: 0.02em; }
-.cozy-bottom-nav button.active {
-  background: linear-gradient(180deg, #fcf5e0, #f0e0b0);
-  color: #4a3520;
-  border: 1px solid #b8a26a;
-  box-shadow: 0 2px 4px rgba(74,53,32,0.18), inset 0 1px 0 rgba(255,255,255,0.5);
-  transform: translateY(-1px);
-}
-.cozy-bottom-nav button:active { transform: scale(0.96); }
-
-.cozy-hero {
-  background: linear-gradient(180deg, var(--surface), var(--surface-2));
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 14px 16px;
-  margin: 12px 0 18px;
-  position: relative;
-  box-shadow: 0 4px 14px rgba(74,53,32,0.12);
-}
-.cozy-hero::before {
-  content: ""; position: absolute; inset: 4px;
-  border: 1px dashed rgba(201,181,138,0.55);
-  border-radius: 12px;
-  pointer-events: none;
-}
-.cozy-hero-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; position: relative; }
-.cozy-rank { display: flex; align-items: center; gap: 10px; }
-.cozy-rank-icon {
-  width: 36px; height: 36px;
-  background: linear-gradient(135deg, #d4a039, #c87a1f);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px;
-  border: 2px solid #fcf5e0;
-  box-shadow: 0 2px 5px rgba(168,93,16,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
-}
-.cozy-level { font: 700 10px/1 -apple-system, system-ui, sans-serif; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); }
-.cozy-title { font: 700 15px/1.1 "Iowan Old Style", "Palatino Linotype", Georgia, serif; color: var(--text); margin-top: 3px; }
-.cozy-xp { text-align: right; position: relative; }
-.cozy-xp-num { font: 800 24px/1 "Iowan Old Style", Georgia, serif; color: var(--accent-2); text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-.cozy-xp-sub { font: 700 9px/1 -apple-system, system-ui, sans-serif; color: var(--text-dim); letter-spacing: 0.1em; margin-top: 3px; text-transform: uppercase; }
-.cozy-hero-bar-wrap { margin-top: 12px; position: relative; }
-.cozy-hero-bar { height: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(74,53,32,0.15); }
-.cozy-hero-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--accent-1)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); transition: width 0.5s cubic-bezier(.2,.8,.2,1); }
-.cozy-hero-bar-label { display: flex; justify-content: space-between; margin-top: 4px; font: 600 10px/1 -apple-system, system-ui, sans-serif; color: var(--text-dim); letter-spacing: 0.04em; }
-
-body.cozy-on header.app-header #hub-back-btn {
-  background: linear-gradient(135deg, #c87a1f, #8a4814) !important;
-  border: 2px solid #fcf5e0 !important;
-  color: #fff8e8 !important;
-  box-shadow: 0 3px 8px rgba(138,72,20,0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-  border-radius: 12px !important;
-  font: 700 11px/1 "Iowan Old Style", Georgia, serif !important;
-  letter-spacing: 0.04em;
-  padding: 7px 11px !important;
-  position: static !important;
-  top: auto !important; right: auto !important; left: auto !important;
-  text-decoration: none;
-}
-body.cozy-on header.app-header .header-quick,
-body.cozy-on header.app-header .header-meta { gap: 8px; flex-wrap: nowrap; }
-
-body.cozy-on .btn {
-  background: linear-gradient(180deg, var(--accent-1), var(--accent-2)) !important;
-  box-shadow: 0 3px 0 0 #6e3a08, 0 2px 6px rgba(168,93,16,0.4), inset 0 1px 0 rgba(255,255,255,0.35) !important;
-  color: #fff8e8 !important;
-  font-weight: 700;
-  border-radius: 12px !important;
-  border: 0 !important;
-}
-body.cozy-on .btn:active { transform: translateY(3px) !important; box-shadow: 0 0 0 0 #6e3a08 !important; }
-body.cozy-on .btn.secondary {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: 0 2px 0 0 #b8a26a, 0 1px 3px rgba(74,53,32,0.15) !important;
-}
-body.cozy-on .btn.ghost {
-  background: transparent !important;
-  color: var(--accent-2) !important;
-  box-shadow: none !important;
-}
-body.cozy-on .stat-card, body.cozy-on .card {
-  background: var(--surface) !important;
-  border-color: var(--border) !important;
-  box-shadow: 0 2px 8px rgba(74,53,32,0.08) !important;
-}
-body.cozy-on .study-section strong { color: var(--accent-2) !important; }
-body.cozy-on .study-section h3 { color: var(--accent-2) !important; }
-body.cozy-on .study-section h4 { color: var(--accent-1) !important; }
-body.cozy-on .float-pip { filter: hue-rotate(-20deg) saturate(0.85); }
-
-body.cozy-on .activity-strip { display: none !important; }
-
-body.cozy-on header.app-header { display: none !important; }
-body.cozy-on main { padding-top: 14px !important; }
-body.cozy-on #hub-back-btn { display: none !important; }
-
-#cozy-top-cluster {
+/* ============================================================
+   Floating top-right cluster (streak, HP, fullscreen, settings, hub)
+   ============================================================ */
+#codex-top-cluster {
   position: fixed;
-  top: max(10px, env(safe-area-inset-top));
-  right: max(10px, env(safe-area-inset-right));
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
   z-index: 50;
   display: flex; gap: 6px; align-items: center;
   flex-wrap: wrap; justify-content: flex-end;
-  max-width: calc(100% - 20px);
+  max-width: calc(100% - 24px);
 }
-#cozy-top-cluster .ctc-chip,
-#cozy-top-cluster .ctc-btn {
-  background: var(--surface);
+#codex-top-cluster .ctc-chip,
+#codex-top-cluster .ctc-btn {
+  background: var(--card-bg-image), var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
-  font: 700 12px/1 -apple-system, system-ui, sans-serif;
-  padding: 7px 10px;
-  border-radius: 10px;
-  display: inline-flex; align-items: center; gap: 4px;
-  box-shadow: 0 2px 6px rgba(74,53,32,0.15);
+  font: 700 12px/1 var(--font-body);
+  padding: 7px 11px;
+  border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; gap: 5px;
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
   transition: transform 0.1s, background 0.15s;
+  font-variant-numeric: tabular-nums;
 }
-#cozy-top-cluster .ctc-btn:hover,
-#cozy-top-cluster .ctc-chip:hover { background: var(--surface-2); }
-#cozy-top-cluster .ctc-btn:active { transform: scale(0.94); }
-#cozy-top-cluster .ctc-chip { cursor: default; }
-#cozy-top-cluster .ctc-icon-only { padding: 7px 9px; font-size: 14px; }
-#cozy-top-cluster .ctc-hub {
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+#codex-top-cluster .ctc-btn:hover,
+#codex-top-cluster .ctc-chip:hover { background: var(--surface-2); }
+#codex-top-cluster .ctc-btn:active { transform: scale(0.94); }
+#codex-top-cluster .ctc-chip { cursor: default; }
+#codex-top-cluster .ctc-icon-only { padding: 7px 9px; font-size: 14px; }
+#codex-top-cluster .ctc-hub {
+  background: linear-gradient(180deg, var(--accent-1), color-mix(in oklch, var(--accent-1) 70%, #000));
   color: #fff8e8 !important;
-  border: 2px solid var(--surface);
-  box-shadow: 0 2px 8px rgba(74,53,32,0.25), inset 0 1px 0 rgba(255,255,255,0.3);
-  font-family: "Iowan Old Style", Georgia, serif;
+  border: 1px solid color-mix(in oklch, var(--accent-1) 70%, #000);
+  box-shadow: 0 3px 8px var(--accent-1-glow), inset 0 1px 0 rgba(255,255,255,0.30);
+  font-family: var(--font-display);
   font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   Bottom nav (replaces hamburger drawer tabs visually)
+   ============================================================ */
+.codex-bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  background: linear-gradient(180deg,
+    color-mix(in oklch, var(--surface) 80%, var(--bg)),
+    var(--surface-3));
+  border-top: 1px solid var(--border);
+  padding: 5px max(8px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  display: flex; gap: 2px;
+  justify-content: space-around;
+  box-shadow: 0 -4px 16px rgba(58,42,24,0.18);
+}
+.codex-bottom-nav button {
+  flex: 1; min-width: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px 2px 4px;
+  font: 700 10px/1.2 var(--font-body);
+  color: var(--text-soft);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-height: 50px;
+  transition: background 0.15s, transform 0.1s;
   letter-spacing: 0.04em;
 }
-#cozy-top-cluster .ctc-hub:hover { filter: brightness(1.08); }
-body.cozy-on .cozy-hero .cozy-course-name {
-  font: italic 600 12px/1 "Iowan Old Style", Georgia, serif;
-  color: var(--text-dim);
-  letter-spacing: 0.05em;
-  text-align: center;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed rgba(201,181,138,0.5);
+.codex-bottom-nav button .cn-icon { font-size: 19px; line-height: 1; }
+.codex-bottom-nav button.active {
+  background: var(--card-bg-image), var(--surface);
+  color: var(--accent-1);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.5);
+  transform: translateY(-1px);
 }
+.codex-bottom-nav button:active { transform: scale(0.96); }
 
-body.cozy-on .cozy-hero { cursor: pointer; transition: transform 0.12s ease, box-shadow 0.18s; }
-body.cozy-on .cozy-hero:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(74,53,32,0.18); }
-body.cozy-on .cozy-hero::after {
-  content: "⊕"; position: absolute; top: 8px; right: 14px;
-  font: 700 14px/1 -apple-system, system-ui, sans-serif;
-  color: var(--text-dim); opacity: 0.5;
-}
-body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
-
-.cs-modal-bg { position: fixed; inset: 0; z-index: 200; background: rgba(74,53,32,0.62); display: flex; align-items: center; justify-content: center; padding: 20px; }
-.cs-modal-card {
-  background: var(--surface);
+/* ============================================================
+   Hero card (level + title + XP + bar) — opens stats on click
+   ============================================================ */
+.codex-hero {
+  background: var(--card-bg-image), var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 440px; width: 100%; max-height: 86vh; overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  box-shadow: 0 18px 40px rgba(74,53,32,0.32);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px 16px;
+  margin: 14px 0 18px;
   position: relative;
-  font: 14px/1.5 -apple-system, system-ui, sans-serif;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.18s;
+}
+.codex-hero:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.codex-hero::before {
+  content: "";
+  position: absolute; inset: 6px;
+  border: 1px var(--border-style) var(--border-soft);
+  border-radius: calc(var(--radius-lg) - 5px);
+  pointer-events: none;
+  opacity: 0.65;
+}
+.codex-hero::after {
+  content: var(--ornament-glyph);
+  position: absolute; top: 12px; right: 18px;
+  font: 16px var(--font-display);
+  color: var(--border);
+  opacity: 0.7;
+}
+.codex-course-name {
+  font: italic 600 12px/1 var(--font-display);
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-align: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px var(--border-style) var(--border-soft);
+  position: relative;
+}
+.codex-hero-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; position: relative; }
+.codex-rank { display: flex; align-items: center; gap: 12px; }
+.codex-rank-icon {
+  width: 48px; height: 48px;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255,255,255,0.45), transparent 55%),
+    linear-gradient(135deg, var(--gold-soft), var(--gold), var(--accent-1));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  border: 2px solid var(--surface);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 3px 10px var(--accent-1-glow);
+}
+.codex-level {
+  font: 700 10px/1 var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-dim);
+}
+.codex-title { font: 700 17px/1.15 var(--font-display); color: var(--text); margin-top: 4px; letter-spacing: 0.005em; }
+.codex-xp { text-align: right; position: relative; }
+.codex-xp-num {
+  font: 800 28px/1 var(--font-display);
+  color: var(--accent-1);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.codex-xp-sub {
+  font: 700 9px/1 var(--font-body);
+  color: var(--text-dim);
+  letter-spacing: 0.16em;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.codex-hero-bar-wrap { margin-top: 14px; position: relative; }
+.codex-hero-bar {
+  height: 10px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-dim);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.codex-hero-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-soft), var(--gold), var(--accent-1));
+  border-radius: 999px;
+  transition: width 0.7s cubic-bezier(.2,.8,.2,1);
+}
+.codex-hero-bar-label {
+  display: flex; justify-content: space-between;
+  margin-top: 6px;
+  font: 600 11px/1 var(--font-body);
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Restyle existing master components from Course Page.html spec
+   ============================================================ */
+
+/* Today CTA */
+body.codex-on .today-cta {
+  background: var(--card-bg-image), var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 22px 24px !important;
+  box-shadow: var(--shadow) !important;
+  color: var(--text) !important;
+  position: relative;
+  font-family: var(--font-body);
+}
+body.codex-on .today-cta::before {
+  content: "" !important;
+  position: absolute; inset: 8px;
+  border: 1px var(--border-style) var(--border-soft);
+  border-radius: calc(var(--radius-lg) - 7px);
+  pointer-events: none; opacity: 0.65;
+}
+body.codex-on .today-cta .tc-main {
+  font: 700 24px/1.15 var(--font-display) !important;
+  color: var(--text) !important;
+  letter-spacing: 0.005em;
+}
+body.codex-on .today-cta .tc-sub {
+  font: 500 14px/1.4 var(--font-body) !important;
+  color: var(--text-soft) !important;
+  margin-top: 4px;
+}
+body.codex-on .today-cta .tc-go {
+  background: linear-gradient(180deg, var(--accent-1), color-mix(in oklch, var(--accent-1) 70%, #000)) !important;
+  color: #fff8e8 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  padding: 12px 20px !important;
+  font: 700 13px/1 var(--font-body) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 10px var(--accent-1-glow), inset 0 1px 0 rgba(255,255,255,0.30) !important;
+}
+
+/* Stat cards, ring, daily goal */
+body.codex-on .stat-card, body.codex-on .card {
+  background: var(--card-bg-image), var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: 16px 18px 14px !important;
+  box-shadow: var(--shadow-sm) !important;
+  position: relative;
   color: var(--text);
 }
-.cs-modal-card::before { content: ""; position: absolute; inset: 6px; border: 1px dashed rgba(201,181,138,0.6); border-radius: 11px; pointer-events: none; }
-.cs-modal-title { font: 700 20px/1.2 "Iowan Old Style", Georgia, serif; margin: 0 0 4px; position: relative; }
-.cs-modal-desc  { color: var(--text-dim); font-size: 14px; margin-bottom: 18px; position: relative; }
+body.codex-on .stat-card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold-soft), var(--gold), var(--accent-1));
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+body.codex-on .stat-card h3 {
+  font: 700 11px/1 var(--font-body) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-dim) !important;
+  margin: 0 0 14px !important;
+}
+body.codex-on .ring-track { stroke: var(--surface-3) !important; }
+body.codex-on .ring-fill { stroke: var(--accent-1) !important; }
+body.codex-on .ring-fill.due { stroke: var(--accent-2) !important; }
+body.codex-on .ring-label {
+  font: 700 24px/1 var(--font-display) !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+body.codex-on .ring-sub { font: 500 12px/1.3 var(--font-body) !important; color: var(--text-dim) !important; }
+body.codex-on .goal-bar-track { background: var(--surface-3) !important; border: 1px solid var(--border-dim) !important; }
+body.codex-on .goal-bar-fill { background: linear-gradient(90deg, var(--gold-soft), var(--accent-1)) !important; }
+
+/* Leitner box bar */
+body.codex-on .box-bar { gap: 4px !important; }
+body.codex-on .box-1 { background: var(--danger) !important; color: #fff8e8 !important; }
+body.codex-on .box-2 { background: var(--warn) !important; color: #fff8e8 !important; }
+body.codex-on .box-3 { background: var(--accent-1) !important; color: #fff8e8 !important; }
+body.codex-on .box-4 { background: var(--success) !important; color: #fff8e8 !important; }
+body.codex-on .box-5 { background: linear-gradient(135deg, var(--gold-soft), var(--gold)) !important; color: var(--text) !important; }
+
+/* Badges */
+body.codex-on .badge {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border-soft) !important;
+  color: var(--text-dim) !important;
+  padding: 6px 12px !important;
+  border-radius: 999px !important;
+  font: 600 12px/1 var(--font-body) !important;
+}
+body.codex-on .badge.earned {
+  background: linear-gradient(135deg, var(--accent-1), color-mix(in oklch, var(--accent-1) 60%, var(--accent-2))) !important;
+  color: #fff8e8 !important;
+  border-color: transparent !important;
+  box-shadow: 0 2px 6px var(--accent-1-glow) !important;
+}
+
+/* Section heads */
+body.codex-on .section-head {
+  font: italic 600 16px/1 var(--font-display) !important;
+  color: var(--text-soft) !important;
+  letter-spacing: 0.02em;
+  margin: 26px 2px 12px !important;
+  gap: 12px;
+}
+body[data-course-theme="naruto"] .section-head { font-style: normal !important; font-weight: 700 !important; }
+body[data-course-theme="onepiece"] .section-head { font-style: normal !important; text-transform: uppercase; letter-spacing: 0.16em; font-size: 13px !important; }
+body.codex-on .section-head::before,
+body.codex-on .section-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-soft));
+}
+body.codex-on .section-head::after { background: linear-gradient(90deg, var(--border-soft), transparent); }
+
+/* Quiz card */
+body.codex-on .q-card {
+  background: var(--card-bg-image), var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 24px 24px 20px !important;
+  box-shadow: var(--shadow) !important;
+  position: relative;
+  color: var(--text);
+}
+body.codex-on .q-card::before {
+  content: "";
+  position: absolute; inset: 8px;
+  border: 1px var(--border-style) var(--border-soft);
+  border-radius: calc(var(--radius-lg) - 7px);
+  pointer-events: none; opacity: 0.55;
+}
+body.codex-on .q-card > * { position: relative; z-index: 1; }
+body.codex-on .q-meta {
+  font: 600 11px/1 var(--font-body) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-dim) !important;
+}
+body.codex-on .q-section-tag {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border-soft) !important;
+  color: var(--text-soft) !important;
+  font-weight: 700;
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+}
+body.codex-on .q-stem {
+  font: 500 17px/1.55 var(--font-body) !important;
+  color: var(--text) !important;
+}
+body.codex-on .q-stem .sata-tag {
+  background: color-mix(in oklch, var(--accent-2) 16%, var(--surface)) !important;
+  color: var(--accent-2) !important;
+  border: 1px solid color-mix(in oklch, var(--accent-2) 32%, transparent) !important;
+  padding: 3px 10px !important;
+  border-radius: 999px !important;
+  font: 700 10px/1 var(--font-body) !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+body.codex-on .q-option {
+  border: 1.5px solid var(--border-soft) !important;
+  border-radius: var(--radius) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  padding: 13px 14px !important;
+  transition: all 0.15s;
+}
+body.codex-on .q-option:hover { border-color: var(--accent-1) !important; background: var(--surface-2) !important; }
+body.codex-on .q-option.selected {
+  border-color: var(--accent-1) !important;
+  background: color-mix(in oklch, var(--accent-1) 6%, var(--surface)) !important;
+}
+body.codex-on .q-option.correct {
+  border-color: var(--success) !important;
+  background: color-mix(in oklch, var(--success) 8%, var(--surface)) !important;
+}
+body.codex-on .q-option.incorrect {
+  border-color: var(--danger) !important;
+  background: color-mix(in oklch, var(--danger) 7%, var(--surface)) !important;
+}
+body.codex-on .q-option .marker {
+  width: 28px; height: 28px;
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border-soft) !important;
+  color: var(--text-soft) !important;
+  font: 700 13px/1 var(--font-body) !important;
+}
+body.codex-on .q-option.selected .marker { background: var(--accent-1) !important; color: #fff8e8 !important; border-color: var(--accent-1) !important; }
+body.codex-on .q-option.correct .marker { background: var(--success) !important; color: #fff8e8 !important; border-color: var(--success) !important; }
+body.codex-on .q-option.incorrect .marker { background: var(--danger) !important; color: #fff8e8 !important; border-color: var(--danger) !important; }
+body.codex-on .q-option .text { font: 500 15px/1.5 var(--font-body) !important; color: var(--text) !important; }
+body.codex-on .q-feedback.correct {
+  background: color-mix(in oklch, var(--success) 12%, var(--surface)) !important;
+  color: var(--success) !important;
+  border: 1px solid color-mix(in oklch, var(--success) 30%, transparent) !important;
+}
+
+/* Buttons */
+body.codex-on .btn {
+  background: linear-gradient(180deg, var(--accent-1), color-mix(in oklch, var(--accent-1) 70%, #000)) !important;
+  color: #fff8e8 !important;
+  border: 0 !important;
+  padding: 11px 20px !important;
+  border-radius: var(--radius) !important;
+  font: 700 13px/1 var(--font-body) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 8px var(--accent-1-glow), inset 0 1px 0 rgba(255,255,255,0.30) !important;
+}
+body.codex-on .btn:hover { transform: translateY(-1px); }
+body.codex-on .btn:active { transform: translateY(1px); }
+body.codex-on .btn.secondary {
+  background: var(--surface) !important;
+  color: var(--text-soft) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+body.codex-on .btn.ghost {
+  background: transparent !important;
+  color: var(--accent-1) !important;
+  box-shadow: none !important;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+/* Drill / flashcard */
+body.codex-on .drill-card {
+  background: var(--card-bg-image), var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow) !important;
+  color: var(--text);
+  padding: 28px 26px !important;
+  position: relative;
+}
+body.codex-on .drill-card::before {
+  content: "";
+  position: absolute; inset: 8px;
+  border: 1px var(--border-style) var(--border-soft);
+  border-radius: calc(var(--radius-lg) - 7px);
+  pointer-events: none; opacity: 0.55;
+}
+body.codex-on .drill-text {
+  font: 500 21px/1.45 var(--font-display) !important;
+  color: var(--text) !important;
+}
+body.codex-on .drill-cue {
+  font: italic 500 13px/1 var(--font-display) !important;
+  color: var(--text-dim) !important;
+  letter-spacing: 0.04em;
+}
+body.codex-on .drill-answer-box {
+  background: color-mix(in oklch, var(--accent-2) 10%, var(--surface)) !important;
+  border: 1px solid color-mix(in oklch, var(--accent-2) 30%, transparent) !important;
+  border-left: 3px solid var(--accent-2) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text) !important;
+}
+body.codex-on .conf-btn {
+  background: var(--surface-2) !important;
+  border: 1.5px solid var(--border-soft) !important;
+  color: var(--text) !important;
+  font: 600 13px/1 var(--font-body) !important;
+}
+
+/* Study section */
+body.codex-on .study-section {
+  background: var(--card-bg-image), var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 26px 28px !important;
+  box-shadow: var(--shadow-sm) !important;
+  position: relative;
+  color: var(--text);
+}
+body.codex-on .study-section::before {
+  content: "";
+  position: absolute; inset: 8px;
+  border: 1px var(--border-style) var(--border-soft);
+  border-radius: calc(var(--radius-lg) - 7px);
+  pointer-events: none; opacity: 0.5;
+}
+body.codex-on .study-section > * { position: relative; z-index: 1; }
+body.codex-on .study-section h2 {
+  font: 700 22px/1.2 var(--font-display) !important;
+  color: var(--text) !important;
+  letter-spacing: 0.005em;
+}
+body.codex-on .study-section h3 {
+  font: 700 17px/1.3 var(--font-display) !important;
+  color: var(--accent-2) !important;
+  letter-spacing: 0.005em;
+}
+body.codex-on .study-section h4 {
+  font: 700 13px/1.3 var(--font-body) !important;
+  color: var(--accent-1) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+body.codex-on .study-section strong { color: var(--accent-1) !important; font-weight: 700; }
+body.codex-on .study-section em { color: var(--text-dim) !important; }
+body.codex-on .study-section code {
+  background: color-mix(in oklch, var(--accent-1) 12%, var(--surface)) !important;
+  color: var(--accent-1) !important;
+  border: 1px solid color-mix(in oklch, var(--accent-1) 22%, transparent) !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+  font: 500 13px/1.4 var(--font-mono) !important;
+}
+
+/* Callouts */
+body.codex-on .callout {
+  border: 1px solid var(--border-soft) !important;
+  border-left: 4px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--surface-2) !important;
+  color: var(--text);
+}
+body.codex-on .callout-title {
+  font: 700 13px/1 var(--font-body) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+body.codex-on .callout-warning { border-left-color: var(--warn) !important; background: color-mix(in oklch, var(--warn) 10%, var(--surface)) !important; }
+body.codex-on .callout-warning .callout-title { color: var(--warn) !important; }
+body.codex-on .callout-exam { border-left-color: var(--danger) !important; background: color-mix(in oklch, var(--danger) 8%, var(--surface)) !important; }
+body.codex-on .callout-exam .callout-title { color: var(--danger) !important; }
+body.codex-on .callout-tldr { border-left-color: var(--accent-2) !important; background: color-mix(in oklch, var(--accent-2) 10%, var(--surface)) !important; }
+body.codex-on .callout-tldr .callout-title { color: var(--accent-2) !important; }
+body.codex-on .callout-success { border-left-color: var(--success) !important; background: color-mix(in oklch, var(--success) 10%, var(--surface)) !important; }
+body.codex-on .callout-success .callout-title { color: var(--success) !important; }
+
+/* Wikilinks */
+body.codex-on .wikilink {
+  color: var(--accent-2) !important;
+  border-bottom: 1.5px solid var(--accent-2) !important;
+  font-weight: 600;
+  background: linear-gradient(transparent 70%, color-mix(in oklch, var(--accent-2) 18%, transparent) 0) !important;
+}
+
+/* Stats modal */
+.cs-modal-bg { position: fixed; inset: 0; z-index: 200; background: rgba(58,42,24,0.62); display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+.cs-modal-card {
+  background: var(--card-bg-image), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  max-width: 440px; width: 100%; max-height: 86vh; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  font: 14px/1.5 var(--font-body);
+  color: var(--text);
+}
+.cs-modal-card::before { content: ""; position: absolute; inset: 8px; border: 1px var(--border-style) var(--border-soft); border-radius: calc(var(--radius-lg) - 7px); pointer-events: none; opacity: 0.55; }
+.cs-modal-title { font: 700 22px/1.2 var(--font-display); margin: 0 0 4px; position: relative; color: var(--text); letter-spacing: 0.005em; }
+.cs-modal-desc { color: var(--text-dim); font: italic 14px/1 var(--font-display); margin-bottom: 18px; position: relative; }
 .cs-modal-close { position: absolute; top: 8px; right: 10px; width: 34px; height: 34px; border: 0; background: transparent; color: var(--text-dim); font-size: 24px; cursor: pointer; border-radius: 50%; }
-.cs-modal-close:hover { background: rgba(0,0,0,0.05); color: var(--text); }
+.cs-modal-close:hover { background: var(--surface-2); color: var(--text); }
 .cs-sec { margin: 14px 0 4px; position: relative; }
-.cs-sec-lbl { font: italic 600 12px/1 "Iowan Old Style", Georgia, serif; color: var(--text-dim); text-align: center; margin: 4px 0 10px; letter-spacing: 0.05em; }
-.cs-sec-lbl::before, .cs-sec-lbl::after { content: "~ "; }
-.cs-sec-lbl::after { content: " ~"; }
-.cs-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 4px; border-top: 1px dashed rgba(201,181,138,0.5); font-size: 14px; position: relative; }
+.cs-sec-lbl { font: italic 600 12px/1 var(--font-display); color: var(--text-dim); text-align: center; margin: 4px 0 10px; letter-spacing: 0.06em; }
+.cs-sec-lbl::before { content: "❦ "; }
+.cs-sec-lbl::after { content: " ❦"; }
+body[data-course-theme="naruto"] .cs-sec-lbl::before, body[data-course-theme="naruto"] .cs-sec-lbl::after { content: "◈"; padding: 0 6px; }
+body[data-course-theme="onepiece"] .cs-sec-lbl::before, body[data-course-theme="onepiece"] .cs-sec-lbl::after { content: "✦"; padding: 0 6px; }
+.cs-row { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 4px; border-top: 1px var(--border-style) var(--border-soft); font-size: 14px; position: relative; }
 .cs-row:first-of-type { border-top: 0; }
 .cs-row .lbl { color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
-.cs-row .val { color: var(--text); font-weight: 700; font-family: "Iowan Old Style", Georgia, serif; }
-.cs-row .val .sub { color: var(--text-dim); font-weight: 500; font-size: 12px; margin-left: 4px; font-family: -apple-system, system-ui, sans-serif; }
-.cs-box-bar { display: flex; gap: 3px; margin: 8px 4px 4px; height: 10px; align-items: stretch; }
-.cs-box-seg { flex: 1; border-radius: 3px; background: var(--bg); position: relative; overflow: hidden; border: 1px solid var(--border); }
-.cs-box-seg .fill { position: absolute; left: 0; bottom: 0; right: 0; background: linear-gradient(180deg, var(--gold), var(--accent-1)); transition: height 0.4s; }
-.cs-box-lbls { display: flex; gap: 3px; margin: 0 4px; font: 600 10px/1 -apple-system, system-ui, sans-serif; color: var(--text-dim); text-align: center; }
+.cs-row .val { color: var(--text); font-weight: 700; font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.cs-row .val .sub { color: var(--text-dim); font-weight: 500; font-size: 12px; margin-left: 4px; font-family: var(--font-body); }
+.cs-box-bar { display: flex; gap: 4px; margin: 8px 4px 4px; height: 28px; align-items: stretch; }
+.cs-box-seg { flex: 1; border-radius: 4px; background: var(--surface-3); position: relative; overflow: hidden; display: flex; align-items: end; justify-content: center; font: 700 11px/1 var(--font-body); color: #fff8e8; padding-bottom: 4px; }
+.cs-box-seg .fill { position: absolute; left: 0; bottom: 0; right: 0; background: linear-gradient(180deg, var(--gold-soft), var(--accent-1)); transition: height 0.4s; }
+.cs-box-lbls { display: flex; gap: 4px; margin: 4px 4px 0; font: 600 10px/1 var(--font-body); color: var(--text-dim); text-align: center; letter-spacing: 0.04em; }
 .cs-box-lbls span { flex: 1; }
+
+@media (prefers-reduced-motion: reduce) { body.codex-on *, .cs-modal-card * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+@media (max-width: 640px) {
+  body.codex-on main { padding: 14px 12px 110px !important; }
+  .codex-hero { padding: 14px 16px 14px; }
+  .codex-xp-num { font-size: 24px; }
+}
 </style>
 <script>
-(function cozyReskin(){
+/* ===== Illuminated Codex reskin =====
+   Reads quizpage:prefs.theme for course-theme selection, mirrors master state
+   to floating cluster chips, clones drawer tabs into a bottom nav. */
+(function codexReskin(){
   if (location.protocol !== "http:" && location.protocol !== "https:") return;
+
   function levelFromXp(xp) { return Math.max(1, Math.floor(Math.sqrt((xp | 0) / 100)) + 1); }
   function xpForLevel(level) { return (level - 1) * (level - 1) * 100; }
   const RANK_LADDERS = {
@@ -7556,77 +7994,67 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
   function getTheme() { return getPrefs().theme || "cozy"; }
   function applyTheme() {
     const t = getTheme();
-    if (t && t !== "cozy") document.body.setAttribute("data-theme", t);
-    else document.body.removeAttribute("data-theme");
-    const ic = document.querySelector(".cozy-rank-icon");
+    document.body.setAttribute("data-course-theme", t);
+    const ic = document.querySelector(".codex-rank-icon");
     if (ic) ic.textContent = THEME_ICONS[t] || THEME_ICONS.cozy;
   }
   function fmt(n) { return new Intl.NumberFormat().format(n | 0); }
 
   function injectHero() {
-    if (document.getElementById("cozy-hero")) return;
+    if (document.getElementById("codex-hero")) return;
     const main = document.querySelector("main");
     if (!main) return;
     const brandEl = document.querySelector(".brand-mini, header.app-header .brand");
     const courseName = (brandEl ? brandEl.textContent : document.title).trim();
     const h = document.createElement("div");
-    h.id = "cozy-hero"; h.className = "cozy-hero";
+    h.id = "codex-hero"; h.className = "codex-hero";
+    h.setAttribute("role", "button");
+    h.setAttribute("tabindex", "0");
     h.innerHTML = `
-      <div class="cozy-course-name">${courseName}</div>
-      <div class="cozy-hero-row">
-        <div class="cozy-rank">
-          <div class="cozy-rank-icon">⚖️</div>
+      <div class="codex-course-name">${courseName}</div>
+      <div class="codex-hero-row">
+        <div class="codex-rank">
+          <div class="codex-rank-icon">⚖️</div>
           <div>
-            <div class="cozy-level" id="cozyLevel">Lv —</div>
-            <div class="cozy-title" id="cozyTitle">Novice</div>
+            <div class="codex-level" id="codexLevel">Lv —</div>
+            <div class="codex-title" id="codexTitle">Novice</div>
           </div>
         </div>
-        <div class="cozy-xp">
-          <div class="cozy-xp-num"><span id="cozyXp">0</span></div>
-          <div class="cozy-xp-sub">EXPERIENCE</div>
+        <div class="codex-xp">
+          <div class="codex-xp-num"><span id="codexXp">0</span></div>
+          <div class="codex-xp-sub">Experience</div>
         </div>
       </div>
-      <div class="cozy-hero-bar-wrap">
-        <div class="cozy-hero-bar"><div class="cozy-hero-bar-fill" id="cozyBar" style="width:0%"></div></div>
-        <div class="cozy-hero-bar-label"><span id="cozyBarIn">0 xp</span><span id="cozyBarNext">— to next</span></div>
+      <div class="codex-hero-bar-wrap">
+        <div class="codex-hero-bar"><div class="codex-hero-bar-fill" id="codexBar" style="width:0%"></div></div>
+        <div class="codex-hero-bar-label"><span id="codexBarIn">0 xp</span><span id="codexBarNext">— to next</span></div>
       </div>`;
     main.insertBefore(h, main.firstChild);
     h.addEventListener("click", openStats);
+    h.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openStats(); } });
     updateHero();
   }
 
-  function injectTopCluster() {
-    if (document.getElementById("cozy-top-cluster")) return;
-    const c = document.createElement("div");
-    c.id = "cozy-top-cluster";
-    c.innerHTML = `
-      <div class="ctc-chip" id="ctc-streak" title="Day streak"><span>🔥</span><span id="ctc-streak-num">0</span></div>
-      <div class="ctc-chip" id="ctc-hp" title="Hearts"><span>❤️</span><span id="ctc-hp-num">5</span></div>
-      <button type="button" class="ctc-btn ctc-icon-only" id="ctc-fs" title="Fullscreen">⛶</button>
-      <button type="button" class="ctc-btn ctc-icon-only" id="ctc-menu" title="Settings menu">⚙</button>
-      <a class="ctc-btn ctc-hub" href="/" title="Back to NursingDuo hub">← Hub</a>
-    `;
-    document.body.appendChild(c);
-    const mirror = (srcId, dstId) => {
-      const src = document.getElementById(srcId);
-      const dst = document.getElementById(dstId);
-      if (!src || !dst) return;
-      const upd = () => { dst.textContent = src.textContent || "0"; };
-      upd();
-      new MutationObserver(upd).observe(src, { childList: true, characterData: true, subtree: true });
-    };
-    mirror("streak-count", "ctc-streak-num");
-    mirror("hearts-count", "ctc-hp-num");
-    c.querySelector("#ctc-fs").addEventListener("click", () => {
-      const fs = document.getElementById("fs-toggle"); if (fs) fs.click();
-    });
-    c.querySelector("#ctc-menu").addEventListener("click", () => {
-      const h = document.getElementById("hamburger-btn"); if (h) h.click();
-    });
+  function updateHero() {
+    let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
+    const xp = s.xp | 0;
+    const level = levelFromXp(xp);
+    const lvFloor = xpForLevel(level);
+    const lvCeil  = xpForLevel(level + 1);
+    const span = lvCeil - lvFloor;
+    const inLvl = xp - lvFloor;
+    const pct = span > 0 ? Math.min(100, Math.round(100 * inLvl / span)) : 0;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set("codexLevel", `Lv ${level}`);
+    set("codexTitle", titleFor(level, getRanks()));
+    set("codexXp",    fmt(xp));
+    set("codexBarIn",   `${fmt(inLvl)} / ${fmt(span)} xp`);
+    set("codexBarNext", `${fmt(span - inLvl)} to next`);
+    const bar = document.getElementById("codexBar"); if (bar) bar.style.width = pct + "%";
   }
 
   function openStats() {
-    if (document.getElementById("cozyStats")) return;
+    if (document.getElementById("codexStats")) return;
     let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
     const xp = s.xp | 0;
     const level = levelFromXp(xp);
@@ -7660,7 +8088,7 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
     const themeIcon = THEME_ICONS[getTheme()] || THEME_ICONS.cozy;
 
     const m = document.createElement("div");
-    m.id = "cozyStats";
+    m.id = "codexStats";
     m.className = "cs-modal-bg";
     m.innerHTML = `
       <div class="cs-modal-card">
@@ -7700,31 +8128,13 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
     document.addEventListener("keydown", onKey);
   }
 
-  function updateHero() {
-    let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
-    const xp = s.xp | 0;
-    const level = levelFromXp(xp);
-    const lvFloor = xpForLevel(level);
-    const lvCeil  = xpForLevel(level + 1);
-    const span = lvCeil - lvFloor;
-    const inLvl = xp - lvFloor;
-    const pct = span > 0 ? Math.min(100, Math.round(100 * inLvl / span)) : 0;
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set("cozyLevel", `Lv ${level}`);
-    set("cozyTitle", titleFor(level, getRanks()));
-    set("cozyXp",    fmt(xp));
-    set("cozyBarIn",   `${fmt(inLvl)} / ${fmt(span)} xp`);
-    set("cozyBarNext", `${fmt(span - inLvl)} to next`);
-    const bar = document.getElementById("cozyBar"); if (bar) bar.style.width = pct + "%";
-  }
-
   function injectBottomNav() {
-    if (document.getElementById("cozy-bottom-nav")) return;
+    if (document.getElementById("codex-bottom-nav")) return;
     const tabSel = ".tabs button[data-tab]";
     const sourceTabs = document.querySelectorAll(tabSel);
     if (!sourceTabs.length) return;
     const nav = document.createElement("div");
-    nav.id = "cozy-bottom-nav"; nav.className = "cozy-bottom-nav";
+    nav.id = "codex-bottom-nav"; nav.className = "codex-bottom-nav";
     sourceTabs.forEach(orig => {
       if (orig.style.display === "none") return;
       const tab = orig.dataset.tab; if (!tab) return;
@@ -7750,6 +8160,36 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
     syncActive();
   }
 
+  function injectTopCluster() {
+    if (document.getElementById("codex-top-cluster")) return;
+    const c = document.createElement("div");
+    c.id = "codex-top-cluster";
+    c.innerHTML = `
+      <div class="ctc-chip" id="ctc-streak" title="Day streak"><span>🔥</span><span id="ctc-streak-num">0</span></div>
+      <div class="ctc-chip" id="ctc-hp" title="Hearts"><span>❤️</span><span id="ctc-hp-num">5</span></div>
+      <button type="button" class="ctc-btn ctc-icon-only" id="ctc-fs" title="Fullscreen">⛶</button>
+      <button type="button" class="ctc-btn ctc-icon-only" id="ctc-menu" title="Settings menu">⚙</button>
+      <a class="ctc-btn ctc-hub" href="/" title="Back to NursingDuo hub">← Hub</a>
+    `;
+    document.body.appendChild(c);
+    const mirror = (srcId, dstId) => {
+      const src = document.getElementById(srcId);
+      const dst = document.getElementById(dstId);
+      if (!src || !dst) return;
+      const upd = () => { dst.textContent = src.textContent || "0"; };
+      upd();
+      new MutationObserver(upd).observe(src, { childList: true, characterData: true, subtree: true });
+    };
+    mirror("streak-count", "ctc-streak-num");
+    mirror("hearts-count", "ctc-hp-num");
+    c.querySelector("#ctc-fs").addEventListener("click", () => {
+      const fs = document.getElementById("fs-toggle"); if (fs) fs.click();
+    });
+    c.querySelector("#ctc-menu").addEventListener("click", () => {
+      const h = document.getElementById("hamburger-btn"); if (h) h.click();
+    });
+  }
+
   const origSet = Storage.prototype.setItem;
   Storage.prototype.setItem = function(k, v) {
     origSet.call(this, k, v);
@@ -7757,17 +8197,18 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
   };
 
   function boot() {
-    document.body.classList.add("cozy-on");
+    document.body.classList.add("codex-on");
+    applyTheme();
     injectHero();
     injectBottomNav();
     injectTopCluster();
-    applyTheme();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else setTimeout(boot, 0);
-  window.addEventListener("storage", (e) => { if (e.key === "quizpage:prefs") applyTheme(); });
+  window.addEventListener("storage", (e) => { if (e.key === "quizpage:prefs") { applyTheme(); updateHero(); } });
 })();
 </script>
+
 <script>
 /* ===== Cloud sync shim (Netlify Blobs) ===== */
 (function cloudSync(){
