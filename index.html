@@ -3,114 +3,530 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#f4ead0">
 <title>NursingDuo</title>
 <style>
+  /* ===== Cozy Fantasy theme — default ===== */
   :root {
-    --bg: #0a0a0f;
-    --card: #15151c;
-    --card-hover: #1c1c25;
-    --border: #26262f;
-    --text: #f4f4f6;
-    --muted: #8a8a98;
-    --accent: #6366f1;
-    --accent-2: #ec4899;
-    --success: #10b981;
-    --warning: #f59e0b;
+    --bg: #f4ead0;
+    --bg-2: #ece0b8;
+    --parch: #fcf5e0;
+    --parch-2: #f7ecc8;
+    --ink: #4a3520;
+    --ink-soft: #6b4f33;
+    --ink-mute: #9c7f5d;
+    --line: #c9b58a;
+    --line-soft: #ddc89a;
+    --amber: #c87a1f;
+    --amber-2: #a85d10;
+    --gold: #d4a039;
+    --crimson: #b94236;
+    --moss: #6b8a3a;
+    --indigo: #5b4ea3;
+    --shadow: 0 6px 18px rgba(74,53,32,0.18), 0 2px 4px rgba(74,53,32,0.10);
+    --shadow-deep: 0 12px 32px rgba(74,53,32,0.25), 0 4px 8px rgba(74,53,32,0.15);
+    --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; min-height: 100vh; }
-  body { padding: max(20px, env(safe-area-inset-top)) 20px max(40px, env(safe-area-inset-bottom)); max-width: 720px; margin: 0 auto; }
+  html, body {
+    margin: 0; padding: 0;
+    background:
+      radial-gradient(ellipse at top, rgba(212,160,57,0.18), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(107,138,58,0.10), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+    font: 16px/1.55 var(--font-body);
+    min-height: 100vh;
+  }
+  body {
+    padding: max(20px, env(safe-area-inset-top)) 18px max(40px, env(safe-area-inset-bottom));
+    max-width: 720px;
+    margin: 0 auto;
+  }
 
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
-  .brand { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .who { font-size: 13px; color: var(--muted); }
-  .who button { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; font: inherit; font-size: 12px; cursor: pointer; margin-left: 8px; }
-  .who button:hover { color: var(--text); border-color: var(--muted); }
+  /* ----- Floating chip (settings/account) ----- */
+  .chip {
+    position: fixed; top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right));
+    z-index: 50;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--parch);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 10px 6px 14px;
+    font: 600 13px/1 var(--font-body);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+  }
+  .chip-user { color: var(--ink-soft); }
+  .chip button {
+    background: transparent;
+    border: 0;
+    color: var(--ink-soft);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font: inherit;
+    font-size: 15px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .chip button:hover { background: var(--bg-2); color: var(--ink); }
 
-  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
-  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
-  .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; }
-  .stat-value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
-  .stat-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  /* ----- Brand ----- */
+  .brand {
+    font: 800 32px/1 var(--font-display);
+    color: var(--amber-2);
+    letter-spacing: 0.01em;
+    text-align: center;
+    margin: 8px 0 4px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.6), 0 2px 6px rgba(168,93,16,0.18);
+  }
+  .brand-sub {
+    text-align: center;
+    color: var(--ink-mute);
+    font: italic 13px/1.4 var(--font-display);
+    margin-bottom: 22px;
+    letter-spacing: 0.04em;
+  }
 
-  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 8px 0 14px; font-weight: 600; }
+  /* ----- Hero block (parchment card with rope-trim border) ----- */
+  .hero {
+    position: relative;
+    background:
+      linear-gradient(180deg, var(--parch), var(--parch-2));
+    border-radius: 18px;
+    padding: 22px 22px 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+  }
+  .hero::before {
+    /* inner ornament border */
+    content: "";
+    position: absolute; inset: 6px;
+    border: 1px dashed var(--line-soft);
+    border-radius: 12px;
+    pointer-events: none;
+  }
+  .hero-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .hero-rank {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-rank-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--gold), var(--amber));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 6px rgba(168,93,16,0.4);
+    border: 2px solid var(--parch);
+  }
+  .hero-rank-text { display: flex; flex-direction: column; }
+  .hero-level {
+    font: 700 13px/1 var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+  }
+  .hero-title {
+    font: 700 19px/1.1 var(--font-display);
+    color: var(--ink);
+    margin-top: 4px;
+  }
 
-  .course { display: block; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 12px; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
-  .course:hover { background: var(--card-hover); border-color: #36363f; }
-  .course:active { transform: scale(0.99); }
-  .course-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .course-name { font-size: 18px; font-weight: 700; }
-  .course-xp { font-size: 14px; color: var(--accent); font-weight: 600; }
-  .course-meta { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
+  .hero-streak {
+    background: rgba(185, 66, 54, 0.08);
+    border: 1px solid rgba(185, 66, 54, 0.22);
+    border-radius: 12px;
+    padding: 8px 12px;
+    text-align: center;
+    min-width: 78px;
+  }
+  .hero-streak-num {
+    font: 800 22px/1 var(--font-display);
+    color: var(--crimson);
+  }
+  .hero-streak-lbl {
+    font: 600 10px/1 var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-mute);
+    margin-top: 4px;
+  }
+
+  .hero-xp {
+    text-align: center;
+    margin: 14px 0 6px;
+  }
+  .hero-xp-num {
+    font: 800 48px/1 var(--font-display);
+    color: var(--amber-2);
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+  }
+  .hero-xp-num::before, .hero-xp-num::after {
+    content: "❇";
+    color: var(--gold);
+    font-size: 18px;
+    margin: 0 12px;
+    vertical-align: middle;
+    opacity: 0.8;
+  }
+  .hero-xp-sub {
+    font: 600 12px/1.4 var(--font-body);
+    color: var(--ink-mute);
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+
+  .xp-bar-wrap {
+    margin: 14px 4px 12px;
+    position: relative;
+  }
+  .xp-bar {
+    height: 14px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(74,53,32,0.18);
+  }
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--amber));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+    transition: width 0.6s cubic-bezier(.2,.8,.2,1);
+    border-radius: 7px 0 0 7px;
+  }
+  .xp-bar-fill.full { border-radius: 7px; }
+  .xp-bar-labels {
+    display: flex; justify-content: space-between;
+    margin-top: 6px;
+    font: 600 11px/1 var(--font-body);
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+  }
+  .xp-bar-next { color: var(--ink-soft); }
+
+  .week-dots {
+    display: flex; justify-content: center; gap: 6px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line-soft);
+  }
+  .wd {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .wd-label {
+    font: 600 9px/1 var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-mute);
+  }
+  .wd-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    border: 1.5px solid var(--line);
+  }
+  .wd.on .wd-dot {
+    background: radial-gradient(circle at 30% 30%, #ff8a4c, var(--crimson));
+    border-color: var(--crimson);
+    box-shadow: 0 0 8px rgba(185, 66, 54, 0.4);
+  }
+  .wd.today .wd-dot {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+
+  /* ----- Section heads ----- */
+  .section-head {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px;
+    margin: 26px 0 14px;
+    font: italic 600 15px/1 var(--font-display);
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+  }
+  .section-head::before, .section-head::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line), transparent);
+  }
+
+  /* ----- Quest list ----- */
+  .quests { background: var(--parch); border: 1px solid var(--line); border-radius: 14px; padding: 6px 0; box-shadow: var(--shadow); }
+  .quest {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px;
+    border-top: 1px dashed var(--line-soft);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+  }
+  .quest:first-of-type { border-top: 0; }
+  .quest:hover { background: var(--parch-2); }
+  .quest-info { display: flex; align-items: center; gap: 10px; }
+  .quest-icon { font-size: 18px; }
+  .quest-name { font: 600 15px/1.2 var(--font-display); color: var(--ink); }
+  .quest-meta { font: 500 12px/1 var(--font-body); color: var(--ink-mute); margin-top: 2px; letter-spacing: 0.02em; }
+  .quest-go {
+    background: linear-gradient(180deg, var(--amber), var(--amber-2));
+    color: #fff8e8;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font: 700 13px/1 var(--font-body);
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 6px rgba(168,93,16,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+    transition: transform 0.1s, box-shadow 0.15s;
+  }
+  .quest-go:active { transform: scale(0.96); box-shadow: 0 1px 3px rgba(168,93,16,0.4); }
+  .quest-clear { font: italic 12px/1 var(--font-display); color: var(--moss); }
+  .quest-empty { text-align: center; padding: 26px 16px; color: var(--ink-mute); font: italic 14px/1.4 var(--font-display); }
+
+  /* ----- Course tiles (codex pages) ----- */
+  .courses-grid { display: grid; gap: 12px; }
+  .course {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--parch);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+    transition: transform 0.12s ease, box-shadow 0.15s;
+    position: relative;
+  }
+  .course:hover { transform: translateY(-1px); box-shadow: var(--shadow-deep); }
+  .course-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .course-name { font: 700 17px/1.2 var(--font-display); color: var(--ink); }
+  .course-xp { font: 700 13px/1 var(--font-body); color: var(--amber-2); }
+  .course-meta { font: 500 12px/1.4 var(--font-body); color: var(--ink-mute); margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap; }
   .course-meta span { display: inline-flex; align-items: center; gap: 4px; }
-  .course-bar { margin-top: 10px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .course-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.4s; }
-  .course.soon { opacity: 0.55; cursor: not-allowed; }
-  .course.soon .course-xp { color: var(--warning); }
+  .course-bar { margin-top: 10px; height: 5px; background: var(--bg-2); border-radius: 3px; overflow: hidden; border: 1px solid var(--line-soft); }
+  .course-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--amber)); }
+  .course.soon { opacity: 0.7; }
+  .course.soon::after {
+    content: "🔒"; position: absolute; top: 14px; right: 16px;
+    font-size: 16px; color: var(--ink-mute);
+  }
+  .course.soon .course-name { color: var(--ink-mute); }
+  .course.soon .course-xp { color: var(--ink-mute); font-style: italic; font-weight: 500; }
 
-  .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 14px; }
+  /* ----- Modals (sign-in, settings) ----- */
+  .modal-bg {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(74,53,32,0.62);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-card {
+    background: var(--parch);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 380px; width: 100%;
+    box-shadow: var(--shadow-deep);
+    position: relative;
+  }
+  .modal-card::before {
+    content: ""; position: absolute; inset: 6px;
+    border: 1px dashed var(--line-soft); border-radius: 11px;
+    pointer-events: none;
+  }
+  .modal-title { font: 700 20px/1.2 var(--font-display); color: var(--ink); margin: 0 0 4px; position: relative; }
+  .modal-desc { color: var(--ink-soft); font-size: 14px; margin-bottom: 18px; position: relative; }
+  .modal-card label { display: block; margin-bottom: 12px; font: 600 13px/1.2 var(--font-body); color: var(--ink-soft); position: relative; }
+  .modal-card input[type=text], .modal-card input[type=password] {
+    width: 100%; padding: 10px 12px; margin-top: 6px;
+    background: #fffaea; color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font: 15px/1.2 var(--font-body);
+    box-sizing: border-box;
+  }
+  .modal-card input:focus { outline: 2px solid var(--amber); outline-offset: 0; border-color: var(--amber); }
+  .modal-card .btns { display: flex; gap: 10px; margin-top: 8px; position: relative; }
+  .btn-primary {
+    flex: 1; padding: 11px;
+    background: linear-gradient(180deg, var(--amber), var(--amber-2));
+    color: #fff8e8;
+    border: 0; border-radius: 10px;
+    font: 700 14px/1 var(--font-body);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(168,93,16,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-ghost {
+    padding: 11px 16px;
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font: 600 14px/1 var(--font-body);
+    cursor: pointer;
+  }
+  .modal-hint { font: italic 12px/1.4 var(--font-display); color: var(--ink-mute); margin-top: 14px; position: relative; }
+  .modal-close {
+    position: absolute; top: 10px; right: 12px;
+    width: 32px; height: 32px;
+    border: 0; background: transparent;
+    color: var(--ink-mute);
+    font-size: 22px;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  .modal-close:hover { background: var(--bg-2); color: var(--ink); }
 
-  .today { background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(236,72,153,0.10)); border: 1px solid rgba(99,102,241,0.3); border-radius: 14px; padding: 18px; margin-bottom: 12px; }
-  .today-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
-  .today-title { font-size: 16px; font-weight: 700; }
-  .today-total { font-size: 14px; color: var(--accent-2); font-weight: 600; }
-  .today-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06); }
-  .today-row:first-of-type { border-top: 0; }
-  .today-course { font-size: 14px; font-weight: 500; }
-  .today-due { font-size: 13px; color: var(--muted); margin-left: 8px; }
-  .today-btn { background: var(--accent); color: #fff; text-decoration: none; padding: 7px 14px; border-radius: 8px; font: inherit; font-size: 13px; font-weight: 600; transition: background 0.15s, transform 0.1s; }
-  .today-btn:hover { background: #5559e8; }
-  .today-btn:active { transform: scale(0.96); }
-  .today-btn.disabled { background: transparent; color: var(--muted); border: 1px solid var(--border); pointer-events: none; }
-  .today-zero { text-align: center; color: var(--muted); padding: 6px 0; font-size: 13px; }
+  /* Settings radio group */
+  .opt-group { position: relative; margin-bottom: 16px; }
+  .opt-group-label {
+    font: 700 12px/1 var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-mute);
+    margin-bottom: 8px;
+  }
+  .opt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+  .opt:hover { background: var(--parch-2); }
+  .opt input { accent-color: var(--amber); margin: 0; }
+  .opt-label { font: 600 14px/1.2 var(--font-body); color: var(--ink); }
+  .opt-sub { font: italic 12px/1 var(--font-display); color: var(--ink-mute); margin-left: 4px; }
+  .opt.locked { opacity: 0.5; cursor: not-allowed; }
+  .opt.locked input { pointer-events: none; }
 
-  /* sign-in modal — copy of the per-course shim modal */
-  #cs_modal { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  #cs_modal .mbox { background: #1a1a1a; color: #fff; padding: 24px; border-radius: 14px; max-width: 360px; width: 100%; font: 14px/1.5 system-ui, sans-serif; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
-  #cs_modal h2 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
-  #cs_modal .desc { opacity: 0.7; margin-bottom: 16px; }
-  #cs_modal label { display: block; margin-bottom: 10px; }
-  #cs_modal input { width: 100%; padding: 8px; margin-top: 4px; background: #000; color: #fff; border: 1px solid #444; border-radius: 6px; font: inherit; box-sizing: border-box; }
-  #cs_modal .btns { display: flex; gap: 8px; margin-top: 4px; }
-  #cs_modal button { padding: 10px; border: 0; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; }
-  #cs_modal .primary { flex: 1; background: var(--accent); color: #fff; }
-  #cs_modal .hint { font-size: 12px; opacity: 0.55; margin-top: 12px; }
+  @media (max-width: 480px) {
+    body { padding: max(14px, env(safe-area-inset-top)) 14px max(36px, env(safe-area-inset-bottom)); }
+    .brand { font-size: 28px; }
+    .hero { padding: 18px 16px 16px; }
+    .hero-xp-num { font-size: 40px; }
+    .hero-xp-num::before, .hero-xp-num::after { font-size: 14px; margin: 0 8px; }
+    .chip { padding: 5px 8px 5px 12px; font-size: 12px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="brand">NursingDuo</div>
-  <div class="who" id="who"></div>
+<div class="chip" id="chip" style="display:none;">
+  <span class="chip-user" id="chipUser"></span>
+  <button id="chipSettings" title="Settings" aria-label="Settings">⚙</button>
 </div>
 
-<div class="stat-row">
-  <div class="stat">
-    <div class="stat-label">Total XP</div>
-    <div class="stat-value" id="totalXp">—</div>
-    <div class="stat-sub" id="xpSub">across all courses</div>
+<div class="brand">NursingDuo</div>
+<div class="brand-sub">~ a study quest log ~</div>
+
+<!-- Hero -->
+<div class="hero" id="hero">
+  <div class="hero-row">
+    <div class="hero-rank">
+      <div class="hero-rank-icon">⚖️</div>
+      <div class="hero-rank-text">
+        <div class="hero-level" id="heroLevel">Lv —</div>
+        <div class="hero-title" id="heroTitle">Novice</div>
+      </div>
+    </div>
+    <div class="hero-streak">
+      <div class="hero-streak-num"><span id="streakNum">0</span>🔥</div>
+      <div class="hero-streak-lbl">day streak</div>
+    </div>
   </div>
-  <div class="stat">
-    <div class="stat-label">Day Streak</div>
-    <div class="stat-value" id="streak">—</div>
-    <div class="stat-sub" id="streakSub">best: —</div>
+
+  <div class="hero-xp">
+    <div class="hero-xp-num"><span id="totalXp">0</span></div>
+    <div class="hero-xp-sub">TOTAL EXPERIENCE</div>
   </div>
+
+  <div class="xp-bar-wrap">
+    <div class="xp-bar"><div class="xp-bar-fill" id="xpFill" style="width:0%"></div></div>
+    <div class="xp-bar-labels">
+      <span id="xpInLevel">0 xp</span>
+      <span class="xp-bar-next" id="xpToNext">— to next</span>
+    </div>
+  </div>
+
+  <div class="week-dots" id="weekDots"></div>
 </div>
 
-<div class="section-title">Today's Set</div>
+<div class="section-head">~ today's adventures ~</div>
 <div id="todaysSet"></div>
 
-<div class="section-title" style="margin-top:28px;">Your Courses</div>
-<div id="courses"></div>
+<div class="section-head">~ your studies ~</div>
+<div class="courses-grid" id="courses"></div>
 
 <script>
+/* ===== Theme system: visual + rank ladder ===== */
+const RANK_LADDERS = {
+  nursing: [
+    [1, "Novice"], [4, "Apprentice"], [10, "Practitioner"],
+    [18, "Charge Nurse"], [28, "Specialist"], [40, "Sage"],
+  ],
+  generic: [
+    [1, "Apprentice"], [8, "Adept"], [18, "Expert"],
+    [30, "Master"], [45, "Grandmaster"],
+  ],
+  // future: naruto, onepiece — drop in {ladder array, locked: true} until ready
+};
+const RANK_LOCKED = { naruto: true, onepiece: true };
+const RANK_LABELS = {
+  nursing: "Nursing path",
+  generic: "Generic RPG",
+  naruto: "Naruto (locked)",
+  onepiece: "One Piece (locked)",
+};
+function titleFor(level, ladderId) {
+  const ladder = RANK_LADDERS[ladderId] || RANK_LADDERS.nursing;
+  let title = ladder[0][1];
+  for (const [min, name] of ladder) if (level >= min) title = name;
+  return title;
+}
+
+const VISUAL_THEMES = { cozy: "Cozy Fantasy" };
+const VISUAL_LOCKED = { naruto: true, onepiece: true };
+
+const PREF_KEY = "quizpage:prefs";
+function getPrefs() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
+    return { theme: p.theme || "cozy", ranks: p.ranks || "nursing" };
+  } catch { return { theme: "cozy", ranks: "nursing" }; }
+}
+function setPrefs(p) { try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); } catch {} }
+
+/* ===== Level curve ===== */
+function levelFromXp(xp) { return Math.max(1, Math.floor(Math.sqrt((xp | 0) / 100)) + 1); }
+function xpForLevel(level) { return (level - 1) * (level - 1) * 100; }
+
+/* ===== SRS due calc (matches master) ===== */
+const BOX_INTERVAL = { 1:1, 2:2, 3:4, 4:8, 5:16 };
+function epochDay(d) { return Math.floor((d || Date.now()) / 86400000); }
+function countDue(state) {
+  if (!state || !state.srs || typeof state.srs !== "object") return 0;
+  const today = epochDay();
+  let n = 0;
+  for (const id in state.srs) {
+    const r = state.srs[id]; if (!r) continue;
+    const due = (r.lastSeen || 0) + (BOX_INTERVAL[r.box || 1] || 1);
+    if (due <= today) n++;
+  }
+  return n;
+}
+
+/* ===== Courses (registry — extend when adding) ===== */
 const COURSES = [
-  { id: "ns250", name: "NS250 — Med-Surg", storageKey: "quizpage:ns250medsurg-master", href: "/ns250", status: "live" },
-  { id: "ns216", name: "NS216 — Maternal-Newborn", storageKey: "quizpage:ns216maternalnewborn-master", href: "/ns216", status: "live" },
-  { id: "ns221", name: "NS221 — Pharmacology", storageKey: "quizpage:ns221pharmacology-master", href: "#", status: "soon" },
+  { id: "ns250", name: "Med-Surg",          storageKey: "quizpage:ns250medsurg-master",         href: "/ns250", status: "live", icon: "🩺" },
+  { id: "ns216", name: "Maternal-Newborn",  storageKey: "quizpage:ns216maternalnewborn-master", href: "/ns216", status: "live", icon: "🍼" },
+  { id: "ns221", name: "Pharmacology",      storageKey: "quizpage:ns221pharmacology-master",    href: "#",      status: "soon", icon: "💊" },
 ];
 
+/* ===== Auth ===== */
 const AUTH_KEY = "quizpage:cloudauth";
 const getAuth = () => { try { return JSON.parse(localStorage.getItem(AUTH_KEY) || "null"); } catch { return null; } };
 const setAuth = (a) => { try { localStorage.setItem(AUTH_KEY, JSON.stringify(a)); } catch {} };
@@ -131,20 +547,28 @@ async function api(action, extra = {}) {
   return res.json();
 }
 
+/* ===== Modals ===== */
+function closeModal(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
 function promptAuth(wrong) {
-  if (document.getElementById("cs_modal")) return;
+  if (document.getElementById("authModal")) return;
   const m = document.createElement("div");
-  m.id = "cs_modal";
+  m.id = "authModal";
+  m.className = "modal-bg";
   m.innerHTML = `
-    <div class="mbox">
-      <h2>☁️ Sign in</h2>
-      <div class="desc">${wrong ? "Wrong PIN. Try again." : "Sign in to see your progress across all courses."}</div>
-      <label>Username<br><input id="cs_u" autocomplete="username" autocapitalize="none" autocorrect="off"></label>
-      <label>PIN (4–8 digits)<br><input id="cs_p" type="password" inputmode="numeric" pattern="\\d*" autocomplete="current-password"></label>
+    <div class="modal-card">
+      <h2 class="modal-title">☁️ Enter the realm</h2>
+      <div class="modal-desc">${wrong ? "The PIN does not match. Try again, traveler." : "Sign in to carry your progress across devices."}</div>
+      <label>Username
+        <input type="text" id="cs_u" autocomplete="username" autocapitalize="none" autocorrect="off">
+      </label>
+      <label>PIN (4–8 digits)
+        <input type="password" id="cs_p" inputmode="numeric" pattern="\\d*" autocomplete="current-password">
+      </label>
       <div class="btns">
-        <button class="primary" id="cs_ok">Sign in</button>
+        <button class="btn-primary" id="cs_ok">Begin</button>
       </div>
-      <div class="hint">Use the same username + PIN you set in any course master.</div>
+      <div class="modal-hint">First time? Choose any username + PIN — that pair becomes your account.</div>
     </div>`;
   document.body.appendChild(m);
   const ok = () => {
@@ -161,21 +585,73 @@ function promptAuth(wrong) {
   setTimeout(() => m.querySelector("#cs_u").focus(), 50);
 }
 
-// SRS due calculation — matches master's BOX_INTERVAL + epochDay logic
-const BOX_INTERVAL = { 1:1, 2:2, 3:4, 4:8, 5:16 };
-function epochDay(d) { return Math.floor((d || Date.now()) / 86400000); }
-function countDue(state) {
-  if (!state || !state.srs || typeof state.srs !== "object") return 0;
-  const today = epochDay();
-  let n = 0;
-  for (const id in state.srs) {
-    const r = state.srs[id]; if (!r) continue;
-    const box = r.box || 1;
-    const due = (r.lastSeen || 0) + (BOX_INTERVAL[box] || 1);
-    if (due <= today) n++;
-  }
-  return n;
+function openSettings() {
+  if (document.getElementById("settingsModal")) return;
+  const prefs = getPrefs();
+  const auth = getAuth();
+  const m = document.createElement("div");
+  m.id = "settingsModal";
+  m.className = "modal-bg";
+  const visualOpts = Object.entries(VISUAL_THEMES).map(([id, label]) => `
+    <label class="opt${VISUAL_LOCKED[id] ? " locked" : ""}">
+      <input type="radio" name="visual" value="${id}" ${prefs.theme === id ? "checked" : ""} ${VISUAL_LOCKED[id] ? "disabled" : ""}>
+      <span class="opt-label">${label}</span>${VISUAL_LOCKED[id] ? `<span class="opt-sub">— locked</span>` : ""}
+    </label>
+  `).join("") + ["naruto", "onepiece"].map(id => `
+    <label class="opt locked">
+      <input type="radio" disabled> <span class="opt-label">${id === "naruto" ? "Naruto" : "One Piece"}</span><span class="opt-sub">— coming soon</span>
+    </label>
+  `).join("");
+  const rankOpts = Object.entries(RANK_LABELS).map(([id, label]) => `
+    <label class="opt${RANK_LOCKED[id] ? " locked" : ""}">
+      <input type="radio" name="ranks" value="${id}" ${prefs.ranks === id ? "checked" : ""} ${RANK_LOCKED[id] ? "disabled" : ""}>
+      <span class="opt-label">${label}</span>
+    </label>
+  `).join("");
+  m.innerHTML = `
+    <div class="modal-card">
+      <button class="modal-close" aria-label="Close" id="sx">×</button>
+      <h2 class="modal-title">⚙ Settings</h2>
+      <div class="modal-desc">Customize your study realm.</div>
+
+      <div class="opt-group">
+        <div class="opt-group-label">Visual theme</div>
+        ${visualOpts}
+      </div>
+
+      <div class="opt-group">
+        <div class="opt-group-label">Rank ladder</div>
+        ${rankOpts}
+      </div>
+
+      ${auth ? `
+        <div class="opt-group">
+          <div class="opt-group-label">Account</div>
+          <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">signed in as <strong>${auth.user}</strong></div>
+          <button class="btn-ghost" id="signoutBtn" style="width:100%">Sign out</button>
+        </div>` : ""}
+    </div>`;
+  document.body.appendChild(m);
+
+  m.querySelector("#sx").onclick = () => m.remove();
+  m.addEventListener("click", (e) => { if (e.target === m) m.remove(); });
+
+  m.querySelectorAll('input[name="visual"]').forEach(r => r.addEventListener("change", () => {
+    const p = getPrefs(); p.theme = r.value; setPrefs(p); applyTheme();
+  }));
+  m.querySelectorAll('input[name="ranks"]').forEach(r => r.addEventListener("change", () => {
+    const p = getPrefs(); p.ranks = r.value; setPrefs(p); render(lastSnapshot);
+  }));
+  const so = m.querySelector("#signoutBtn"); if (so) so.onclick = () => { clearAuth(); location.reload(); };
 }
+
+function applyTheme() {
+  // Single visual theme today; left here as the hook for future themes.
+  // const p = getPrefs(); document.documentElement.dataset.theme = p.theme;
+}
+
+/* ===== Render ===== */
+let lastSnapshot = { courses: {}, streak: null, activity: { days: {} } };
 
 function fmt(n) { return n == null ? "—" : new Intl.NumberFormat().format(n); }
 function relTime(ts) {
@@ -188,40 +664,56 @@ function relTime(ts) {
   return new Date(ts).toLocaleDateString();
 }
 
-function renderCourses(courseData) {
-  const wrap = document.getElementById("courses");
-  wrap.innerHTML = "";
+function renderHero(snapshot) {
+  const prefs = getPrefs();
+  // total XP
+  let totalXp = 0;
   for (const c of COURSES) {
-    const d = courseData && courseData[c.storageKey];
-    const state = d && d.state || null;
-    const xp = state ? (state.xp | 0) : 0;
-    const read = state && Array.isArray(state.read) ? state.read.length : 0;
-    const lastTs = d ? d.updatedAt : null;
-    const totalSections = state && state._totalSections ? state._totalSections : null; // optional hint
-    const pct = totalSections ? Math.min(100, Math.round(100 * read / totalSections)) : 0;
-
-    const isSoon = c.status === "soon";
-    const tag = `
-      <a class="course${isSoon ? " soon" : ""}" href="${isSoon ? "#" : c.href}"${isSoon ? ' onclick="return false"' : ""}>
-        <div class="course-head">
-          <div class="course-name">${c.name}</div>
-          <div class="course-xp">${isSoon ? "coming soon" : fmt(xp) + " XP"}</div>
-        </div>
-        <div class="course-meta">
-          ${isSoon ? `<span>build the master via /quizpage --course ${c.id.toUpperCase()}</span>` : `
-            <span>📚 ${read} section${read===1?"":"s"} read</span>
-            <span>⏱️ last: ${relTime(lastTs)}</span>
-          `}
-        </div>
-        ${isSoon || !totalSections ? "" : `<div class="course-bar"><div class="course-bar-fill" style="width:${pct}%"></div></div>`}
-      </a>`;
-    wrap.insertAdjacentHTML("beforeend", tag);
+    const d = snapshot.courses && snapshot.courses[c.storageKey];
+    if (d && d.state) totalXp += (d.state.xp | 0);
   }
+  const level = levelFromXp(totalXp);
+  const lvFloor = xpForLevel(level);
+  const lvCeil  = xpForLevel(level + 1);
+  const inLevel = totalXp - lvFloor;
+  const span    = lvCeil - lvFloor;
+  const pct     = span > 0 ? Math.min(100, Math.round(100 * inLevel / span)) : 0;
+  const title   = titleFor(level, prefs.ranks);
+
+  document.getElementById("heroLevel").textContent = `Lv ${level}`;
+  document.getElementById("heroTitle").textContent = title;
+  document.getElementById("totalXp").textContent = fmt(totalXp);
+  const fill = document.getElementById("xpFill");
+  fill.style.width = pct + "%";
+  fill.classList.toggle("full", pct >= 100);
+  document.getElementById("xpInLevel").textContent = `${fmt(inLevel)} / ${fmt(span)} xp`;
+  document.getElementById("xpToNext").textContent  = `${fmt(span - inLevel)} to next`;
+
+  const streak = snapshot.streak || { count: 0 };
+  document.getElementById("streakNum").textContent = (streak.count | 0);
+
+  renderWeekDots(snapshot.activity);
+}
+
+function renderWeekDots(activity) {
+  const wrap = document.getElementById("weekDots");
+  const today = epochDay();
+  const days = (activity && activity.days) || {};
+  const dayLabel = ["S","M","T","W","T","F","S"];
+  const todayDow = new Date().getDay(); // 0..6
+  let html = "";
+  for (let i = 6; i >= 0; i--) {
+    const d = today - i;
+    const dow = (todayDow - i + 7) % 7;
+    const on = !!days[d];
+    const isToday = i === 0;
+    html += `<div class="wd${on ? " on" : ""}${isToday ? " today" : ""}"><div class="wd-dot"></div><div class="wd-label">${dayLabel[dow]}</div></div>`;
+  }
+  wrap.innerHTML = html;
 }
 
 function renderTodaysSet(courseData) {
   const wrap = document.getElementById("todaysSet");
-  // Per-course due counts (live courses only)
   const rows = [];
   let total = 0;
   for (const c of COURSES) {
@@ -231,66 +723,101 @@ function renderTodaysSet(courseData) {
     total += due;
     rows.push({ c, due });
   }
-  const SUGGESTED_PER_COURSE = 7;
-  const html = `
-    <div class="today">
-      <div class="today-head">
-        <div class="today-title">🔁 Due now</div>
-        <div class="today-total">${total} card${total===1?"":"s"} across courses</div>
+  const SUGG = 7;
+  if (rows.length === 0) {
+    wrap.innerHTML = `<div class="quests"><div class="quest-empty">No realms unlocked yet.</div></div>`;
+    return;
+  }
+  if (total === 0) {
+    wrap.innerHTML = `<div class="quests"><div class="quest-empty">🌿 All quests cleared. Return tomorrow, brave one.</div></div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="quests">` + rows.map(r => {
+    if (r.due === 0) {
+      return `<div class="quest">
+        <div class="quest-info">
+          <span class="quest-icon">${r.c.icon || "📜"}</span>
+          <div>
+            <div class="quest-name">${r.c.name}</div>
+            <div class="quest-meta">no quests today</div>
+          </div>
+        </div>
+        <span class="quest-clear">cleared ✓</span>
+      </div>`;
+    }
+    const pick = Math.min(r.due, SUGG);
+    return `<a class="quest" href="${r.c.href}#tab=review">
+      <div class="quest-info">
+        <span class="quest-icon">${r.c.icon || "📜"}</span>
+        <div>
+          <div class="quest-name">${r.c.name}</div>
+          <div class="quest-meta">${r.due} due${pick < r.due ? ` · do ${pick}` : ""}</div>
+        </div>
       </div>
-      ${rows.length === 0 ? `<div class="today-zero">No courses live yet.</div>` :
-        total === 0 ? `<div class="today-zero">🎉 All caught up — nothing due today.</div>` :
-        rows.map(r => {
-          const pick = Math.min(r.due, SUGGESTED_PER_COURSE);
-          if (r.due === 0) return `
-            <div class="today-row">
-              <div><span class="today-course">${r.c.name}</span><span class="today-due">all clear</span></div>
-              <a class="today-btn disabled" href="#">—</a>
-            </div>`;
-          return `
-            <div class="today-row">
-              <div><span class="today-course">${r.c.name}</span><span class="today-due">${r.due} due${pick < r.due ? ` · do ${pick}` : ""}</span></div>
-              <a class="today-btn" href="${r.c.href}#tab=review">Study →</a>
-            </div>`;
-        }).join("")
-      }
-    </div>`;
-  wrap.innerHTML = html;
+      <span class="quest-go">pursue →</span>
+    </a>`;
+  }).join("") + `</div>`;
 }
 
-function renderTotals(courseData, serverStreak) {
-  let totalXp = 0;
+function renderCourses(courseData) {
+  const wrap = document.getElementById("courses");
+  wrap.innerHTML = "";
   for (const c of COURSES) {
     const d = courseData && courseData[c.storageKey];
-    const s = d && d.state;
-    if (!s) continue;
-    totalXp += (s.xp | 0);
+    const state = d && d.state || null;
+    const xp = state ? (state.xp | 0) : 0;
+    const read = state && Array.isArray(state.read) ? state.read.length : 0;
+    const lastTs = d ? d.updatedAt : null;
+
+    const isSoon = c.status === "soon";
+    const html = `
+      <a class="course${isSoon ? " soon" : ""}" href="${isSoon ? "#" : c.href}"${isSoon ? ' onclick="return false"' : ""}>
+        <div class="course-head">
+          <div class="course-name">${c.icon || ""} ${c.name}</div>
+          <div class="course-xp">${isSoon ? "sealed scroll" : fmt(xp) + " xp"}</div>
+        </div>
+        <div class="course-meta">
+          ${isSoon ? `<span>awaiting /quizpage --course ${c.id.toUpperCase()}</span>` : `
+            <span>📖 ${read} chapter${read===1?"":"s"} read</span>
+            <span>⏱ ${relTime(lastTs)}</span>
+          `}
+        </div>
+      </a>`;
+    wrap.insertAdjacentHTML("beforeend", html);
   }
-  document.getElementById("totalXp").textContent = fmt(totalXp);
-  const sc = (serverStreak && (serverStreak.count | 0)) || 0;
-  const sb = (serverStreak && (serverStreak.best  | 0)) || 0;
-  document.getElementById("streak").textContent = sc + "🔥";
-  document.getElementById("streakSub").textContent = sb > 0 ? "best: " + sb : "study any course to start";
 }
 
-function renderWho() {
-  const a = getAuth();
-  const el = document.getElementById("who");
-  if (!a) { el.innerHTML = ""; return; }
-  el.innerHTML = `${a.user} <button id="signout">sign out</button>`;
-  document.getElementById("signout").onclick = () => { clearAuth(); location.reload(); };
+function renderChip() {
+  const auth = getAuth();
+  const chip = document.getElementById("chip");
+  if (!auth) { chip.style.display = "none"; return; }
+  chip.style.display = "";
+  document.getElementById("chipUser").textContent = auth.user;
+}
+
+function render(snapshot) {
+  lastSnapshot = snapshot || lastSnapshot;
+  renderHero(lastSnapshot);
+  renderTodaysSet(lastSnapshot.courses || {});
+  renderCourses(lastSnapshot.courses || {});
+  renderChip();
 }
 
 async function boot() {
-  renderWho();
-  if (!getAuth()) { promptAuth(false); renderCourses({}); return; }
+  applyTheme();
+  if (!getAuth()) { renderChip(); render({ courses: {}, streak: null, activity: { days: {} } }); promptAuth(false); return; }
+  // Initial render with whatever we know (might just be empty)
+  render({ courses: {}, streak: null, activity: { days: {} } });
   const res = await api("list");
-  const courses = (res && res.courses) || {};
-  const streak  = (res && res.streak)  || null;
-  renderTotals(courses, streak);
-  renderTodaysSet(courses);
-  renderCourses(courses);
+  if (!res) return;
+  render({
+    courses: res.courses || {},
+    streak:  res.streak  || null,
+    activity: res.activity || { days: {} },
+  });
 }
+
+document.getElementById("chipSettings").addEventListener("click", openSettings);
 
 boot();
 </script>

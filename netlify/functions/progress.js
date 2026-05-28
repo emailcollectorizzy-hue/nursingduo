@@ -12,20 +12,32 @@ async function touchStreak(store, user) {
   const key = `streak/${user}`;
   const cur = (await store.get(key, { type: "json" })) || { count: 0, best: 0, lastDay: 0, freezes: 1 };
   const today = epochDay();
-  if (cur.lastDay === today) return cur; // already counted today
+  if (cur.lastDay === today) return cur;
   if (cur.lastDay === today - 1) {
     cur.count = (cur.count || 0) + 1;
   } else if (cur.lastDay === today - 2 && cur.freezes > 0) {
-    // one-day freeze auto-applied
     cur.freezes -= 1;
     cur.count = (cur.count || 0) + 1;
   } else if (cur.lastDay && cur.lastDay < today - 1) {
-    cur.count = 1; // streak broke
+    cur.count = 1;
   } else {
     cur.count = Math.max(1, cur.count | 0);
   }
   cur.best = Math.max(cur.best | 0, cur.count);
   cur.lastDay = today;
+  await store.setJSON(key, cur);
+  return cur;
+}
+
+// Activity: a single blob per user, an object {day: 1} marking each active day.
+// Keeps recent 90 days only, prunes older entries.
+async function touchActivity(store, user) {
+  const key = `activity/${user}`;
+  const cur = (await store.get(key, { type: "json" })) || { days: {} };
+  const today = epochDay();
+  cur.days[today] = 1;
+  const cutoff = today - 90;
+  for (const d in cur.days) { if (+d < cutoff) delete cur.days[d]; }
   await store.setJSON(key, cur);
   return cur;
 }
@@ -65,7 +77,8 @@ export default async (req) => {
       if (v) out[sk] = v;
     }
     const streak = (await store.get(`streak/${user}`, { type: "json" })) || { count: 0, best: 0, freezes: 1, lastDay: 0 };
-    return Response.json({ courses: out, streak });
+    const activity = (await store.get(`activity/${user}`, { type: "json" })) || { days: {} };
+    return Response.json({ courses: out, streak, activity });
   }
 
   if (action === "streak") {
@@ -96,6 +109,7 @@ export default async (req) => {
     }
     await store.setJSON(dataKey, { state, updatedAt });
     const streak = await touchStreak(store, user);
+    await touchActivity(store, user);
     return Response.json({ ok: true, updatedAt, streak });
   }
 
