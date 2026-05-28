@@ -9114,6 +9114,22 @@ body.codex-on.in-lesson main { padding-bottom: 0 !important; }
       }
     }
 
+    // Post-rating (or no conf-bar required) — any key advances. Captures J/K/L/;/M
+    // ' ', Enter, anything. Triggered when next-btn is visible AND either no conf-bar
+    // exists or the conf-bar has already been rated.
+    const nextBtn1 = nextId ? document.getElementById(nextId) : null;
+    const focusNext = document.getElementById("focus-next-btn") || document.getElementById("fc-next-btn");
+    const advanceBtn = (nextBtn1 && nextBtn1.offsetParent !== null && !nextBtn1.disabled) ? nextBtn1
+                     : (focusNext && focusNext.offsetParent !== null && !focusNext.disabled) ? focusNext
+                     : null;
+    const confDone  = !confBar || confBar.dataset.done;
+    if (advanceBtn && confDone) {
+      e.preventDefault();
+      advanceBtn.click();
+      __nd_lastKey = ""; __nd_lastKeyTime = 0;
+      return;
+    }
+
     const opts = scope.querySelectorAll(".q-option");
     if (!opts.length || idx >= opts.length) return;
 
