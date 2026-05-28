@@ -7968,6 +7968,11 @@ body[data-course-theme="onepiece"] .cs-sec-lbl::before, body[data-course-theme="
   .codex-hero { padding: 14px 16px 14px; }
   .codex-xp-num { font-size: 24px; }
 }
+/* Hide bottom nav when Cards tab is active — keyboard J/K/L/; ratings need
+   the full lower edge unobstructed. Re-enter other tabs via ⚙ drawer. */
+body.codex-on.on-cards #codex-bottom-nav { display: none !important; }
+body.codex-on.on-cards main { padding-bottom: 28px !important; }
+
 </style>
 <script>
 /* ===== Illuminated Codex reskin =====
@@ -8154,6 +8159,7 @@ body[data-course-theme="onepiece"] .cs-sec-lbl::before, body[data-course-theme="
       const active = document.querySelector(tabSel + ".active");
       const want = active ? active.dataset.tab : null;
       nav.querySelectorAll("button").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === want));
+      document.body.classList.toggle("on-cards", want === "cards");
     };
     const obs = new MutationObserver(syncActive);
     sourceTabs.forEach(btn => obs.observe(btn, { attributes: true, attributeFilter: ["class", "style"] }));
