@@ -8998,6 +8998,10 @@ body.codex-on #tab-home .home-tiles { margin-bottom: 12px; }
           <div class="cs-row"><div class="lbl">🩺 Scenarios</div><div class="val">${fmt(counts.sc)}</div></div>
         </div>
         <div class="cs-sec">
+          <div class="cs-sec-lbl">exam readiness</div>
+          <div class="cs-row"><div class="lbl">🎯 Readiness score</div><div class="val">${(document.getElementById("readiness-pct")?.textContent || "0")}%<span class="sub">· ${document.getElementById("readiness-tier")?.textContent || "—"}</span></div></div>
+        </div>
+        <div class="cs-sec">
           <div class="cs-sec-lbl">streak</div>
           <div class="cs-row"><div class="lbl">🔥 Current</div><div class="val">${ds.count | 0} day${(ds.count | 0) === 1 ? "" : "s"}</div></div>
           <div class="cs-row"><div class="lbl">🏆 Best</div><div class="val">${ds.best | 0} day${(ds.best | 0) === 1 ? "" : "s"}</div></div>
