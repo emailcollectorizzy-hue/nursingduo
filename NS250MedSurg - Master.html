@@ -8822,6 +8822,12 @@ body[data-course-theme="onepiece"] .cs-sec-lbl::before, body[data-course-theme="
 body.codex-on.on-cards #codex-bottom-nav { display: none !important; }
 body.codex-on.on-cards main { padding-bottom: 28px !important; }
 
+/* Focus mode (study quick-checks, flashcard gates) — hide all chrome so the
+   J/K/L/; rating buttons at the bottom aren't blocked. */
+body.codex-on.in-lesson #codex-bottom-nav,
+body.codex-on.in-lesson #codex-top-cluster { display: none !important; }
+body.codex-on.in-lesson main { padding-bottom: 0 !important; }
+
 </style>
 <script>
 /* ===== Illuminated Codex reskin =====
