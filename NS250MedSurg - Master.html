@@ -4520,8 +4520,20 @@ function masteryForSection(secId) { return MASTERY.filter(m => m.id.startsWith("
 
 function renderStudy() {
   const picker = document.getElementById("sec-jump");
-  picker.innerHTML = STUDY.map((s, i) =>
-    `<option value="${i}">${state.read.includes(s.id) ? "✓ " : ""}${escapeHtml(s.title)}</option>`
+  // Group by chapter so 102 flat options collapse into 9 native <optgroup> headers
+  const groups = {};
+  const chOrder = [];
+  STUDY.forEach((s, i) => {
+    const ch = s.chapter || (s.title.includes(" · ") ? s.title.split(" · ")[0] : "Sections");
+    const label = s.title.includes(" · ") ? s.title.split(" · ").slice(1).join(" · ") : s.title;
+    const locked = !sectionUnlocked(i);
+    const done = state.read.includes(s.id);
+    const prefix = done ? "✓ " : (locked ? "🔒 " : "");
+    if (!groups[ch]) { groups[ch] = []; chOrder.push(ch); }
+    groups[ch].push(`<option value="${i}"${locked ? " disabled" : ""}>${prefix}${escapeHtml(label)}</option>`);
+  });
+  picker.innerHTML = chOrder.map(ch =>
+    `<optgroup label="${escapeHtml(ch)}">${groups[ch].join("")}</optgroup>`
   ).join("");
   picker.value = currentSectionIdx;
   picker.addEventListener("change", () => goToSection(parseInt(picker.value)));
