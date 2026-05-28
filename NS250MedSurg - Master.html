@@ -1961,6 +1961,18 @@ body.in-lesson .focus-shell { display: flex; }
 </style>
 </head>
 <body data-theme="light">
+<script>
+/* FOUC guard — apply codex theme synchronously, before first paint */
+(function(){
+  try {
+    var p = JSON.parse(localStorage.getItem("quizpage:prefs") || "{}");
+    if (location.protocol === "http:" || location.protocol === "https:") {
+      document.body.classList.add("codex-on");
+      document.body.setAttribute("data-course-theme", p.theme || "cozy");
+    }
+  } catch(e) {}
+})();
+</script>
 <header class="app-header">
   <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu" title="Menu">☰</button>
   <button id="home-btn" class="hamburger-btn home-btn" aria-label="Home" title="Home">🏠</button>
@@ -9344,6 +9356,16 @@ body.codex-on .hearts .heart.gone {
   .journey-node { width: 46px; height: 46px; flex-basis: 46px; font-size: 14px; }
 }
 
+/* Paint optimization — off-screen decorations don't burn frames */
+body.codex-on .ach-grid,
+body.codex-on .journey-map,
+body.codex-on .powerup-bar,
+body.codex-on .daily-quests,
+body.codex-on .chest-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 320px;
+}
+
 </style>
 <script>
 /* ===== Illuminated Codex reskin =====
@@ -9361,6 +9383,14 @@ body.codex-on .hearts .heart.gone {
     onepiece: [[1,"Cabin Boy"],[4,"Pirate"],[10,"First Mate"],[18,"Captain"],[28,"Yonko"],[40,"Pirate King"]],
   };
   const THEME_ICONS = { cozy: "⚖️", naruto: "🍥", onepiece: "🏴‍☠️" };
+  let __nd_stateCache = null;
+  function readState() {
+    if (__nd_stateCache) return __nd_stateCache;
+    try { __nd_stateCache = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch { __nd_stateCache = {}; }
+    return __nd_stateCache;
+  }
+
   function titleFor(level, ladderId) {
     const l = RANK_LADDERS[ladderId] || RANK_LADDERS.nursing;
     let t = l[0][1]; for (const [m, n] of l) if (level >= m) t = n; return t;
@@ -9387,7 +9417,7 @@ body.codex-on .hearts .heart.gone {
     const home = document.getElementById("tab-home");
     if (!home) return;
 
-    let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
+    const s = readState();
     const xp = s.xp | 0;
     const level = levelFromXp(xp);
     const streak = (s.dayStreak && s.dayStreak.count | 0) || 0;
@@ -9415,7 +9445,8 @@ body.codex-on .hearts .heart.gone {
     if (typeof STUDY !== "undefined" && Array.isArray(STUDY) && STUDY.length) {
       const readSet = new Set(Array.isArray(s.read) ? s.read : []);
       let foundCurrent = false;
-      const nodes = STUDY.slice(0, 10).map((sec, i) => {
+      const initialN = 6;
+      const nodes = STUDY.slice(0, initialN).map((sec, i) => {
         const isRead = readSet.has(sec.id);
         let cls;
         if (isRead) cls = "done";
@@ -9521,6 +9552,40 @@ body.codex-on .hearts .heart.gone {
       home.insertBefore(rail, home.firstChild);
     }
 
+    // Lazy-render remaining journey nodes after first paint
+    if (typeof STUDY !== "undefined" && Array.isArray(STUDY) && STUDY.length > 6) {
+      const expand = () => {
+        const pathEl = rail.querySelector(".journey-path");
+        if (!pathEl || pathEl.dataset.expanded) return;
+        pathEl.dataset.expanded = "1";
+        const readSetL = new Set(Array.isArray(s.read) ? s.read : []);
+        let foundC = pathEl.querySelector(".journey-node.current") != null;
+        const frag = document.createDocumentFragment();
+        STUDY.slice(6, 16).forEach((sec, i) => {
+          const isRead = readSetL.has(sec.id);
+          let cls;
+          if (isRead) cls = "done";
+          else if (!foundC) { cls = "current"; foundC = true; }
+          else cls = "locked";
+          const label = (sec.title || "ch " + (i+7)).slice(0, 14).toLowerCase();
+          const div = document.createElement("div");
+          div.className = "journey-node " + cls;
+          div.dataset.sectionId = sec.id;
+          div.title = (sec.title || "");
+          div.innerHTML = (i+7) + '<span class="journey-node-label">' + label + '</span>';
+          if (cls !== "locked") {
+            div.addEventListener("click", () => {
+              if (typeof switchTab === "function") switchTab("study");
+            });
+          }
+          frag.appendChild(div);
+        });
+        pathEl.appendChild(frag);
+      };
+      if ("requestIdleCallback" in window) requestIdleCallback(expand, { timeout: 1200 });
+      else setTimeout(expand, 600);
+    }
+
     // Wire actions
     const start = document.getElementById("mission-start");
     if (start) start.addEventListener("click", () => {
@@ -9610,7 +9675,7 @@ body.codex-on .hearts .heart.gone {
   }
 
   function updateHero() {
-    let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
+    const s = readState();
     const xp = s.xp | 0;
     const level = levelFromXp(xp);
     const lvFloor = xpForLevel(level);
@@ -9629,7 +9694,7 @@ body.codex-on .hearts .heart.gone {
 
   function openStats() {
     if (document.getElementById("codexStats")) return;
-    let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
+    const s = readState();
     const xp = s.xp | 0;
     const level = levelFromXp(xp);
     const lvFloor = xpForLevel(level);
@@ -9832,7 +9897,7 @@ body.codex-on .hearts .heart.gone {
   const origSet = Storage.prototype.setItem;
   Storage.prototype.setItem = function(k, v) {
     origSet.call(this, k, v);
-    if (k === STORAGE_KEY) setTimeout(updateHero, 0);
+    if (k === STORAGE_KEY) { __nd_stateCache = null; setTimeout(updateHero, 0); }
   };
 
   function boot() {
