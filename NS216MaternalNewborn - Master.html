@@ -7395,15 +7395,16 @@ body.cozy-on #hub-back-btn {
   background: linear-gradient(135deg, #c87a1f, #8a4814) !important;
   border: 2px solid #fcf5e0 !important;
   color: #fff8e8 !important;
-  box-shadow: 0 4px 10px rgba(138,72,20,0.45), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-  border-radius: 14px !important;
+  box-shadow: 0 3px 8px rgba(138,72,20,0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  border-radius: 12px !important;
   font: 700 11px/1 "Iowan Old Style", Georgia, serif !important;
   letter-spacing: 0.04em;
-  padding: 9px 13px !important;
-  top: max(10px, env(safe-area-inset-top)) !important;
-  right: max(10px, env(safe-area-inset-right)) !important;
-  left: auto !important;
+  padding: 7px 11px !important;
+  position: static !important;
+  top: auto !important; right: auto !important; left: auto !important;
+  text-decoration: none;
 }
+body.cozy-on header.app-header .header-meta { gap: 8px; flex-wrap: nowrap; }
 
 body.cozy-on .btn {
   background: linear-gradient(180deg, var(--accent-1), var(--accent-2)) !important;
@@ -7793,14 +7794,21 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
     const btn = document.createElement("a");
     btn.id = "hub-back-btn";
     btn.href = "/";
-    btn.innerHTML = "← NursingDuo";
+    btn.innerHTML = "← Hub";
     btn.title = "Back to course select";
-    btn.style.cssText = "position:fixed;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));z-index:9998;font:600 12px/1 -apple-system,system-ui,sans-serif;text-decoration:none;color:#fff;background:rgba(20,20,28,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .1s ease,background .15s;";
-    btn.addEventListener("mouseenter", () => { btn.style.background = "rgba(35,35,45,.92)"; });
-    btn.addEventListener("mouseleave", () => { btn.style.background = "rgba(20,20,28,.88)"; });
+    btn.style.cssText = "font:600 12px/1 -apple-system,system-ui,sans-serif;text-decoration:none;color:#fff;background:rgba(20,20,28,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:7px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.14);box-shadow:0 2px 8px rgba(0,0,0,.25);transition:transform .1s ease,background .15s;";
     btn.addEventListener("touchstart", () => { btn.style.transform = "scale(.94)"; }, {passive:true});
     btn.addEventListener("touchend",   () => { btn.style.transform = ""; }, {passive:true});
-    document.body.appendChild(btn);
+    const meta = document.querySelector("header.app-header .header-meta");
+    if (meta) {
+      meta.insertBefore(btn, meta.firstChild);
+    } else {
+      btn.style.position = "fixed";
+      btn.style.top = "max(10px, env(safe-area-inset-top))";
+      btn.style.right = "max(10px, env(safe-area-inset-right))";
+      btn.style.zIndex = "9998";
+      document.body.appendChild(btn);
+    }
   }
   function applyHash() {
     const h = location.hash.slice(1);
