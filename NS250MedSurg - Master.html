@@ -8100,6 +8100,274 @@ if (!state.pipHidden) {
   setTimeout(() => floatPip.setState("happy", "Welcome back. Tap me if you need a tip.", 2800), 600);
 }
 </script>
+<style id="cozy-reskin-css">
+:root {
+  --bg: #f4ead0 !important;
+  --surface: #fcf5e0 !important;
+  --surface-2: #f7ecc8 !important;
+  --border: #c9b58a !important;
+  --text: #4a3520 !important;
+  --text-dim: #6b4f33 !important;
+  --accent-1: #c87a1f !important;
+  --accent-2: #a85d10 !important;
+  --gold: #d4a039 !important;
+  --due: #b94236 !important;
+  --success: #6b8a3a !important;
+}
+body.cozy-on {
+  background:
+    radial-gradient(ellipse at top, rgba(212,160,57,0.18), transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(107,138,58,0.10), transparent 60%),
+    var(--bg) !important;
+  background-attachment: fixed;
+}
+body.cozy-on header.app-header {
+  background: linear-gradient(180deg, var(--surface), var(--surface-2)) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(74,53,32,0.08);
+}
+body.cozy-on header.app-header .brand {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  color: var(--accent-2);
+  font-size: 18px;
+}
+body.cozy-on header.app-header .brand small { color: var(--text-dim); }
+body.cozy-on .tabs { display: none !important; }
+body.cozy-on .streak {
+  background: rgba(185,66,54,0.12) !important;
+  color: #8c2a1e !important;
+  border: 1px solid rgba(185,66,54,0.28);
+  border-radius: 12px !important;
+  font-weight: 700;
+}
+body.cozy-on #dark-toggle { display: none !important; }
+body.cozy-on main { padding-bottom: 90px !important; }
+
+.cozy-bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, #e6d2a3, #c9b58a);
+  border-top: 1px solid #a8956a;
+  padding: 4px max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  display: flex; gap: 2px;
+  justify-content: space-around;
+  box-shadow: 0 -4px 14px rgba(74,53,32,0.18);
+}
+.cozy-bottom-nav button {
+  flex: 1; min-width: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px 2px 4px;
+  font: 700 10px/1.2 -apple-system, system-ui, sans-serif;
+  color: #5a3f24;
+  cursor: pointer;
+  border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-height: 50px;
+  transition: background 0.15s, transform 0.1s;
+}
+.cozy-bottom-nav button .cn-icon { font-size: 19px; line-height: 1; }
+.cozy-bottom-nav button .cn-label { letter-spacing: 0.02em; }
+.cozy-bottom-nav button.active {
+  background: linear-gradient(180deg, #fcf5e0, #f0e0b0);
+  color: #4a3520;
+  border: 1px solid #b8a26a;
+  box-shadow: 0 2px 4px rgba(74,53,32,0.18), inset 0 1px 0 rgba(255,255,255,0.5);
+  transform: translateY(-1px);
+}
+.cozy-bottom-nav button:active { transform: scale(0.96); }
+
+.cozy-hero {
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin: 12px 0 18px;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(74,53,32,0.12);
+}
+.cozy-hero::before {
+  content: ""; position: absolute; inset: 4px;
+  border: 1px dashed rgba(201,181,138,0.55);
+  border-radius: 12px;
+  pointer-events: none;
+}
+.cozy-hero-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; position: relative; }
+.cozy-rank { display: flex; align-items: center; gap: 10px; }
+.cozy-rank-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #d4a039, #c87a1f);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  border: 2px solid #fcf5e0;
+  box-shadow: 0 2px 5px rgba(168,93,16,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.cozy-level { font: 700 10px/1 -apple-system, system-ui, sans-serif; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); }
+.cozy-title { font: 700 15px/1.1 "Iowan Old Style", "Palatino Linotype", Georgia, serif; color: var(--text); margin-top: 3px; }
+.cozy-xp { text-align: right; position: relative; }
+.cozy-xp-num { font: 800 24px/1 "Iowan Old Style", Georgia, serif; color: var(--accent-2); text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+.cozy-xp-sub { font: 700 9px/1 -apple-system, system-ui, sans-serif; color: var(--text-dim); letter-spacing: 0.1em; margin-top: 3px; text-transform: uppercase; }
+.cozy-hero-bar-wrap { margin-top: 12px; position: relative; }
+.cozy-hero-bar { height: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(74,53,32,0.15); }
+.cozy-hero-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--accent-1)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); transition: width 0.5s cubic-bezier(.2,.8,.2,1); }
+.cozy-hero-bar-label { display: flex; justify-content: space-between; margin-top: 4px; font: 600 10px/1 -apple-system, system-ui, sans-serif; color: var(--text-dim); letter-spacing: 0.04em; }
+
+body.cozy-on #hub-back-btn {
+  background: linear-gradient(135deg, #c87a1f, #8a4814) !important;
+  border: 2px solid #fcf5e0 !important;
+  color: #fff8e8 !important;
+  box-shadow: 0 4px 10px rgba(138,72,20,0.45), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  border-radius: 14px !important;
+  font: 700 11px/1 "Iowan Old Style", Georgia, serif !important;
+  letter-spacing: 0.04em;
+  padding: 9px 13px !important;
+  top: max(10px, env(safe-area-inset-top)) !important;
+  right: auto !important;
+  left: max(10px, env(safe-area-inset-left)) !important;
+}
+
+body.cozy-on .btn {
+  background: linear-gradient(180deg, var(--accent-1), var(--accent-2)) !important;
+  box-shadow: 0 3px 0 0 #6e3a08, 0 2px 6px rgba(168,93,16,0.4), inset 0 1px 0 rgba(255,255,255,0.35) !important;
+  color: #fff8e8 !important;
+  font-weight: 700;
+  border-radius: 12px !important;
+  border: 0 !important;
+}
+body.cozy-on .btn:active { transform: translateY(3px) !important; box-shadow: 0 0 0 0 #6e3a08 !important; }
+body.cozy-on .btn.secondary {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 2px 0 0 #b8a26a, 0 1px 3px rgba(74,53,32,0.15) !important;
+}
+body.cozy-on .btn.ghost {
+  background: transparent !important;
+  color: var(--accent-2) !important;
+  box-shadow: none !important;
+}
+body.cozy-on .stat-card, body.cozy-on .card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 2px 8px rgba(74,53,32,0.08) !important;
+}
+body.cozy-on .study-section strong { color: var(--accent-2) !important; }
+body.cozy-on .study-section h3 { color: var(--accent-2) !important; }
+body.cozy-on .study-section h4 { color: var(--accent-1) !important; }
+body.cozy-on .float-pip { filter: hue-rotate(-20deg) saturate(0.85); }
+</style>
+<script>
+(function cozyReskin(){
+  if (location.protocol !== "http:" && location.protocol !== "https:") return;
+  function levelFromXp(xp) { return Math.max(1, Math.floor(Math.sqrt((xp | 0) / 100)) + 1); }
+  function xpForLevel(level) { return (level - 1) * (level - 1) * 100; }
+  const RANK_LADDERS = {
+    nursing: [[1,"Novice"],[4,"Apprentice"],[10,"Practitioner"],[18,"Charge Nurse"],[28,"Specialist"],[40,"Sage"]],
+    generic: [[1,"Apprentice"],[8,"Adept"],[18,"Expert"],[30,"Master"],[45,"Grandmaster"]],
+  };
+  function titleFor(level, ladderId) {
+    const l = RANK_LADDERS[ladderId] || RANK_LADDERS.nursing;
+    let t = l[0][1]; for (const [m, n] of l) if (level >= m) t = n; return t;
+  }
+  function getRanks() {
+    try { const p = JSON.parse(localStorage.getItem("quizpage:prefs") || "{}"); return p.ranks || "nursing"; } catch { return "nursing"; }
+  }
+  function fmt(n) { return new Intl.NumberFormat().format(n | 0); }
+
+  function injectHero() {
+    if (document.getElementById("cozy-hero")) return;
+    const main = document.querySelector("main");
+    if (!main) return;
+    const h = document.createElement("div");
+    h.id = "cozy-hero"; h.className = "cozy-hero";
+    h.innerHTML = `
+      <div class="cozy-hero-row">
+        <div class="cozy-rank">
+          <div class="cozy-rank-icon">⚖️</div>
+          <div>
+            <div class="cozy-level" id="cozyLevel">Lv —</div>
+            <div class="cozy-title" id="cozyTitle">Novice</div>
+          </div>
+        </div>
+        <div class="cozy-xp">
+          <div class="cozy-xp-num"><span id="cozyXp">0</span></div>
+          <div class="cozy-xp-sub">EXPERIENCE</div>
+        </div>
+      </div>
+      <div class="cozy-hero-bar-wrap">
+        <div class="cozy-hero-bar"><div class="cozy-hero-bar-fill" id="cozyBar" style="width:0%"></div></div>
+        <div class="cozy-hero-bar-label"><span id="cozyBarIn">0 xp</span><span id="cozyBarNext">— to next</span></div>
+      </div>`;
+    main.insertBefore(h, main.firstChild);
+    updateHero();
+  }
+
+  function updateHero() {
+    let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
+    const xp = s.xp | 0;
+    const level = levelFromXp(xp);
+    const lvFloor = xpForLevel(level);
+    const lvCeil  = xpForLevel(level + 1);
+    const span = lvCeil - lvFloor;
+    const inLvl = xp - lvFloor;
+    const pct = span > 0 ? Math.min(100, Math.round(100 * inLvl / span)) : 0;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set("cozyLevel", `Lv ${level}`);
+    set("cozyTitle", titleFor(level, getRanks()));
+    set("cozyXp",    fmt(xp));
+    set("cozyBarIn",   `${fmt(inLvl)} / ${fmt(span)} xp`);
+    set("cozyBarNext", `${fmt(span - inLvl)} to next`);
+    const bar = document.getElementById("cozyBar"); if (bar) bar.style.width = pct + "%";
+  }
+
+  function injectBottomNav() {
+    if (document.getElementById("cozy-bottom-nav")) return;
+    const topTabs = document.querySelectorAll("header.app-header .tabs button");
+    if (!topTabs.length) return;
+    const nav = document.createElement("div");
+    nav.id = "cozy-bottom-nav"; nav.className = "cozy-bottom-nav";
+    topTabs.forEach(orig => {
+      if (orig.offsetParent === null && orig.style.display === "none") return;
+      const tab = orig.dataset.tab; if (!tab) return;
+      const txt = orig.textContent.trim();
+      const m = txt.match(/^(\S+)\s+(.*)$/);
+      const icon = m ? m[1] : "•";
+      const label = m ? m[2] : txt;
+      const b = document.createElement("button");
+      b.dataset.tab = tab; b.id = "cn-" + tab;
+      b.innerHTML = `<div class="cn-icon">${icon}</div><div class="cn-label">${label}</div>`;
+      if (orig.classList.contains("active")) b.classList.add("active");
+      b.addEventListener("click", () => { if (typeof switchTab === "function") switchTab(tab); });
+      nav.appendChild(b);
+    });
+    document.body.appendChild(nav);
+    const syncActive = () => {
+      const active = document.querySelector("header.app-header .tabs button.active");
+      const want = active ? active.dataset.tab : null;
+      nav.querySelectorAll("button").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === want));
+    };
+    const obs = new MutationObserver(syncActive);
+    document.querySelectorAll("header.app-header .tabs button").forEach(btn => obs.observe(btn, { attributes: true, attributeFilter: ["class", "style"] }));
+    syncActive();
+  }
+
+  const origSet = Storage.prototype.setItem;
+  Storage.prototype.setItem = function(k, v) {
+    origSet.call(this, k, v);
+    if (k === STORAGE_KEY) setTimeout(updateHero, 0);
+  };
+
+  function boot() {
+    document.body.classList.add("cozy-on");
+    injectHero();
+    injectBottomNav();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else setTimeout(boot, 0);
+})();
+</script>
 <script>
 /* ===== Cloud sync shim (Netlify Blobs) ===== */
 (function cloudSync(){
