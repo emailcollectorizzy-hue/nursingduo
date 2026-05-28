@@ -1833,14 +1833,24 @@ body.in-lesson .focus-shell { display: flex; }
 </head>
 <body data-theme="light">
 <script>
-/* FOUC guard — apply codex theme synchronously, before first paint */
+/* FOUC guard — synchronously paint cozy parchment before anything else renders */
 (function(){
   try {
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;
     var p = JSON.parse(localStorage.getItem("quizpage:prefs") || "{}");
-    if (location.protocol === "http:" || location.protocol === "https:") {
-      document.body.classList.add("codex-on");
-      document.body.setAttribute("data-course-theme", p.theme || "cozy");
-    }
+    var t = p.theme || "cozy";
+    var bgs = { cozy: "#f1e6c8", naruto: "#fbf2dc", onepiece: "#ecdfb8" };
+    document.documentElement.style.background = bgs[t] || bgs.cozy;
+    document.body.classList.add("codex-on");
+    document.body.classList.add("booting");
+    document.body.setAttribute("data-course-theme", t);
+    document.body.setAttribute("data-theme", "light");  // veto master dark mode while codex-on
+    // Drop .booting on first frame so transitions / mascot bob etc. can start
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        document.body.classList.remove("booting");
+      });
+    });
   } catch(e) {}
 })();
 </script>
@@ -8517,6 +8527,24 @@ body.codex-on .chest-card {
   contain-intrinsic-size: 0 320px;
 }
 
+/* Pre-paint guard — disables transitions/animations during the boot window so
+   nothing strobes while the master and codex CSS are settling. Removed by FOUC. */
+body.codex-on.booting *,
+body.codex-on.booting *::before,
+body.codex-on.booting *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Veto master dark-mode tokens whenever codex is on. Codex !important already
+   covers --bg/--surface/--text/--accent, but lock data-theme=dark from doing
+   anything unexpected here. */
+body.codex-on[data-theme="dark"],
+body.codex-on[data-theme="catppuccin"] {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
 </style>
 <script>
 /* ===== Illuminated Codex reskin =====
@@ -9050,6 +9078,21 @@ body.codex-on .chest-card {
     origSet.call(this, k, v);
     if (k === STORAGE_KEY) { __nd_stateCache = null; setTimeout(updateHero, 0); }
   };
+
+
+  // Lock master applyTheme — codex-on always keeps data-theme="light"
+  try {
+    if (typeof window.applyTheme === "function") {
+      const _origApplyTheme = window.applyTheme;
+      window.applyTheme = function(){
+        const r = _origApplyTheme.apply(this, arguments);
+        if (document.body.classList.contains("codex-on")) {
+          document.body.setAttribute("data-theme", "light");
+        }
+        return r;
+      };
+    }
+  } catch(e) {}
 
   function boot() {
     document.body.classList.add("codex-on");
