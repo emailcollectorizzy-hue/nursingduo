@@ -617,7 +617,6 @@
     overflow: hidden;
   }
   .course:hover {
-    transform: translateY(-1px);
     box-shadow: var(--shadow);
     border-color: var(--amber);
   }
@@ -1039,6 +1038,219 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
+
+  /* ============================================================
+     Fun & interactive — tasteful motion layer
+     ============================================================ */
+
+  /* Hero avatar — idle float + halo */
+  .hero-avatar {
+    animation: avatar-float 4.6s ease-in-out infinite;
+    will-change: transform;
+    cursor: pointer;
+  }
+  .hero-avatar::before {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--gold-light) 0%, transparent 65%);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .hero:hover .hero-avatar::before { opacity: 0.55; }
+  .hero-avatar.streak-tier-1::before { opacity: 0.20; }
+  .hero-avatar.streak-tier-2::before { opacity: 0.32; }
+  .hero-avatar.streak-tier-3::before {
+    opacity: 0.45;
+    animation: halo-pulse 2.8s ease-in-out infinite;
+  }
+  @keyframes avatar-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+  }
+  @keyframes halo-pulse {
+    0%, 100% { opacity: 0.32; }
+    50%      { opacity: 0.62; }
+  }
+  .hero-avatar.bump {
+    animation: avatar-bump 0.55s cubic-bezier(.2, 1.5, .4, 1);
+  }
+  @keyframes avatar-bump {
+    0%   { transform: scale(1)      rotate(0deg); }
+    35%  { transform: scale(1.20)   rotate(-6deg); }
+    70%  { transform: scale(0.95)   rotate(3deg); }
+    100% { transform: scale(1)      rotate(0deg); }
+  }
+
+  /* Streak flame flicker (only when streak ≥ 1) */
+  .hero-streak.live .hero-streak-flame {
+    animation: flame-flicker 1.7s ease-in-out infinite;
+  }
+  @keyframes flame-flicker {
+    0%, 100% { transform: scale(1)    rotate(0deg);  }
+    30%      { transform: scale(1.08) rotate(-4deg); }
+    65%      { transform: scale(0.94) rotate(3deg);  }
+  }
+
+  /* XP bar — soft shimmer riding the fill */
+  .xp-bar-fill { position: relative; overflow: hidden; }
+  .xp-bar-fill::after {
+    content: "";
+    position: absolute; top: 0; bottom: 0; left: 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.50), transparent);
+    transform: translateX(-100%);
+    animation: xp-shimmer 3.2s ease-in-out 1.2s infinite;
+    pointer-events: none;
+  }
+  @keyframes xp-shimmer {
+    0%   { transform: translateX(-120%); }
+    55%  { transform: translateX(420%); }
+    100% { transform: translateX(420%); }
+  }
+
+  /* Week bars — stagger-cascade in on render */
+  .wb-bar { transform-origin: bottom; }
+  .wb.fresh .wb-bar { animation: wb-rise 0.55s cubic-bezier(.2, .85, .25, 1) backwards; }
+  .wb.fresh:nth-child(1) .wb-bar { animation-delay: 0.05s; }
+  .wb.fresh:nth-child(2) .wb-bar { animation-delay: 0.10s; }
+  .wb.fresh:nth-child(3) .wb-bar { animation-delay: 0.15s; }
+  .wb.fresh:nth-child(4) .wb-bar { animation-delay: 0.20s; }
+  .wb.fresh:nth-child(5) .wb-bar { animation-delay: 0.25s; }
+  .wb.fresh:nth-child(6) .wb-bar { animation-delay: 0.30s; }
+  .wb.fresh:nth-child(7) .wb-bar { animation-delay: 0.35s; }
+  @keyframes wb-rise {
+    from { transform: scaleY(0); opacity: 0; }
+    to   { transform: scaleY(1); opacity: 1; }
+  }
+  /* Today's bar gets a gentle pulse if user has logged activity today */
+  .wb.today.on .wb-bar { animation: today-pulse 2.4s ease-in-out infinite; }
+  @keyframes today-pulse {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.18); }
+  }
+
+  /* Brand drop-cap — hover glow + click sparkle */
+  .brand-initial {
+    cursor: pointer;
+    user-select: none;
+    transition: filter 0.2s, transform 0.15s;
+  }
+  .brand-initial:hover {
+    filter: drop-shadow(0 0 10px var(--gold-light)) drop-shadow(0 1px 0 rgba(255,255,255,0.5));
+    transform: translateY(0.04em) scale(1.05);
+  }
+  .brand-initial:active { transform: translateY(0.04em) scale(0.95); }
+  .brand-sparkle {
+    position: fixed;
+    pointer-events: none;
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-size: 16px;
+    z-index: 1000;
+    opacity: 0;
+    animation: brand-spark 0.95s ease-out forwards;
+    text-shadow: 0 0 6px var(--gold-light);
+  }
+  @keyframes brand-spark {
+    0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx, 30px)), calc(-50% + var(--dy, -40px))) scale(1.3) rotate(40deg); opacity: 0; }
+  }
+
+  /* Course tile parallax tilt — cursor-tracking */
+  .course {
+    transform-origin: center center;
+    transform:
+      perspective(900px)
+      rotateX(var(--rx, 0deg))
+      rotateY(var(--ry, 0deg))
+      translateY(var(--ty, 0px))
+      translateZ(0);
+    transition: transform 0.16s ease-out, box-shadow 0.18s ease, border-color 0.18s;
+  }
+  .course:hover {
+    --ty: -2px;
+    /* (existing translateY(-1px) is replaced via --ty) */
+  }
+  .course-accent {
+    transition: transform 0.18s ease;
+  }
+  .course:hover .course-accent { transform: scaleY(1.04) translateY(-1px); }
+
+  /* Pursue button — arrow slides on hover */
+  .quest-go .arrow {
+    display: inline-block;
+    transition: transform 0.18s ease;
+  }
+  .quest:hover .quest-go .arrow { transform: translateX(4px); }
+  .quest-go { overflow: hidden; }
+
+  /* All-clear celebration ring */
+  .quests.all-clear {
+    box-shadow: var(--shadow-sm),
+                0 0 0 1px color-mix(in oklch, var(--moss) 25%, transparent),
+                0 0 24px color-mix(in oklch, var(--moss) 20%, transparent);
+    animation: all-clear-pulse 3.6s ease-in-out infinite;
+  }
+  @keyframes all-clear-pulse {
+    0%, 100% { box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in oklch, var(--moss) 25%, transparent), 0 0 18px color-mix(in oklch, var(--moss) 16%, transparent); }
+    50%      { box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in oklch, var(--moss) 30%, transparent), 0 0 32px color-mix(in oklch, var(--moss) 28%, transparent); }
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed; top: -28px;
+    pointer-events: none;
+    font: 600 18px/1 var(--font-display);
+    z-index: 999;
+    user-select: none;
+    will-change: transform;
+  }
+  @keyframes confetti-fall {
+    0%   { transform: translateY(0)      rotate(0deg);   opacity: 1;   }
+    100% { transform: translateY(110vh)  rotate(720deg); opacity: 0.1; }
+  }
+
+  /* "+N XP" floating chip when hero numbers change */
+  .xp-float {
+    position: absolute;
+    font: 700 16px/1 var(--font-display);
+    color: var(--gold);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+    pointer-events: none;
+    animation: xp-float 1.4s ease-out forwards;
+    z-index: 5;
+  }
+  @keyframes xp-float {
+    0%   { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+    20%  { opacity: 1; transform: translate(-50%, -8px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -42px) scale(1.1); }
+  }
+
+  /* Easter egg: rainbow theme cycle */
+  body.themeshuffle {
+    animation: theme-shuffle 0.9s ease-in-out 5;
+  }
+  @keyframes theme-shuffle {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50%      { filter: hue-rotate(60deg); }
+  }
+
+  /* Footer mark — drift on hover */
+  .foot-mark .glyph { display: inline-block; transition: transform 0.3s ease; }
+  .foot-mark:hover .glyph:first-of-type { transform: translateX(-3px) rotate(-15deg); }
+  .foot-mark:hover .glyph:last-of-type  { transform: translateX(3px)  rotate(15deg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-avatar, .hero-streak.live .hero-streak-flame, .wb.fresh .wb-bar,
+    .xp-bar-fill::after, .quests.all-clear, .wb.today.on .wb-bar, .confetti-piece, body.themeshuffle {
+      animation: none !important;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -1446,6 +1658,23 @@ function relTime(ts) {
   return new Date(ts).toLocaleDateString();
 }
 
+/* ===== Count-up + interactivity helpers ===== */
+let firstRender = true;
+function countUp(el, target, dur = 900) {
+  if (!el) return;
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) { el.textContent = fmt(target); return; }
+  const start = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = fmt(Math.floor(target * eased));
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = fmt(target);
+  };
+  requestAnimationFrame(step);
+}
+
 function renderHero(snapshot) {
   const prefs = getPrefs();
   let totalXp = 0;
@@ -1464,7 +1693,8 @@ function renderHero(snapshot) {
   document.getElementById("heroLevel").textContent = `Level ${level}`;
   document.getElementById("heroTitle").textContent = title;
   document.getElementById("heroPathTag").textContent = (RANK_LABELS[prefs.ranks] || "Nursing path").toLowerCase();
-  document.getElementById("totalXp").textContent = fmt(totalXp);
+  const xpEl = document.getElementById("totalXp");
+  if (firstRender) countUp(xpEl, totalXp); else xpEl.textContent = fmt(totalXp);
   const fill = document.getElementById("xpFill");
   fill.style.width = pct + "%";
   fill.classList.toggle("full", pct >= 100);
@@ -1472,7 +1702,17 @@ function renderHero(snapshot) {
   document.getElementById("xpToNext").textContent  = `${fmt(span - inLevel)} to next`;
 
   const streak = snapshot.streak || { count: 0 };
-  document.getElementById("streakNum").textContent = (streak.count | 0);
+  const streakNumEl = document.getElementById("streakNum");
+  const streakCount = streak.count | 0;
+  if (firstRender) countUp(streakNumEl, streakCount, 700); else streakNumEl.textContent = fmt(streakCount);
+  // Streak-tier glow on avatar
+  const avatar = document.getElementById("heroAvatar");
+  avatar.classList.remove("streak-tier-1", "streak-tier-2", "streak-tier-3");
+  if (streakCount >= 30)      avatar.classList.add("streak-tier-3");
+  else if (streakCount >= 7)  avatar.classList.add("streak-tier-2");
+  else if (streakCount >= 1)  avatar.classList.add("streak-tier-1");
+  // Flame flicker only when there IS a streak
+  document.getElementById("heroStreakBox").classList.toggle("live", streakCount > 0);
 
   renderWeekBars(snapshot.activity);
 }
@@ -1496,7 +1736,7 @@ function renderWeekBars(activity) {
   let html = "";
   for (const v of values) {
     const h = v.on ? Math.max(20, Math.round(100 * v.num / maxV)) : 8;
-    html += `<div class="wb${v.on ? " on" : ""}${v.isToday ? " today" : ""}">
+    html += `<div class="wb${v.on ? " on" : ""}${v.isToday ? " today" : ""}${firstRender ? " fresh" : ""}">
       <div class="wb-track"><div class="wb-bar" style="height:${h}%"></div></div>
       <div class="wb-label">${dayLabel[v.dow]}</div>
     </div>`;
@@ -1521,7 +1761,7 @@ function renderTodaysSet(courseData) {
     return;
   }
   if (total === 0) {
-    wrap.innerHTML = `<div class="quests"><div class="quest-empty"><span class="emoji">🌿</span>All quests cleared. Return tomorrow, brave one.</div></div>`;
+    wrap.innerHTML = `<div class="quests all-clear"><div class="quest-empty"><span class="emoji">🌿</span>All quests cleared. Return tomorrow, brave one.</div></div>`;
     return;
   }
   wrap.innerHTML = `<div class="quests">` + rows.map(r => {
@@ -1612,6 +1852,13 @@ function render(snapshot) {
   renderTodaysSet(lastSnapshot.courses || {});
   renderCourses(lastSnapshot.courses || {});
   renderChip();
+  if (firstRender) {
+    setupInteractions();
+    firstRender = false;
+  } else {
+    // Re-wire tilt on freshly-rendered course tiles
+    wireCourseTilt();
+  }
 }
 
 /* ===== Demo data (preview only) ===========================
@@ -1679,6 +1926,128 @@ document.getElementById("chipSettings").addEventListener("click", openSettings);
 const heroEl = document.getElementById("hero");
 heroEl.addEventListener("click", openStats);
 heroEl.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openStats(); } });
+
+/* ===== Fun & interactive bits ===== */
+
+// Course tile parallax tilt — cursor-tracking 3D, capped to keep it tasteful
+function wireCourseTilt() {
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) return;
+  document.querySelectorAll(".course").forEach(card => {
+    if (card._tiltWired) return;
+    card._tiltWired = true;
+    card.addEventListener("mousemove", e => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width  - 0.5;
+      const py = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.setProperty("--ry", (px *  6).toFixed(2) + "deg");
+      card.style.setProperty("--rx", (-py * 4).toFixed(2) + "deg");
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.setProperty("--ry", "0deg");
+      card.style.setProperty("--rx", "0deg");
+    });
+  });
+}
+
+// Sparkle burst near a given element
+function sparkleBurst(originEl, count = 8, glyphs = "✦❦✧✨") {
+  const rect = originEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement("span");
+    s.className = "brand-sparkle";
+    s.textContent = glyphs[i % glyphs.length];
+    s.style.left = cx + "px";
+    s.style.top  = cy + "px";
+    const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+    const dist  = 40 + Math.random() * 28;
+    s.style.setProperty("--dx", (Math.cos(angle) * dist).toFixed(0) + "px");
+    s.style.setProperty("--dy", (Math.sin(angle) * dist).toFixed(0) + "px");
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+}
+
+// Confetti — cascading ❦ glyphs in theme accent colors
+function confetti(n = 32) {
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) return;
+  const glyphs  = "❦✦✧✨⭐❉".split("");
+  const palette = ["var(--gold)", "var(--amber)", "var(--crimson)", "var(--moss)", "var(--teal)"];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement("span");
+    c.className = "confetti-piece";
+    c.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+    c.style.left = (Math.random() * 100) + "vw";
+    c.style.color = palette[Math.floor(Math.random() * palette.length)];
+    c.style.animation = `confetti-fall ${1.8 + Math.random() * 1.4}s linear ${(Math.random() * 0.5).toFixed(2)}s forwards`;
+    c.style.fontSize = (14 + Math.random() * 12) + "px";
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3800);
+  }
+}
+
+// Hero avatar — click to bump; 5 quick clicks = confetti
+let avatarClicks = 0;
+let avatarClickTimer = null;
+const heroAvatarEl = document.getElementById("heroAvatar");
+heroAvatarEl.addEventListener("click", e => {
+  e.stopPropagation(); // don't open the stats modal
+  heroAvatarEl.classList.remove("bump");
+  void heroAvatarEl.offsetWidth; // reflow to restart anim
+  heroAvatarEl.classList.add("bump");
+  avatarClicks++;
+  clearTimeout(avatarClickTimer);
+  avatarClickTimer = setTimeout(() => { avatarClicks = 0; }, 1400);
+  if (avatarClicks >= 5) {
+    avatarClicks = 0;
+    confetti();
+  }
+});
+
+// Brand drop-cap — click for sparkle; 7 clicks = theme shuffle easter egg
+let initialClicks = 0;
+let initialClickTimer = null;
+const brandInitialEl = document.querySelector(".brand-initial");
+brandInitialEl.addEventListener("click", e => {
+  e.stopPropagation();
+  sparkleBurst(brandInitialEl, 8);
+  initialClicks++;
+  clearTimeout(initialClickTimer);
+  initialClickTimer = setTimeout(() => { initialClicks = 0; }, 2000);
+  if (initialClicks >= 7) {
+    initialClicks = 0;
+    runThemeShuffle();
+  }
+});
+
+// Easter egg — quickly cycle through all themes then settle on original
+function runThemeShuffle() {
+  const themes = ["cozy", "naruto", "onepiece"];
+  const orig = getPrefs().theme || "cozy";
+  document.body.classList.add("themeshuffle");
+  let i = 0;
+  const tick = setInterval(() => {
+    document.body.removeAttribute("data-theme");
+    const t = themes[i % themes.length];
+    if (t !== "cozy") document.body.setAttribute("data-theme", t);
+    i++;
+    if (i >= 9) {
+      clearInterval(tick);
+      document.body.classList.remove("themeshuffle");
+      // Restore user's actual theme
+      if (orig && orig !== "cozy") document.body.setAttribute("data-theme", orig);
+      else document.body.removeAttribute("data-theme");
+      confetti(24);
+    }
+  }, 380);
+}
+
+function setupInteractions() {
+  wireCourseTilt();
+}
 
 boot();
 </script>

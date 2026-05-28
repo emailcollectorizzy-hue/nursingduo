@@ -8028,6 +8028,473 @@ body.codex-on #tab-home .home-tiles { margin-bottom: 12px; }
   font-variant-numeric: tabular-nums;
 }
 
+/* ============================================================================
+   Gamification layer — mission card, power-ups, journey map, daily quests,
+   treasure chest, achievements. Markup injected by JS into #tab-home.
+   ============================================================================ */
+
+/* Hearts chip (replaces the simple ctc-hp readout) */
+body.codex-on .hearts {
+  display: inline-flex; gap: 3px; align-items: center;
+  font: 700 12px/1 var(--font-body);
+  color: var(--text);
+}
+body.codex-on .hearts .heart {
+  font-size: 13px; display: inline-block;
+  filter: drop-shadow(0 0 3px rgba(255,80,80,0.5));
+  transition: filter 0.25s, transform 0.2s;
+}
+body.codex-on .hearts .heart.gone {
+  filter: grayscale(1) brightness(0.4); opacity: 0.45;
+}
+
+/* Mission card */
+.mission-card {
+  position: relative;
+  background: var(--card-bg-image), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 22px 20px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.mission-card::before {
+  content: ""; position: absolute; inset: 8px;
+  border: 1px var(--border-style) var(--border-soft);
+  border-radius: calc(var(--radius-lg) - 7px);
+  pointer-events: none; opacity: 0.6;
+}
+.mission-card::after {
+  content: ""; position: absolute; right: -80px; top: -60px;
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, var(--accent-1-glow) 0%, transparent 70%);
+  pointer-events: none;
+  animation: mission-glow 6s ease-in-out infinite;
+}
+@keyframes mission-glow { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:.9;transform:scale(1.08)} }
+.mission-head { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+.mission-mascot {
+  width: 64px; height: 64px; flex: 0 0 64px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255,255,255,0.55), transparent 55%),
+    linear-gradient(135deg, var(--gold-soft), var(--gold), var(--accent-1));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  border: 3px solid var(--surface);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -3px 8px rgba(110,58,5,0.30), 0 6px 16px var(--accent-1-glow);
+  animation: mascot-bob 4.2s ease-in-out infinite;
+}
+@keyframes mascot-bob { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-4px) rotate(2deg)} }
+.mission-body { flex: 1; min-width: 0; }
+.mission-eyebrow {
+  font: 700 10px/1 var(--font-body);
+  text-transform: uppercase; letter-spacing: 0.20em;
+  color: var(--text-dim); margin-bottom: 5px;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.mission-eyebrow .blink-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-1);
+  animation: blink-dot 1.6s ease-in-out infinite;
+}
+@keyframes blink-dot { 0%,100%{box-shadow:0 0 0 0 var(--accent-1-glow)} 50%{box-shadow:0 0 0 8px transparent} }
+.mission-title { font: 700 22px/1.15 var(--font-display); color: var(--text); letter-spacing: 0.005em; }
+.mission-sub { font: 500 13px/1.4 var(--font-body); color: var(--text-soft); margin-top: 4px; }
+.mission-stats { display: flex; gap: 10px; margin-top: 14px; position: relative; z-index: 1; flex-wrap: wrap; }
+.mission-stat {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 7px 12px;
+  background: var(--surface-2); border: 1px solid var(--border-soft);
+  border-radius: var(--radius); min-width: 78px;
+}
+.mission-stat-num { font: 700 18px/1 var(--font-display); color: var(--text); font-variant-numeric: tabular-nums; }
+.mission-stat-lbl { font: 600 9px/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-dim); }
+.mission-progress {
+  height: 10px; margin: 14px 0 12px;
+  background: var(--surface-3); border: 1px solid var(--border-soft);
+  border-radius: 999px; overflow: hidden; position: relative;
+}
+.mission-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.30), transparent 50%),
+              linear-gradient(90deg, var(--gold-soft), var(--gold), var(--accent-1));
+  border-radius: 999px;
+  transition: width 1s cubic-bezier(.2,.8,.2,1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.mission-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+/* Chunky 3D button (used in mission CTA) */
+.btn-chunky {
+  --b: var(--accent-1);
+  --bd: color-mix(in oklch, var(--accent-1) 55%, #000);
+  background: linear-gradient(180deg, var(--b), color-mix(in oklch, var(--b) 88%, #000) 100%);
+  color: #fff8e8;
+  border: 0;
+  padding: 13px 24px;
+  border-radius: 12px;
+  font: 800 14px/1 var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 5px 0 0 var(--bd), inset 0 1.5px 0 rgba(255,255,255,0.35);
+  transition: transform 0.08s, box-shadow 0.12s;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 46px;
+}
+.btn-chunky:hover { filter: brightness(1.05); }
+.btn-chunky:active { transform: translateY(5px); box-shadow: 0 0 0 0 var(--bd), inset 0 1.5px 0 rgba(255,255,255,0.35); }
+.btn-chunky.cool { --b: var(--accent-2); --bd: color-mix(in oklch, var(--accent-2) 55%, #000); }
+.btn-chunky.ghost {
+  background: var(--surface); color: var(--text-soft);
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 0 0 var(--border);
+}
+.btn-chunky.ghost:active { box-shadow: 0 0 0 0 var(--border); transform: translateY(4px); }
+
+/* Power-ups bar */
+.powerup-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px; margin-bottom: 18px;
+}
+.powerup {
+  background: var(--card-bg-image), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  transition: transform 0.1s, box-shadow 0.15s, border-color 0.15s;
+}
+.powerup:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--accent-1); }
+.powerup-icon {
+  width: 36px; height: 36px; flex: 0 0 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255,255,255,0.5), transparent 60%),
+    linear-gradient(135deg, var(--gold-soft), var(--gold));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 6px var(--accent-1-glow);
+  border: 1.5px solid var(--surface);
+}
+.powerup-icon.ice  { background: radial-gradient(circle at 30% 28%, rgba(255,255,255,0.5), transparent 60%), linear-gradient(135deg, #b3d8ee, #5a96c4); }
+.powerup-icon.heart{ background: radial-gradient(circle at 30% 28%, rgba(255,255,255,0.5), transparent 60%), linear-gradient(135deg, #ffb3b3, #d63a3a); }
+.powerup-icon.hint { background: radial-gradient(circle at 30% 28%, rgba(255,255,255,0.5), transparent 60%), linear-gradient(135deg, #d8b3ff, #7c3aed); }
+.powerup-body { min-width: 0; flex: 1; }
+.powerup-name { font: 700 11px/1.2 var(--font-body); color: var(--text); text-transform: uppercase; letter-spacing: 0.06em; }
+.powerup-desc { font: 500 11px/1.3 var(--font-body); color: var(--text-dim); margin-top: 2px; }
+.powerup-count {
+  position: absolute; top: 6px; right: 8px;
+  min-width: 20px; height: 20px; padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent-1);
+  color: #fff8e8;
+  font: 700 10px/20px var(--font-body);
+  text-align: center; font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 4px var(--accent-1-glow);
+}
+.powerup.used { opacity: 0.55; }
+.powerup.used .powerup-count { background: var(--text-dim); }
+
+/* Journey Map */
+.journey-map {
+  background: var(--card-bg-image), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 22px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow-x: auto; overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+.journey-map::before {
+  content: ""; position: absolute; inset: 8px;
+  border: 1px var(--border-style) var(--border-soft);
+  border-radius: calc(var(--radius-lg) - 7px);
+  pointer-events: none; opacity: 0.5;
+}
+.journey-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  position: relative; padding: 0 4px 6px;
+}
+.journey-title { font: 700 15px/1 var(--font-display); color: var(--text); letter-spacing: 0.005em; }
+.journey-meta { font: 500 11px/1 var(--font-body); color: var(--text-dim); letter-spacing: 0.04em; }
+.journey-path {
+  position: relative;
+  display: flex; gap: 30px;
+  padding: 26px 8px 28px;
+  min-width: max-content;
+}
+.journey-path::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--border-soft) 0 8px, transparent 8px 14px);
+  z-index: 0;
+}
+.journey-node {
+  width: 54px; height: 54px; flex: 0 0 54px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font: 700 16px/1 var(--font-display);
+  color: var(--text);
+  background: var(--surface-3);
+  border: 3px solid var(--border-soft);
+  position: relative; z-index: 1;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.18s;
+}
+.journey-node:hover { transform: translateY(-3px) scale(1.05); }
+.journey-node.done {
+  background: linear-gradient(135deg, var(--gold-soft), var(--gold), var(--accent-1));
+  color: #fff8e8;
+  border-color: var(--surface);
+  box-shadow: 0 4px 0 0 color-mix(in oklch, var(--accent-1) 55%, #000), 0 0 18px var(--accent-1-glow);
+}
+.journey-node.done::after {
+  content: "✓"; position: absolute; top: -5px; right: -5px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--success); color: #fff8e8;
+  font: 700 11px/18px var(--font-body); text-align: center;
+  border: 2px solid var(--surface);
+}
+.journey-node.current {
+  background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0.55), transparent 55%), linear-gradient(135deg, var(--accent-1), color-mix(in oklch, var(--accent-1) 65%, var(--accent-2)));
+  color: #fff8e8;
+  border-color: var(--surface);
+  box-shadow: 0 5px 0 0 color-mix(in oklch, var(--accent-1) 55%, #000), 0 0 24px var(--accent-1-glow);
+  animation: node-pulse 2.2s ease-in-out infinite;
+}
+@keyframes node-pulse {
+  0%,100% { box-shadow: 0 5px 0 0 color-mix(in oklch, var(--accent-1) 55%, #000), 0 0 20px var(--accent-1-glow); }
+  50%     { box-shadow: 0 5px 0 0 color-mix(in oklch, var(--accent-1) 55%, #000), 0 0 32px var(--accent-1-glow); transform: scale(1.05); }
+}
+.journey-node.current::after {
+  content: "▼"; position: absolute; top: -16px; left: 50%;
+  transform: translateX(-50%); color: var(--accent-1); font-size: 13px;
+  animation: pointer-bob 1.4s ease-in-out infinite;
+}
+@keyframes pointer-bob { 0%,100%{transform:translate(-50%, 0)} 50%{transform:translate(-50%, -4px)} }
+.journey-node.locked {
+  color: var(--text-dim); opacity: 0.75; cursor: not-allowed;
+}
+.journey-node.locked::after {
+  content: "🔒"; position: absolute; font-size: 10px;
+  top: -3px; right: -3px;
+  background: var(--surface); border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border-soft);
+}
+.journey-node-label {
+  position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+  font: 600 9px/1 var(--font-body);
+  text-transform: uppercase; letter-spacing: 0.10em;
+  color: var(--text-dim); white-space: nowrap;
+}
+.journey-node.current .journey-node-label,
+.journey-node.done .journey-node-label { color: var(--text-soft); font-weight: 700; }
+
+/* Daily quests / challenges */
+.daily-quests {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.dq {
+  background: var(--card-bg-image), var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 14px 14px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.18s;
+  text-align: center;
+  box-shadow: 0 4px 0 0 var(--border);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  overflow: hidden;
+}
+.dq:hover { transform: translateY(-3px); box-shadow: 0 7px 0 0 var(--border); border-color: var(--accent-1); }
+.dq:active { transform: translateY(3px); box-shadow: 0 1px 0 0 var(--border); }
+.dq.easy      { border-color: var(--success); box-shadow: 0 4px 0 0 color-mix(in oklch, var(--success) 55%, #000); }
+.dq.easy:hover{ box-shadow: 0 7px 0 0 color-mix(in oklch, var(--success) 55%, #000); }
+.dq.hard      { border-color: var(--danger);  box-shadow: 0 4px 0 0 color-mix(in oklch, var(--danger) 55%, #000); }
+.dq.hard:hover{ box-shadow: 0 7px 0 0 color-mix(in oklch, var(--danger) 55%, #000); }
+.dq.lightning { border-color: var(--gold);    box-shadow: 0 4px 0 0 color-mix(in oklch, var(--gold) 55%, #000); }
+.dq.lightning:hover{ box-shadow: 0 7px 0 0 color-mix(in oklch, var(--gold) 55%, #000); }
+.dq-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0.55), transparent 55%), var(--surface-2);
+  border: 1.5px solid var(--border-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+}
+.dq.easy .dq-icon      { background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0.55), transparent 55%), color-mix(in oklch, var(--success) 22%, var(--surface)); }
+.dq.hard .dq-icon      { background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0.55), transparent 55%), color-mix(in oklch, var(--danger) 22%, var(--surface)); }
+.dq.lightning .dq-icon { background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0.55), transparent 55%), color-mix(in oklch, var(--gold) 28%, var(--surface)); }
+.dq-name { font: 700 14px/1.2 var(--font-display); color: var(--text); }
+.dq-meta { font: 600 10px/1.3 var(--font-body); color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; }
+.dq-reward {
+  margin-top: 4px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--surface-2); border: 1px solid var(--border-soft);
+  padding: 3px 9px; border-radius: 999px;
+  font: 700 10px/1 var(--font-body); color: var(--gold);
+  letter-spacing: 0.05em;
+}
+
+/* Treasure Chest */
+.chest-card {
+  background: var(--card-bg-image), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 22px;
+  margin-bottom: 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.chest-card::before {
+  content: ""; position: absolute; inset: 8px;
+  border: 1px var(--border-style) var(--border-soft);
+  border-radius: calc(var(--radius-lg) - 7px);
+  pointer-events: none;
+}
+.chest-glow {
+  position: absolute; inset: -40px;
+  background: radial-gradient(circle at center, var(--gold-soft) 0%, transparent 60%);
+  opacity: 0.45;
+  animation: chest-glow 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes chest-glow { 0%,100%{opacity:.35} 50%{opacity:.75} }
+.chest-eyebrow {
+  font: 700 10px/1 var(--font-body);
+  text-transform: uppercase; letter-spacing: 0.20em;
+  color: var(--text-dim); margin-bottom: 8px; position: relative;
+}
+.chest-title { font: 700 20px/1.2 var(--font-display); color: var(--text); margin-bottom: 4px; position: relative; }
+.chest-sub { font: italic 500 12px/1.4 var(--font-display); color: var(--text-soft); margin-bottom: 14px; position: relative; }
+.chest-emoji {
+  font-size: 64px; display: inline-block;
+  position: relative; cursor: pointer;
+  transition: transform 0.2s;
+  animation: chest-bob 3.4s ease-in-out infinite;
+  margin: 6px 0 14px;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+}
+@keyframes chest-bob { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-6px) rotate(-3deg)} }
+.chest-emoji:hover { transform: scale(1.06) rotate(-4deg); }
+.chest-rewards {
+  display: flex; justify-content: center; gap: 10px;
+  margin-top: 14px; flex-wrap: wrap; position: relative; min-height: 48px;
+}
+.chest-reward {
+  background: var(--surface-2); border: 1.5px solid var(--gold);
+  border-radius: var(--radius); padding: 10px 14px;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
+  min-width: 88px;
+  opacity: 0; transform: translateY(20px) scale(0.7);
+  transition: opacity 0.5s, transform 0.5s cubic-bezier(.2,1.5,.4,1);
+  box-shadow: 0 4px 14px var(--accent-1-glow);
+}
+.chest-card.opened .chest-reward { opacity: 1; transform: translateY(0) scale(1); }
+.chest-card.opened .chest-reward:nth-child(1) { transition-delay: 0.15s; }
+.chest-card.opened .chest-reward:nth-child(2) { transition-delay: 0.3s; }
+.chest-card.opened .chest-reward:nth-child(3) { transition-delay: 0.45s; }
+.chest-reward-icon { font-size: 22px; }
+.chest-reward-name { font: 700 10px/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.10em; color: var(--text-soft); }
+.chest-reward-num { font: 800 15px/1 var(--font-display); color: var(--gold); font-variant-numeric: tabular-nums; }
+
+/* Achievements */
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.ach {
+  position: relative;
+  background: var(--card-bg-image), var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 12px 12px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s, box-shadow 0.18s;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  overflow: hidden;
+}
+.ach:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.ach-medal {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 3px solid var(--border-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  filter: grayscale(1) brightness(0.85);
+  opacity: 0.7;
+}
+.ach.earned .ach-medal {
+  background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0.6), transparent 55%),
+              linear-gradient(135deg, var(--gold-soft), var(--gold), var(--accent-1));
+  border-color: var(--surface);
+  filter: none; opacity: 1;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.6), 0 4px 12px var(--accent-1-glow);
+}
+.ach.rare .ach-medal {
+  background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0.6), transparent 55%), linear-gradient(135deg, #c9a8ff, #7c3aed);
+  border-color: var(--surface);
+}
+.ach.legendary .ach-medal {
+  background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0.7), transparent 55%), linear-gradient(135deg, #fff, var(--gold-soft) 30%, var(--gold) 60%, var(--accent-1));
+  border-color: var(--surface);
+}
+.ach-name { font: 700 12px/1.2 var(--font-display); color: var(--text); }
+.ach:not(.earned) .ach-name { color: var(--text-dim); }
+.ach-desc { font: 500 10px/1.3 var(--font-body); color: var(--text-dim); }
+.ach-rarity {
+  margin-top: 3px;
+  font: 700 8px/1 var(--font-body);
+  text-transform: uppercase; letter-spacing: 0.18em;
+  padding: 2px 6px; border-radius: 999px;
+}
+.ach-rarity.common    { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border-soft); }
+.ach-rarity.rare      { background: color-mix(in oklch, #7c3aed 16%, var(--surface)); color: #7c3aed; border: 1px solid color-mix(in oklch, #7c3aed 32%, transparent); }
+.ach-rarity.legendary { background: color-mix(in oklch, var(--gold) 22%, var(--surface)); color: color-mix(in oklch, var(--gold) 60%, #000); border: 1px solid color-mix(in oklch, var(--gold) 38%, transparent); }
+
+/* Section labels for the gamification rail */
+.gam-section-head {
+  display: flex; align-items: center; gap: 12px;
+  margin: 22px 4px 10px;
+  font: italic 600 14px/1 var(--font-display);
+  color: var(--text-soft);
+  letter-spacing: 0.02em;
+}
+.gam-section-head::before, .gam-section-head::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-soft));
+}
+.gam-section-head::after { background: linear-gradient(90deg, var(--border-soft), transparent); }
+.gam-section-head .glyph { color: var(--border); font-size: 12px; }
+.gam-section-head .glyph::before { content: var(--ornament-glyph); }
+
+@media (max-width: 480px) {
+  .mission-mascot { width: 52px; height: 52px; flex-basis: 52px; font-size: 24px; }
+  .mission-title { font-size: 19px; }
+  .journey-node { width: 46px; height: 46px; flex-basis: 46px; font-size: 14px; }
+}
+
 </style>
 <script>
 /* ===== Illuminated Codex reskin =====
@@ -8059,6 +8526,204 @@ body.codex-on #tab-home .home-tiles { margin-bottom: 12px; }
     if (ic) ic.textContent = THEME_ICONS[t] || THEME_ICONS.cozy;
   }
   function fmt(n) { return new Intl.NumberFormat().format(n | 0); }
+
+  // ============================================================
+  // Gamification injection: mission card, power-ups, journey,
+  // daily challenges, treasure chest, achievements.
+  // Inserted into #tab-home, above existing content. Data comes
+  // from window.STUDY (sections), state.read, state.xp, state.dayStreak.
+  // ============================================================
+  function injectGamification() {
+    if (document.getElementById("gam-rail")) return;
+    const home = document.getElementById("tab-home");
+    if (!home) return;
+
+    let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
+    const xp = s.xp | 0;
+    const level = levelFromXp(xp);
+    const streak = (s.dayStreak && s.dayStreak.count | 0) || 0;
+    const best = (s.dayStreak && s.dayStreak.best | 0) || 0;
+    const read = Array.isArray(s.read) ? s.read.length : 0;
+
+    // Due-count calc
+    const today = Math.floor(Date.now() / 86400000);
+    const BOX = { 1:1, 2:2, 3:4, 4:8, 5:16 };
+    let due = 0, total = 0, mastered = 0;
+    if (s.srs) for (const id in s.srs) {
+      const r = s.srs[id]; if (!r) continue;
+      total++;
+      const box = Math.min(5, Math.max(1, r.box | 0 || 1));
+      if (box === 5) mastered++;
+      if (((r.lastSeen || 0) + (BOX[box] || 1)) <= today) due++;
+    }
+    const dailyGoal = 30;
+    const goalDone = Math.min(dailyGoal, (s.xp_today | 0) || Math.min(read * 2, dailyGoal));
+    const goalPct = Math.min(100, Math.round(100 * goalDone / dailyGoal));
+    const goalMet = goalDone >= dailyGoal;
+
+    // Journey nodes from STUDY array
+    let journeyHtml = "";
+    if (typeof STUDY !== "undefined" && Array.isArray(STUDY) && STUDY.length) {
+      const readSet = new Set(Array.isArray(s.read) ? s.read : []);
+      let foundCurrent = false;
+      const nodes = STUDY.slice(0, 10).map((sec, i) => {
+        const isRead = readSet.has(sec.id);
+        let cls;
+        if (isRead) cls = "done";
+        else if (!foundCurrent) { cls = "current"; foundCurrent = true; }
+        else cls = "locked";
+        const label = (sec.title || "ch " + (i+1)).slice(0, 14).toLowerCase();
+        return `<div class="journey-node ${cls}" data-section-id="${sec.id}" title="${(sec.title || "").replace(/"/g, "&quot;")}">${i+1}<span class="journey-node-label">${label}</span></div>`;
+      }).join("");
+      const totalCh = STUDY.length;
+      const doneCh = Array.from(readSet).filter(id => STUDY.find(x => x.id === id)).length;
+      journeyHtml = `
+        <div class="journey-map">
+          <div class="journey-head">
+            <div class="journey-title">Your journey</div>
+            <div class="journey-meta">${doneCh} of ${totalCh} chapter${totalCh===1?"":"s"} mastered</div>
+          </div>
+          <div class="journey-path">${nodes}</div>
+        </div>`;
+    }
+
+    // Achievements (derived from state)
+    const earned = (cond) => cond ? "earned" : "";
+    const achievementsHtml = `
+      <div class="ach-grid">
+        <div class="ach ${earned(read >= 1)}"><div class="ach-medal">⭐</div><div class="ach-name">First chapter</div><div class="ach-desc">Read your first lesson</div><div class="ach-rarity common">Common</div></div>
+        <div class="ach ${earned(streak >= 7)}"><div class="ach-medal">🔥</div><div class="ach-name">Week warrior</div><div class="ach-desc">7-day streak</div><div class="ach-rarity common">Common</div></div>
+        <div class="ach rare ${earned(total >= 100)}"><div class="ach-medal">🎯</div><div class="ach-name">Centurion</div><div class="ach-desc">100 cards reviewed</div><div class="ach-rarity rare">Rare</div></div>
+        <div class="ach rare ${earned(read >= 10)}"><div class="ach-medal">📖</div><div class="ach-name">Bookworm</div><div class="ach-desc">10 chapters read</div><div class="ach-rarity rare">Rare</div></div>
+        <div class="ach ${earned(xp >= 1000)}"><div class="ach-medal">🏆</div><div class="ach-name">Apprentice</div><div class="ach-desc">1,000 XP earned</div><div class="ach-rarity rare">Rare</div></div>
+        <div class="ach legendary ${earned(mastered >= 50)}"><div class="ach-medal">💎</div><div class="ach-name">Diamond mind</div><div class="ach-desc">50 cards mastered</div><div class="ach-rarity legendary">Legendary</div></div>
+        <div class="ach legendary ${earned(best >= 30)}"><div class="ach-medal">👑</div><div class="ach-name">30-day flame</div><div class="ach-desc">A whole month of streak</div><div class="ach-rarity legendary">Legendary</div></div>
+        <div class="ach ${earned((new Date()).getHours() >= 22 || (new Date()).getHours() < 5)}"><div class="ach-medal">🌙</div><div class="ach-name">Night owl</div><div class="ach-desc">Study late</div><div class="ach-rarity common">Common</div></div>
+      </div>`;
+
+    // Treasure chest only when daily goal met
+    const chestHtml = goalMet ? `
+      <div class="chest-card" id="chest-card">
+        <div class="chest-glow"></div>
+        <div class="chest-eyebrow">daily goal · cleared</div>
+        <div class="chest-title">A reward awaits</div>
+        <div class="chest-sub">tap the chest to claim today's bounty</div>
+        <div class="chest-emoji" id="chest-emoji" role="button" tabindex="0">🎁</div>
+        <div class="chest-rewards" id="chest-rewards" style="display:none;">
+          <div class="chest-reward"><div class="chest-reward-icon">⚡</div><div class="chest-reward-name">XP boost</div><div class="chest-reward-num">+1</div></div>
+          <div class="chest-reward"><div class="chest-reward-icon">❄</div><div class="chest-reward-name">Streak freeze</div><div class="chest-reward-num">+1</div></div>
+          <div class="chest-reward"><div class="chest-reward-icon">💎</div><div class="chest-reward-name">Bonus XP</div><div class="chest-reward-num">+50</div></div>
+        </div>
+      </div>` : "";
+
+    // Build rail
+    const rail = document.createElement("div");
+    rail.id = "gam-rail";
+    rail.innerHTML = `
+      <div class="mission-card" id="mission-card">
+        <div class="mission-head">
+          <div class="mission-mascot" id="mission-mascot" aria-hidden="true">🦉</div>
+          <div class="mission-body">
+            <div class="mission-eyebrow"><span class="blink-dot"></span>today's mission</div>
+            <div class="mission-title">${due > 0 ? "Clear " + Math.min(due, dailyGoal) + " review card" + (Math.min(due, dailyGoal)===1?"":"s") : "Start today's set"}</div>
+            <div class="mission-sub">${due > 0 ? "Spaced review keeps yesterday's wins from fading." : "Press onward and bank the XP."}</div>
+          </div>
+        </div>
+        <div class="mission-stats">
+          <div class="mission-stat"><div class="mission-stat-num">${due}</div><div class="mission-stat-lbl">due now</div></div>
+          <div class="mission-stat"><div class="mission-stat-num">${streak}🔥</div><div class="mission-stat-lbl">streak</div></div>
+          <div class="mission-stat"><div class="mission-stat-num">${new Intl.NumberFormat().format(xp)}</div><div class="mission-stat-lbl">xp</div></div>
+        </div>
+        <div class="mission-progress"><div class="mission-progress-fill" id="mission-pfill" style="width:${goalPct}%"></div></div>
+        <div class="mission-actions">
+          <button class="btn-chunky" id="mission-start" type="button">▶ Begin <span class="arrow">→</span></button>
+          <button class="btn-chunky ghost" id="mission-study" type="button">📖 Study</button>
+        </div>
+      </div>
+
+      <div class="gam-section-head"><span class="glyph"></span>power-ups<span class="glyph"></span></div>
+      <div class="powerup-bar">
+        <div class="powerup" data-pu="xpboost"><div class="powerup-icon">⚡</div><div class="powerup-body"><div class="powerup-name">XP boost</div><div class="powerup-desc">×2 xp for 10 min</div></div><div class="powerup-count">0</div></div>
+        <div class="powerup" data-pu="freeze"><div class="powerup-icon ice">❄</div><div class="powerup-body"><div class="powerup-name">Streak freeze</div><div class="powerup-desc">save the streak</div></div><div class="powerup-count">1</div></div>
+        <div class="powerup" data-pu="heart"><div class="powerup-icon heart">❤</div><div class="powerup-body"><div class="powerup-name">Heart refill</div><div class="powerup-desc">restore lives</div></div><div class="powerup-count">0</div></div>
+        <div class="powerup" data-pu="hint"><div class="powerup-icon hint">💡</div><div class="powerup-body"><div class="powerup-name">Hint</div><div class="powerup-desc">eliminate one wrong</div></div><div class="powerup-count">0</div></div>
+      </div>
+
+      ${journeyHtml ? `<div class="gam-section-head"><span class="glyph"></span>journey<span class="glyph"></span></div>${journeyHtml}` : ""}
+
+      <div class="gam-section-head"><span class="glyph"></span>daily challenges<span class="glyph"></span></div>
+      <div class="daily-quests">
+        <div class="dq easy" tabindex="0" data-go="review-light"><div class="dq-icon">🌿</div><div class="dq-name">Light review</div><div class="dq-meta">5 cards · 3 min</div><div class="dq-reward">★ +60 XP</div></div>
+        <div class="dq hard" tabindex="0" data-go="quiz-hard"><div class="dq-icon">⚔</div><div class="dq-name">Boss round</div><div class="dq-meta">15 sata · 12 min</div><div class="dq-reward">★ +320 XP</div></div>
+        <div class="dq lightning" tabindex="0" data-go="lightning"><div class="dq-icon">⚡</div><div class="dq-name">Lightning</div><div class="dq-meta">timed · combo bonus</div><div class="dq-reward">★ +180 XP</div></div>
+      </div>
+
+      ${chestHtml}
+
+      <div class="gam-section-head"><span class="glyph"></span>achievements<span class="glyph"></span></div>
+      ${achievementsHtml}
+    `;
+
+    // Insert AFTER the codex hero, BEFORE today-cta / other content
+    const heroEl = document.getElementById("codex-hero");
+    if (heroEl && heroEl.nextSibling) {
+      home.insertBefore(rail, heroEl.nextSibling);
+    } else {
+      home.insertBefore(rail, home.firstChild);
+    }
+
+    // Wire actions
+    const start = document.getElementById("mission-start");
+    if (start) start.addEventListener("click", () => {
+      const reviewBtn = document.getElementById("rv-start") || document.getElementById("today-cta");
+      if (reviewBtn) reviewBtn.click(); else if (typeof switchTab === "function") switchTab("review");
+    });
+    const study = document.getElementById("mission-study");
+    if (study) study.addEventListener("click", () => { if (typeof switchTab === "function") switchTab("study"); });
+
+    rail.querySelectorAll(".journey-node[data-section-id]").forEach(node => {
+      if (node.classList.contains("locked")) return;
+      node.addEventListener("click", () => {
+        if (typeof switchTab === "function") switchTab("study");
+        const id = node.dataset.sectionId;
+        if (typeof openSection === "function") { try { openSection(id); } catch {} }
+      });
+    });
+
+    rail.querySelectorAll(".dq[data-go]").forEach(card => {
+      card.addEventListener("click", () => {
+        const target = card.dataset.go;
+        if (target === "review-light") { if (typeof switchTab === "function") switchTab("review"); }
+        else if (target === "quiz-hard" || target === "lightning") { if (typeof switchTab === "function") switchTab("quiz"); }
+      });
+    });
+
+    const chestEmoji = document.getElementById("chest-emoji");
+    if (chestEmoji) {
+      const openChest = () => {
+        const card = document.getElementById("chest-card"); if (!card) return;
+        card.classList.add("opened");
+        const r = document.getElementById("chest-rewards"); if (r) r.style.display = "";
+        chestEmoji.textContent = "📦";
+      };
+      chestEmoji.addEventListener("click", openChest);
+      chestEmoji.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openChest(); } });
+    }
+
+    // Mirror hearts count from existing element into the floating cluster as styled hearts
+    const ctcHp = document.getElementById("ctc-hp");
+    const src = document.getElementById("hearts-count");
+    if (ctcHp && src) {
+      const render = () => {
+        const n = Math.max(0, Math.min(5, parseInt(src.textContent, 10) || 0));
+        const hearts = Array.from({length: 5}, (_, i) => `<span class="heart${i < n ? "" : " gone"}">❤</span>`).join("");
+        ctcHp.innerHTML = `<span class="hearts">${hearts}</span>`;
+      };
+      render();
+      new MutationObserver(render).observe(src, { childList: true, characterData: true, subtree: true });
+    }
+  }
+
 
   function injectHero() {
     if (document.getElementById("codex-hero")) return;
@@ -8327,6 +8992,7 @@ body.codex-on #tab-home .home-tiles { margin-bottom: 12px; }
     injectHero();
     injectBottomNav();
     injectTopCluster();
+    injectGamification();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else setTimeout(boot, 0);
