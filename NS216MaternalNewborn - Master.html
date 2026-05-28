@@ -8250,6 +8250,21 @@ body.codex-on.in-lesson main { padding-bottom: 0 !important; }
       }
     }
     if (!scope) return;
+
+    // Confidence bar (post-answer) takes priority over option selection.
+    const confBar = scope.querySelector(".conf-bar[data-conf]");
+    if (confBar && !confBar.dataset.done) {
+      const cmap = { "j":"3", "k":"2", "l":"1", ";":"0", "m":"0" };
+      const c = cmap[key];
+      if (c !== undefined) {
+        e.preventDefault();
+        const b = confBar.querySelector('.conf-btn[data-c="' + c + '"]');
+        if (b) b.click();
+        __nd_lastKey = ""; __nd_lastKeyTime = 0; // reset double-press
+        return;
+      }
+    }
+
     const opts = scope.querySelectorAll(".q-option");
     if (!opts.length || idx >= opts.length) return;
 
