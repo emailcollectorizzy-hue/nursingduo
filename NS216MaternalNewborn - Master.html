@@ -8000,6 +8000,34 @@ body.codex-on #pcode-box {
 body.codex-on #tab-home #today-cta { margin: 8px 0 18px; }
 body.codex-on #tab-home .home-tiles { margin-bottom: 12px; }
 
+/* Hero stats radar — 6-axis hexagon */
+.cs-radar-wrap {
+  display: flex; align-items: center; justify-content: center;
+  padding: 4px 0 6px;
+  position: relative;
+}
+.cs-radar { width: 100%; max-width: 320px; height: auto; }
+.cs-radar .rg-ring { fill: none; stroke: var(--border-soft); stroke-width: 1; opacity: 0.7; }
+.cs-radar .rg-axis { stroke: var(--border-soft); stroke-width: 1; opacity: 0.5; }
+.cs-radar .rg-fill {
+  fill: color-mix(in oklch, var(--accent-1) 28%, transparent);
+  stroke: var(--accent-1);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.cs-radar .rg-dot { fill: var(--accent-1); stroke: var(--surface); stroke-width: 1.5; }
+.cs-radar .rg-label {
+  font: 700 10px/1 var(--font-body);
+  fill: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.cs-radar .rg-val {
+  font: 700 11px/1 var(--font-display);
+  fill: var(--accent-1);
+  font-variant-numeric: tabular-nums;
+}
+
 </style>
 <script>
 /* ===== Illuminated Codex reskin =====
@@ -8150,6 +8178,66 @@ body.codex-on #tab-home .home-tiles { margin-bottom: 12px; }
         <div class="cs-sec">
           <div class="cs-sec-lbl">exam readiness</div>
           <div class="cs-row"><div class="lbl">🎯 Readiness score</div><div class="val">${(document.getElementById("readiness-pct")?.textContent || "0")}%<span class="sub">· ${document.getElementById("readiness-tier")?.textContent || "—"}</span></div></div>
+        </div>
+        <div class="cs-sec">
+          <div class="cs-sec-lbl">adventurer stats</div>
+          ${(() => {
+            // Compute 6 stats on a 0-100 scale.
+            const avgBoxPct = (ns) => {
+              let n = 0, sum = 0;
+              for (const id in (s.srs || {})) {
+                if (id.startsWith(ns + ":")) {
+                  const r = s.srs[id]; if (!r) continue;
+                  n++; sum += (r.box | 0) || 1;
+                }
+              }
+              return n ? Math.round(((sum / n) - 1) / 4 * 100) : 0;
+            };
+            const clinical = avgBoxPct("q");
+            const pharm    = avgBoxPct("fc");
+            const patho    = avgBoxPct("d");
+            const acumen   = avgBoxPct("sc");
+            const total    = (typeof STUDY !== "undefined" && Array.isArray(STUDY)) ? STUDY.length : 0;
+            const knowledge = total > 0 ? Math.round(100 * (Array.isArray(s.read) ? s.read.length : 0) / total) : 0;
+            const endurance = Math.min(100, Math.round(((s.dayStreak && s.dayStreak.count | 0) || 0) / 30 * 100));
+
+            const stats = [
+              { key: "🩺 Clinical", val: clinical },
+              { key: "💊 Pharm",    val: pharm },
+              { key: "🧬 Patho",    val: patho },
+              { key: "🏥 Cases",    val: acumen },
+              { key: "📖 Knowledge",val: knowledge },
+              { key: "🔥 Endurance",val: endurance },
+            ];
+            const cx = 160, cy = 130, R = 84;
+            // Top, then clockwise — angle 0 = -90° (top)
+            const ang = (i) => (-90 + i * 60) * Math.PI / 180;
+            const pt = (i, scale) => [cx + Math.cos(ang(i)) * R * scale, cy + Math.sin(ang(i)) * R * scale];
+            const polyPts = (scale) => stats.map((_, i) => pt(i, scale).map(n => n.toFixed(1)).join(",")).join(" ");
+            const fillPts = stats.map((st, i) => pt(i, Math.max(0.04, st.val / 100)).map(n => n.toFixed(1)).join(",")).join(" ");
+            const axes  = stats.map((_, i) => `<line class="rg-axis" x1="${cx}" y1="${cy}" x2="${pt(i,1)[0].toFixed(1)}" y2="${pt(i,1)[1].toFixed(1)}"/>`).join("");
+            const dots  = stats.map((st, i) => { const [x,y] = pt(i, Math.max(0.04, st.val / 100)); return `<circle class="rg-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`; }).join("");
+            const labels = stats.map((st, i) => {
+              const [lx, ly] = pt(i, 1.18);
+              const ta = (i === 0 || i === 3) ? "middle" : (i === 1 || i === 2) ? "start" : "end";
+              const dy = (i === 0) ? 0 : (i === 3) ? 10 : 4;
+              return `
+                <text class="rg-label" x="${lx.toFixed(1)}" y="${(ly + dy).toFixed(1)}" text-anchor="${ta}">${st.key}</text>
+                <text class="rg-val"   x="${lx.toFixed(1)}" y="${(ly + dy + 12).toFixed(1)}" text-anchor="${ta}">${st.val}</text>`;
+            }).join("");
+            return `
+              <div class="cs-radar-wrap">
+                <svg class="cs-radar" viewBox="0 0 320 240" aria-label="Character stats radar">
+                  <polygon class="rg-ring" points="${polyPts(1)}"/>
+                  <polygon class="rg-ring" points="${polyPts(0.66)}"/>
+                  <polygon class="rg-ring" points="${polyPts(0.33)}"/>
+                  ${axes}
+                  <polygon class="rg-fill" points="${fillPts}"/>
+                  ${dots}
+                  ${labels}
+                </svg>
+              </div>`;
+          })()}
         </div>
         <div class="cs-sec">
           <div class="cs-sec-lbl">streak</div>
