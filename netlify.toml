@@ -1,3 +1,8 @@
 [build]
   publish = "."
   functions = "netlify/functions"
+
+[[redirects]]
+  from = "/"
+  to = "/NS250MedSurg - Master.html"
+  status = 200
