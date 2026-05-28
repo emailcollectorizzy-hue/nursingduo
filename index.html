@@ -258,22 +258,19 @@ function renderTodaysSet(courseData) {
   wrap.innerHTML = html;
 }
 
-function renderTotals(courseData) {
+function renderTotals(courseData, serverStreak) {
   let totalXp = 0;
-  let bestStreak = 0;
-  let currStreak = 0;
   for (const c of COURSES) {
     const d = courseData && courseData[c.storageKey];
     const s = d && d.state;
     if (!s) continue;
     totalXp += (s.xp | 0);
-    const ds = s.dayStreak || {};
-    if ((ds.count | 0) > currStreak) currStreak = ds.count | 0;
-    if ((ds.best  | 0) > bestStreak) bestStreak = ds.best  | 0;
   }
   document.getElementById("totalXp").textContent = fmt(totalXp);
-  document.getElementById("streak").textContent = currStreak + "🔥";
-  document.getElementById("streakSub").textContent = "best: " + bestStreak;
+  const sc = (serverStreak && (serverStreak.count | 0)) || 0;
+  const sb = (serverStreak && (serverStreak.best  | 0)) || 0;
+  document.getElementById("streak").textContent = sc + "🔥";
+  document.getElementById("streakSub").textContent = sb > 0 ? "best: " + sb : "study any course to start";
 }
 
 function renderWho() {
@@ -289,7 +286,8 @@ async function boot() {
   if (!getAuth()) { promptAuth(false); renderCourses({}); return; }
   const res = await api("list");
   const courses = (res && res.courses) || {};
-  renderTotals(courses);
+  const streak  = (res && res.streak)  || null;
+  renderTotals(courses, streak);
   renderTodaysSet(courses);
   renderCourses(courses);
 }
