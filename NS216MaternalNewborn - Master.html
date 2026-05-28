@@ -7979,6 +7979,28 @@ body.codex-on.in-lesson #codex-bottom-nav,
 body.codex-on.in-lesson #codex-top-cluster { display: none !important; }
 body.codex-on.in-lesson main { padding-bottom: 0 !important; }
 
+/* Home tab declutter — hide decorative + redundant elements in cozy mode.
+   What stays: hero card (top), resume CTA (when active), Today's Set CTA,
+   home-tiles (Due/Streak/Level/Shop/League — compact glance row). */
+body.codex-on #home-greeting,
+body.codex-on .home-topbar,
+body.codex-on #home-mascot,
+body.codex-on #readiness-card,
+body.codex-on #mock-exam-cta,
+body.codex-on #recs-wrap,
+body.codex-on #tab-home .path-wrap,
+body.codex-on #tab-home > .goal-bar-track,
+body.codex-on #tab-home > .box-legend,
+body.codex-on #tab-home > details.more-stats,
+body.codex-on #quests-card,
+body.codex-on #tab-home .quick-actions,
+body.codex-on #pcode-box {
+  display: none !important;
+}
+/* Trim spacing now that fewer rows are visible */
+body.codex-on #tab-home #today-cta { margin: 8px 0 18px; }
+body.codex-on #tab-home .home-tiles { margin-bottom: 12px; }
+
 </style>
 <script>
 /* ===== Illuminated Codex reskin =====
