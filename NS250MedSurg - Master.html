@@ -1962,19 +1962,51 @@ body.in-lesson .focus-shell { display: flex; }
 </head>
 <body data-theme="light">
 <script>
-/* FOUC guard — synchronously paint cozy parchment before anything else renders */
+/* FOUC guard — inline the full token set so first paint already wears the
+   right theme (no flash of the master's pale :root --bg). */
 (function(){
   try {
     if (location.protocol !== "http:" && location.protocol !== "https:") return;
     var p = JSON.parse(localStorage.getItem("quizpage:prefs") || "{}");
     var t = p.theme || "cozy";
-    var bgs = { cozy: "#f1e6c8", naruto: "#fbf2dc", onepiece: "#ecdfb8" };
-    document.documentElement.style.background = bgs[t] || bgs.cozy;
+    var T = {
+      cozy: {
+        "--bg":"#f1e6c8","--bg-2":"#e4d2a4","--surface":"#fbf4dc","--surface-2":"#f3e6bc","--surface-3":"#ecdba0",
+        "--text":"#2a1d10","--text-soft":"#4d3520","--text-dim":"#8a6f4a",
+        "--border":"#b89c66","--border-soft":"#d4ba7e","--border-dim":"#e6d2a0",
+        "--accent-1":"#a85a10","--accent-2":"oklch(38% 0.055 205)","--gold":"#c08a18","--gold-soft":"#e9bf5c",
+        "--accent-1-glow":"rgba(168,90,16,0.18)",
+        "--font-display":"\"EB Garamond\", Palatino, Georgia, serif",
+        "--font-body":"\"DM Sans\", system-ui, sans-serif"
+      },
+      naruto: {
+        "--bg":"#fbf2dc","--bg-2":"#f1dfa8","--surface":"#fffaea","--surface-2":"#fbecc4","--surface-3":"#f4d792",
+        "--text":"#1f1206","--text-soft":"#3a2710","--text-dim":"#7a5a2e",
+        "--border":"#d49a3e","--border-soft":"#e8c576","--border-dim":"#f1dfa8",
+        "--accent-1":"#d05a14","--accent-2":"#2f6b2c","--gold":"#c98a18","--gold-soft":"#f0c160",
+        "--accent-1-glow":"rgba(208,90,20,0.22)",
+        "--font-display":"\"Shippori Mincho\", \"EB Garamond\", Georgia, serif",
+        "--font-body":"\"Noto Sans\", system-ui, sans-serif"
+      },
+      onepiece: {
+        "--bg":"#ecdfb8","--bg-2":"#d4c084","--surface":"#f5ead0","--surface-2":"#e9d8a4","--surface-3":"#d8c082",
+        "--text":"#1a1408","--text-soft":"#3a2a14","--text-dim":"#6e5a2e",
+        "--border":"#8a6e3a","--border-soft":"#b8965e","--border-dim":"#d4ba80",
+        "--accent-1":"#143b5e","--accent-2":"#a02018","--gold":"#b8801c","--gold-soft":"#dfb74e",
+        "--accent-1-glow":"rgba(20,59,94,0.22)",
+        "--font-display":"\"IM Fell English SC\", \"EB Garamond\", Georgia, serif",
+        "--font-body":"\"Source Sans 3\", system-ui, sans-serif"
+      }
+    };
+    var tokens = T[t] || T.cozy;
+    var root = document.documentElement;
+    for (var k in tokens) root.style.setProperty(k, tokens[k]);
+    root.style.background = tokens["--bg"];
+    root.style.color = tokens["--text"];
     document.body.classList.add("codex-on");
     document.body.classList.add("booting");
     document.body.setAttribute("data-course-theme", t);
-    document.body.setAttribute("data-theme", "light");  // veto master dark mode while codex-on
-    // Drop .booting on first frame so transitions / mascot bob etc. can start
+    document.body.setAttribute("data-theme", "light");
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         document.body.classList.remove("booting");
