@@ -158,7 +158,19 @@
     margin-bottom: 18px;
     box-shadow: var(--shadow);
     border: 1px solid var(--line);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.18s;
   }
+  .hero:hover { transform: translateY(-1px); box-shadow: var(--shadow-deep); }
+  .hero:active { transform: translateY(0); }
+  .hero::after {
+    content: "⊕"; position: absolute; top: 14px; right: 18px;
+    font: 700 16px/1 var(--font-body);
+    color: var(--ink-mute);
+    opacity: 0.5;
+    transition: opacity 0.15s;
+  }
+  .hero:hover::after { opacity: 1; color: var(--amber); }
   .hero::before {
     /* inner ornament border */
     content: "";
@@ -442,6 +454,33 @@
   }
   .modal-close:hover { background: var(--bg-2); color: var(--ink); }
 
+  /* Stats modal */
+  .stats-modal .modal-card { max-width: 440px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .stats-section { margin: 14px 0 4px; position: relative; }
+  .stats-section-label {
+    font: italic 600 12px/1 var(--font-display);
+    color: var(--ink-soft);
+    text-align: center;
+    margin: 4px 0 10px;
+    letter-spacing: 0.05em;
+  }
+  .stats-section-label::before, .stats-section-label::after { content: "~ "; }
+  .stats-section-label::after { content: " ~"; }
+  .stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 4px; border-top: 1px dashed var(--line-soft); font: 14px/1.4 var(--font-body); position: relative; }
+  .stat-row:first-of-type { border-top: 0; }
+  .stat-row .lbl { color: var(--ink-soft); display: flex; align-items: center; gap: 8px; }
+  .stat-row .val { color: var(--ink); font-weight: 700; font-family: var(--font-display); }
+  .stat-row .val .sub { color: var(--ink-mute); font-weight: 500; font-size: 12px; margin-left: 4px; }
+  .stat-box-bar { display: flex; gap: 3px; margin: 8px 4px 4px; height: 10px; align-items: stretch; }
+  .stat-box-seg { flex: 1; border-radius: 3px; background: var(--bg-2); position: relative; overflow: hidden; }
+  .stat-box-seg .fill {
+    position: absolute; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(180deg, var(--gold), var(--amber));
+    transition: height 0.4s;
+  }
+  .stat-box-labels { display: flex; gap: 3px; margin: 0 4px; font: 600 10px/1 var(--font-body); color: var(--ink-mute); text-align: center; }
+  .stat-box-labels span { flex: 1; }
+
   /* Settings radio group */
   .opt-group { position: relative; margin-bottom: 16px; }
   .opt-group-label {
@@ -709,6 +748,117 @@ function openSettings() {
   const so = m.querySelector("#signoutBtn"); if (so) so.onclick = () => { clearAuth(); location.reload(); };
 }
 
+function openStats() {
+  if (document.getElementById("statsModal")) return;
+  const snap = lastSnapshot || { courses: {}, streak: null, activity: { days: {} } };
+  const prefs = getPrefs();
+
+  // Aggregate
+  let totalXp = 0;
+  const perCourse = [];
+  const boxes = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  let cardsTracked = 0;
+  let cardsDue = 0;
+  const today = epochDay();
+  let firstSeenDay = Infinity;
+  let lastWriteTs = 0;
+
+  for (const c of COURSES) {
+    const d = snap.courses && snap.courses[c.storageKey];
+    const s = d && d.state;
+    if (s) {
+      const cxp = s.xp | 0;
+      totalXp += cxp;
+      perCourse.push({ c, xp: cxp, level: levelFromXp(cxp), state: s, updatedAt: d.updatedAt });
+      if (d.updatedAt && d.updatedAt > lastWriteTs) lastWriteTs = d.updatedAt;
+      if (s.srs && typeof s.srs === "object") {
+        for (const id in s.srs) {
+          const r = s.srs[id]; if (!r) continue;
+          cardsTracked++;
+          const box = Math.min(5, Math.max(1, r.box | 0 || 1));
+          boxes[box]++;
+          const due = (r.lastSeen || 0) + (BOX_INTERVAL[box] || 1);
+          if (due <= today) cardsDue++;
+          if (r.lastSeen && r.lastSeen < firstSeenDay) firstSeenDay = r.lastSeen;
+        }
+      }
+    } else if (c.status === "live") {
+      perCourse.push({ c, xp: 0, level: 1, state: null, updatedAt: null });
+    }
+  }
+  const level = levelFromXp(totalXp);
+  const lvFloor = xpForLevel(level);
+  const lvCeil  = xpForLevel(level + 1);
+  const inLevel = totalXp - lvFloor;
+  const span    = lvCeil - lvFloor;
+  const title   = titleFor(level, prefs.ranks);
+
+  const streak = snap.streak || { count: 0, best: 0, freezes: 0 };
+  const activeDays = snap.activity && snap.activity.days ? Object.keys(snap.activity.days).length : 0;
+  const accountAge = firstSeenDay < Infinity ? Math.max(0, today - firstSeenDay) : null;
+  const masterRate = cardsTracked > 0 ? Math.round(100 * boxes[5] / cardsTracked) : 0;
+
+  const maxBox = Math.max(1, boxes[1], boxes[2], boxes[3], boxes[4], boxes[5]);
+  const boxBar = [1, 2, 3, 4, 5].map(b => `<div class="stat-box-seg"><div class="fill" style="height:${Math.round(100 * boxes[b] / maxBox)}%"></div></div>`).join("");
+
+  const courseRows = perCourse.map(p => `
+    <div class="stat-row">
+      <div class="lbl">${p.c.icon || "📜"} ${p.c.name}</div>
+      <div class="val">${fmt(p.xp)} xp<span class="sub">· Lv ${p.level}</span></div>
+    </div>`).join("");
+
+  const m = document.createElement("div");
+  m.id = "statsModal";
+  m.className = "modal-bg stats-modal";
+  m.innerHTML = `
+    <div class="modal-card">
+      <button class="modal-close" aria-label="Close" id="sx2">×</button>
+      <h2 class="modal-title">${THEME_HERO_ICON[prefs.theme] || "⚖️"} Adventurer Stats</h2>
+      <div class="modal-desc">${title} · Level ${level}</div>
+
+      <div class="stats-section">
+        <div class="stat-row">
+          <div class="lbl">Total experience</div>
+          <div class="val">${fmt(totalXp)} xp</div>
+        </div>
+        <div class="stat-row">
+          <div class="lbl">This level</div>
+          <div class="val">${fmt(inLevel)} / ${fmt(span)}<span class="sub">· ${fmt(span - inLevel)} to next</span></div>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-section-label">courses</div>
+        ${courseRows || `<div class="stat-row"><div class="lbl">No progress yet</div><div class="val">—</div></div>`}
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-section-label">review deck</div>
+        <div class="stat-row"><div class="lbl">🃏 Cards in rotation</div><div class="val">${fmt(cardsTracked)}</div></div>
+        <div class="stat-row"><div class="lbl">🔁 Due now</div><div class="val">${fmt(cardsDue)}</div></div>
+        <div class="stat-row"><div class="lbl">⭐ Mastered</div><div class="val">${fmt(boxes[5])}<span class="sub">· ${masterRate}%</span></div></div>
+        <div class="stat-box-bar">${boxBar}</div>
+        <div class="stat-box-labels"><span>Box 1<br>${fmt(boxes[1])}</span><span>Box 2<br>${fmt(boxes[2])}</span><span>Box 3<br>${fmt(boxes[3])}</span><span>Box 4<br>${fmt(boxes[4])}</span><span>Box 5<br>${fmt(boxes[5])}</span></div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-section-label">streak</div>
+        <div class="stat-row"><div class="lbl">🔥 Current</div><div class="val">${streak.count | 0} day${(streak.count | 0) === 1 ? "" : "s"}</div></div>
+        <div class="stat-row"><div class="lbl">🏆 Best</div><div class="val">${streak.best | 0} day${(streak.best | 0) === 1 ? "" : "s"}</div></div>
+        <div class="stat-row"><div class="lbl">❄️ Freezes available</div><div class="val">${streak.freezes | 0}</div></div>
+        <div class="stat-row"><div class="lbl">📅 Days active (90d)</div><div class="val">${fmt(activeDays)}</div></div>
+        ${accountAge !== null ? `<div class="stat-row"><div class="lbl">⏳ Adventuring for</div><div class="val">${fmt(accountAge)} day${accountAge === 1 ? "" : "s"}</div></div>` : ""}
+        ${lastWriteTs ? `<div class="stat-row"><div class="lbl">⏱ Last study</div><div class="val">${relTime(lastWriteTs)}</div></div>` : ""}
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+  m.querySelector("#sx2").onclick = () => m.remove();
+  m.addEventListener("click", (e) => { if (e.target === m) m.remove(); });
+  // Esc to close
+  const onKey = (e) => { if (e.key === "Escape") { m.remove(); document.removeEventListener("keydown", onKey); } };
+  document.addEventListener("keydown", onKey);
+}
+
 function applyTheme() {
   const p = getPrefs();
   // Default theme (cozy) sets no attribute so :root applies; alt themes use body[data-theme=...]
@@ -888,6 +1038,7 @@ async function boot() {
 }
 
 document.getElementById("chipSettings").addEventListener("click", openSettings);
+document.getElementById("hero").addEventListener("click", openStats);
 
 boot();
 </script>

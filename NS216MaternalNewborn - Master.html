@@ -7401,8 +7401,8 @@ body.cozy-on #hub-back-btn {
   letter-spacing: 0.04em;
   padding: 9px 13px !important;
   top: max(10px, env(safe-area-inset-top)) !important;
-  right: auto !important;
-  left: max(10px, env(safe-area-inset-left)) !important;
+  right: max(10px, env(safe-area-inset-right)) !important;
+  left: auto !important;
 }
 
 body.cozy-on .btn {
@@ -7434,6 +7434,48 @@ body.cozy-on .study-section strong { color: var(--accent-2) !important; }
 body.cozy-on .study-section h3 { color: var(--accent-2) !important; }
 body.cozy-on .study-section h4 { color: var(--accent-1) !important; }
 body.cozy-on .float-pip { filter: hue-rotate(-20deg) saturate(0.85); }
+
+body.cozy-on .cozy-hero { cursor: pointer; transition: transform 0.12s ease, box-shadow 0.18s; }
+body.cozy-on .cozy-hero:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(74,53,32,0.18); }
+body.cozy-on .cozy-hero::after {
+  content: "⊕"; position: absolute; top: 8px; right: 14px;
+  font: 700 14px/1 -apple-system, system-ui, sans-serif;
+  color: var(--text-dim); opacity: 0.5;
+}
+body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
+
+.cs-modal-bg { position: fixed; inset: 0; z-index: 200; background: rgba(74,53,32,0.62); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.cs-modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 440px; width: 100%; max-height: 86vh; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 0 18px 40px rgba(74,53,32,0.32);
+  position: relative;
+  font: 14px/1.5 -apple-system, system-ui, sans-serif;
+  color: var(--text);
+}
+.cs-modal-card::before { content: ""; position: absolute; inset: 6px; border: 1px dashed rgba(201,181,138,0.6); border-radius: 11px; pointer-events: none; }
+.cs-modal-title { font: 700 20px/1.2 "Iowan Old Style", Georgia, serif; margin: 0 0 4px; position: relative; }
+.cs-modal-desc  { color: var(--text-dim); font-size: 14px; margin-bottom: 18px; position: relative; }
+.cs-modal-close { position: absolute; top: 8px; right: 10px; width: 34px; height: 34px; border: 0; background: transparent; color: var(--text-dim); font-size: 24px; cursor: pointer; border-radius: 50%; }
+.cs-modal-close:hover { background: rgba(0,0,0,0.05); color: var(--text); }
+.cs-sec { margin: 14px 0 4px; position: relative; }
+.cs-sec-lbl { font: italic 600 12px/1 "Iowan Old Style", Georgia, serif; color: var(--text-dim); text-align: center; margin: 4px 0 10px; letter-spacing: 0.05em; }
+.cs-sec-lbl::before, .cs-sec-lbl::after { content: "~ "; }
+.cs-sec-lbl::after { content: " ~"; }
+.cs-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 4px; border-top: 1px dashed rgba(201,181,138,0.5); font-size: 14px; position: relative; }
+.cs-row:first-of-type { border-top: 0; }
+.cs-row .lbl { color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+.cs-row .val { color: var(--text); font-weight: 700; font-family: "Iowan Old Style", Georgia, serif; }
+.cs-row .val .sub { color: var(--text-dim); font-weight: 500; font-size: 12px; margin-left: 4px; font-family: -apple-system, system-ui, sans-serif; }
+.cs-box-bar { display: flex; gap: 3px; margin: 8px 4px 4px; height: 10px; align-items: stretch; }
+.cs-box-seg { flex: 1; border-radius: 3px; background: var(--bg); position: relative; overflow: hidden; border: 1px solid var(--border); }
+.cs-box-seg .fill { position: absolute; left: 0; bottom: 0; right: 0; background: linear-gradient(180deg, var(--gold), var(--accent-1)); transition: height 0.4s; }
+.cs-box-lbls { display: flex; gap: 3px; margin: 0 4px; font: 600 10px/1 -apple-system, system-ui, sans-serif; color: var(--text-dim); text-align: center; }
+.cs-box-lbls span { flex: 1; }
 </style>
 <script>
 (function cozyReskin(){
@@ -7488,7 +7530,83 @@ body.cozy-on .float-pip { filter: hue-rotate(-20deg) saturate(0.85); }
         <div class="cozy-hero-bar-label"><span id="cozyBarIn">0 xp</span><span id="cozyBarNext">— to next</span></div>
       </div>`;
     main.insertBefore(h, main.firstChild);
+    h.addEventListener("click", openStats);
     updateHero();
+  }
+
+  function openStats() {
+    if (document.getElementById("cozyStats")) return;
+    let s = {}; try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch {}
+    const xp = s.xp | 0;
+    const level = levelFromXp(xp);
+    const lvFloor = xpForLevel(level);
+    const lvCeil  = xpForLevel(level + 1);
+    const inLvl = xp - lvFloor;
+    const span  = lvCeil - lvFloor;
+    const title = titleFor(level, getRanks());
+    const today = Math.floor(Date.now() / 86400000);
+    const BOX = { 1:1, 2:2, 3:4, 4:8, 5:16 };
+    const boxes = {1:0,2:0,3:0,4:0,5:0};
+    let cards = 0, due = 0;
+    const counts = { q:0, d:0, fc:0, sc:0 };
+    if (s.srs && typeof s.srs === "object") {
+      for (const id in s.srs) {
+        const r = s.srs[id]; if (!r) continue;
+        cards++;
+        const box = Math.min(5, Math.max(1, r.box | 0 || 1));
+        boxes[box]++;
+        const d = (r.lastSeen || 0) + (BOX[box] || 1);
+        if (d <= today) due++;
+        const ns = id.split(":")[0];
+        if (counts[ns] !== undefined) counts[ns]++;
+      }
+    }
+    const ds = s.dayStreak || {};
+    const read = Array.isArray(s.read) ? s.read.length : 0;
+    const masterRate = cards > 0 ? Math.round(100 * boxes[5] / cards) : 0;
+    const maxBox = Math.max(1, boxes[1], boxes[2], boxes[3], boxes[4], boxes[5]);
+    const boxBar = [1,2,3,4,5].map(b => `<div class="cs-box-seg"><div class="fill" style="height:${Math.round(100 * boxes[b] / maxBox)}%"></div></div>`).join("");
+    const themeIcon = THEME_ICONS[getTheme()] || THEME_ICONS.cozy;
+
+    const m = document.createElement("div");
+    m.id = "cozyStats";
+    m.className = "cs-modal-bg";
+    m.innerHTML = `
+      <div class="cs-modal-card">
+        <button class="cs-modal-close" id="cscx">×</button>
+        <h2 class="cs-modal-title">${themeIcon} Course Stats</h2>
+        <div class="cs-modal-desc">${title} · Level ${level}</div>
+        <div class="cs-sec">
+          <div class="cs-row"><div class="lbl">Experience earned</div><div class="val">${fmt(xp)} xp</div></div>
+          <div class="cs-row"><div class="lbl">This level</div><div class="val">${fmt(inLvl)} / ${fmt(span)}<span class="sub">· ${fmt(span - inLvl)} to next</span></div></div>
+          <div class="cs-row"><div class="lbl">📖 Sections read</div><div class="val">${fmt(read)}</div></div>
+        </div>
+        <div class="cs-sec">
+          <div class="cs-sec-lbl">review deck</div>
+          <div class="cs-row"><div class="lbl">🃏 Cards in rotation</div><div class="val">${fmt(cards)}</div></div>
+          <div class="cs-row"><div class="lbl">🔁 Due now</div><div class="val">${fmt(due)}</div></div>
+          <div class="cs-row"><div class="lbl">⭐ Mastered</div><div class="val">${fmt(boxes[5])}<span class="sub">· ${masterRate}%</span></div></div>
+          <div class="cs-box-bar">${boxBar}</div>
+          <div class="cs-box-lbls"><span>Box 1<br>${fmt(boxes[1])}</span><span>Box 2<br>${fmt(boxes[2])}</span><span>Box 3<br>${fmt(boxes[3])}</span><span>Box 4<br>${fmt(boxes[4])}</span><span>Box 5<br>${fmt(boxes[5])}</span></div>
+        </div>
+        <div class="cs-sec">
+          <div class="cs-sec-lbl">by item type</div>
+          <div class="cs-row"><div class="lbl">🎯 Quiz questions</div><div class="val">${fmt(counts.q)}</div></div>
+          <div class="cs-row"><div class="lbl">🃏 Flashcards</div><div class="val">${fmt(counts.fc)}</div></div>
+          <div class="cs-row"><div class="lbl">🗂 Drill items</div><div class="val">${fmt(counts.d)}</div></div>
+          <div class="cs-row"><div class="lbl">🩺 Scenarios</div><div class="val">${fmt(counts.sc)}</div></div>
+        </div>
+        <div class="cs-sec">
+          <div class="cs-sec-lbl">streak</div>
+          <div class="cs-row"><div class="lbl">🔥 Current</div><div class="val">${ds.count | 0} day${(ds.count | 0) === 1 ? "" : "s"}</div></div>
+          <div class="cs-row"><div class="lbl">🏆 Best</div><div class="val">${ds.best | 0} day${(ds.best | 0) === 1 ? "" : "s"}</div></div>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+    m.querySelector("#cscx").onclick = () => m.remove();
+    m.addEventListener("click", (e) => { if (e.target === m) m.remove(); });
+    const onKey = (e) => { if (e.key === "Escape") { m.remove(); document.removeEventListener("keydown", onKey); } };
+    document.addEventListener("keydown", onKey);
   }
 
   function updateHero() {
