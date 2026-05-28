@@ -7265,6 +7265,32 @@ if (!state.pipHidden) {
   --due: #b94236 !important;
   --success: #6b8a3a !important;
 }
+body[data-theme="naruto"] {
+  --bg: #f0e6d2 !important;
+  --surface: #fff5d6 !important;
+  --surface-2: #fbe6a8 !important;
+  --border: #c8a662 !important;
+  --text: #2d2418 !important;
+  --text-dim: #553f1e !important;
+  --accent-1: #ee6a1c !important;
+  --accent-2: #c84a08 !important;
+  --gold: #f0b323 !important;
+  --due: #c43b2a !important;
+  --success: #3f7a4c !important;
+}
+body[data-theme="onepiece"] {
+  --bg: #e8dec2 !important;
+  --surface: #f4ead0 !important;
+  --surface-2: #e8d8a8 !important;
+  --border: #b8965c !important;
+  --text: #2a1f12 !important;
+  --text-dim: #4f3a20 !important;
+  --accent-1: #d63a2f !important;
+  --accent-2: #a82218 !important;
+  --gold: #e5b234 !important;
+  --due: #8a1a14 !important;
+  --success: #1f6e8c !important;
+}
 body.cozy-on {
   background:
     radial-gradient(ellipse at top, rgba(212,160,57,0.18), transparent 60%),
@@ -7415,15 +7441,25 @@ body.cozy-on .float-pip { filter: hue-rotate(-20deg) saturate(0.85); }
   function levelFromXp(xp) { return Math.max(1, Math.floor(Math.sqrt((xp | 0) / 100)) + 1); }
   function xpForLevel(level) { return (level - 1) * (level - 1) * 100; }
   const RANK_LADDERS = {
-    nursing: [[1,"Novice"],[4,"Apprentice"],[10,"Practitioner"],[18,"Charge Nurse"],[28,"Specialist"],[40,"Sage"]],
-    generic: [[1,"Apprentice"],[8,"Adept"],[18,"Expert"],[30,"Master"],[45,"Grandmaster"]],
+    nursing:  [[1,"Novice"],[4,"Apprentice"],[10,"Practitioner"],[18,"Charge Nurse"],[28,"Specialist"],[40,"Sage"]],
+    generic:  [[1,"Apprentice"],[8,"Adept"],[18,"Expert"],[30,"Master"],[45,"Grandmaster"]],
+    naruto:   [[1,"Academy Student"],[4,"Genin"],[10,"Chunin"],[18,"Jonin"],[28,"Sannin"],[40,"Hokage"]],
+    onepiece: [[1,"Cabin Boy"],[4,"Pirate"],[10,"First Mate"],[18,"Captain"],[28,"Yonko"],[40,"Pirate King"]],
   };
+  const THEME_ICONS = { cozy: "⚖️", naruto: "🍥", onepiece: "🏴‍☠️" };
   function titleFor(level, ladderId) {
     const l = RANK_LADDERS[ladderId] || RANK_LADDERS.nursing;
     let t = l[0][1]; for (const [m, n] of l) if (level >= m) t = n; return t;
   }
-  function getRanks() {
-    try { const p = JSON.parse(localStorage.getItem("quizpage:prefs") || "{}"); return p.ranks || "nursing"; } catch { return "nursing"; }
+  function getPrefs() { try { return JSON.parse(localStorage.getItem("quizpage:prefs") || "{}"); } catch { return {}; } }
+  function getRanks() { return getPrefs().ranks || "nursing"; }
+  function getTheme() { return getPrefs().theme || "cozy"; }
+  function applyTheme() {
+    const t = getTheme();
+    if (t && t !== "cozy") document.body.setAttribute("data-theme", t);
+    else document.body.removeAttribute("data-theme");
+    const ic = document.querySelector(".cozy-rank-icon");
+    if (ic) ic.textContent = THEME_ICONS[t] || THEME_ICONS.cozy;
   }
   function fmt(n) { return new Intl.NumberFormat().format(n | 0); }
 
@@ -7514,9 +7550,11 @@ body.cozy-on .float-pip { filter: hue-rotate(-20deg) saturate(0.85); }
     document.body.classList.add("cozy-on");
     injectHero();
     injectBottomNav();
+    applyTheme();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else setTimeout(boot, 0);
+  window.addEventListener("storage", (e) => { if (e.key === "quizpage:prefs") applyTheme(); });
 })();
 </script>
 <script>

@@ -29,6 +29,62 @@
     --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   }
 
+  /* ===== Naruto theme — hidden leaf village ===== */
+  body[data-theme="naruto"] {
+    --bg: #f0e6d2;
+    --bg-2: #e6d4ad;
+    --parch: #fff5d6;
+    --parch-2: #fbe6a8;
+    --ink: #2d2418;
+    --ink-soft: #553f1e;
+    --ink-mute: #8a7240;
+    --line: #c8a662;
+    --line-soft: #ddc89a;
+    --amber: #ee6a1c;          /* Naruto's jumpsuit orange */
+    --amber-2: #c84a08;
+    --gold: #f0b323;
+    --crimson: #c43b2a;
+    --moss: #3f7a4c;           /* Konoha leaf green */
+    --indigo: #2c4d70;
+    --shadow: 0 6px 18px rgba(45,36,24,0.22), 0 2px 4px rgba(45,36,24,0.12);
+    --shadow-deep: 0 12px 32px rgba(45,36,24,0.30), 0 4px 8px rgba(45,36,24,0.18);
+  }
+
+  /* ===== One Piece theme — grand line ===== */
+  body[data-theme="onepiece"] {
+    --bg: #e8dec2;             /* sea-map parchment */
+    --bg-2: #d6c79b;
+    --parch: #f4ead0;
+    --parch-2: #e8d8a8;
+    --ink: #2a1f12;
+    --ink-soft: #4f3a20;
+    --ink-mute: #8a724a;
+    --line: #b8965c;
+    --line-soft: #d4b07a;
+    --amber: #d63a2f;          /* Luffy red */
+    --amber-2: #a82218;
+    --gold: #e5b234;
+    --crimson: #8a1a14;
+    --moss: #1f6e8c;           /* deep sea */
+    --indigo: #1c3954;
+    --shadow: 0 6px 18px rgba(42,31,18,0.22), 0 2px 4px rgba(42,31,18,0.12);
+    --shadow-deep: 0 12px 32px rgba(42,31,18,0.30), 0 4px 8px rgba(42,31,18,0.18);
+  }
+
+  /* Theme-aware body background (uses bg/bg-2 from active theme) */
+  body[data-theme="naruto"] {
+    background:
+      radial-gradient(ellipse at top, rgba(238,106,28,0.16), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(63,122,76,0.12), transparent 60%),
+      var(--bg) !important;
+  }
+  body[data-theme="onepiece"] {
+    background:
+      radial-gradient(ellipse at top, rgba(31,110,140,0.16), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(214,58,47,0.12), transparent 60%),
+      var(--bg) !important;
+  }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; padding: 0;
@@ -472,14 +528,21 @@ const RANK_LADDERS = {
     [1, "Apprentice"], [8, "Adept"], [18, "Expert"],
     [30, "Master"], [45, "Grandmaster"],
   ],
-  // future: naruto, onepiece — drop in {ladder array, locked: true} until ready
+  naruto: [
+    [1, "Academy Student"], [4, "Genin"], [10, "Chunin"],
+    [18, "Jonin"], [28, "Sannin"], [40, "Hokage"],
+  ],
+  onepiece: [
+    [1, "Cabin Boy"], [4, "Pirate"], [10, "First Mate"],
+    [18, "Captain"], [28, "Yonko"], [40, "Pirate King"],
+  ],
 };
-const RANK_LOCKED = { naruto: true, onepiece: true };
+const RANK_LOCKED = {};
 const RANK_LABELS = {
-  nursing: "Nursing path",
-  generic: "Generic RPG",
-  naruto: "Naruto (locked)",
-  onepiece: "One Piece (locked)",
+  nursing:  "Nursing path",
+  generic:  "Generic RPG",
+  naruto:   "Naruto · Hokage road",
+  onepiece: "One Piece · Pirate King",
 };
 function titleFor(level, ladderId) {
   const ladder = RANK_LADDERS[ladderId] || RANK_LADDERS.nursing;
@@ -488,8 +551,13 @@ function titleFor(level, ladderId) {
   return title;
 }
 
-const VISUAL_THEMES = { cozy: "Cozy Fantasy" };
-const VISUAL_LOCKED = { naruto: true, onepiece: true };
+const VISUAL_THEMES = {
+  cozy:     "Cozy Fantasy",
+  naruto:   "Naruto — Hidden Leaf",
+  onepiece: "One Piece — Grand Line",
+};
+const VISUAL_LOCKED = {};
+const THEME_HERO_ICON = { cozy: "⚖️", naruto: "🍥", onepiece: "🏴‍☠️" };
 
 const PREF_KEY = "quizpage:prefs";
 function getPrefs() {
@@ -597,10 +665,6 @@ function openSettings() {
       <input type="radio" name="visual" value="${id}" ${prefs.theme === id ? "checked" : ""} ${VISUAL_LOCKED[id] ? "disabled" : ""}>
       <span class="opt-label">${label}</span>${VISUAL_LOCKED[id] ? `<span class="opt-sub">— locked</span>` : ""}
     </label>
-  `).join("") + ["naruto", "onepiece"].map(id => `
-    <label class="opt locked">
-      <input type="radio" disabled> <span class="opt-label">${id === "naruto" ? "Naruto" : "One Piece"}</span><span class="opt-sub">— coming soon</span>
-    </label>
   `).join("");
   const rankOpts = Object.entries(RANK_LABELS).map(([id, label]) => `
     <label class="opt${RANK_LOCKED[id] ? " locked" : ""}">
@@ -646,8 +710,14 @@ function openSettings() {
 }
 
 function applyTheme() {
-  // Single visual theme today; left here as the hook for future themes.
-  // const p = getPrefs(); document.documentElement.dataset.theme = p.theme;
+  const p = getPrefs();
+  // Default theme (cozy) sets no attribute so :root applies; alt themes use body[data-theme=...]
+  if (p.theme && p.theme !== "cozy") document.body.setAttribute("data-theme", p.theme);
+  else document.body.removeAttribute("data-theme");
+  // Update hero icon if rendered
+  const icon = THEME_HERO_ICON[p.theme] || THEME_HERO_ICON.cozy;
+  const iconEl = document.querySelector(".hero-rank-icon");
+  if (iconEl) iconEl.textContent = icon;
 }
 
 /* ===== Render ===== */
