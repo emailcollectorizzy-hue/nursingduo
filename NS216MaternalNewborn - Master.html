@@ -7440,34 +7440,57 @@ body.cozy-on .float-pip { filter: hue-rotate(-20deg) saturate(0.85); }
 
 body.cozy-on .activity-strip { display: none !important; }
 
-body.cozy-on header.app-header .xp-bar {
-  background: var(--bg) !important;
-  border-top: 1px solid var(--border);
-  height: 6px !important;
-}
-body.cozy-on header.app-header .xp-bar-fill {
-  background: linear-gradient(90deg, var(--gold), var(--accent-1)) !important;
-}
+body.cozy-on header.app-header { display: none !important; }
+body.cozy-on main { padding-top: 14px !important; }
+body.cozy-on #hub-back-btn { display: none !important; }
 
-body.cozy-on .vital-chip.hr-vc,
-body.cozy-on #hr-chip { display: none !important; }
-
-body.cozy-on header.app-header .header-quick {
-  gap: 6px !important;
-  flex-wrap: nowrap;
-  min-width: 0;
+#cozy-top-cluster {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 50;
+  display: flex; gap: 6px; align-items: center;
+  flex-wrap: wrap; justify-content: flex-end;
+  max-width: calc(100% - 20px);
 }
-body.cozy-on header.app-header .vital-chip { padding: 3px 8px !important; font-size: 11px !important; }
-body.cozy-on header.app-header .vital-chip .v-label { font-size: 9px !important; }
-
-body.cozy-on header.app-header a#hub-back-btn,
-html body.cozy-on header.app-header #hub-back-btn {
-  background: linear-gradient(135deg, #c87a1f, #8a4814) !important;
-  background-color: #c87a1f !important;
+#cozy-top-cluster .ctc-chip,
+#cozy-top-cluster .ctc-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font: 700 12px/1 -apple-system, system-ui, sans-serif;
+  padding: 7px 10px;
+  border-radius: 10px;
+  display: inline-flex; align-items: center; gap: 4px;
+  box-shadow: 0 2px 6px rgba(74,53,32,0.15);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.1s, background 0.15s;
+}
+#cozy-top-cluster .ctc-btn:hover,
+#cozy-top-cluster .ctc-chip:hover { background: var(--surface-2); }
+#cozy-top-cluster .ctc-btn:active { transform: scale(0.94); }
+#cozy-top-cluster .ctc-chip { cursor: default; }
+#cozy-top-cluster .ctc-icon-only { padding: 7px 9px; font-size: 14px; }
+#cozy-top-cluster .ctc-hub {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
   color: #fff8e8 !important;
-  border: 2px solid #fcf5e0 !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  border: 2px solid var(--surface);
+  box-shadow: 0 2px 8px rgba(74,53,32,0.25), inset 0 1px 0 rgba(255,255,255,0.3);
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+#cozy-top-cluster .ctc-hub:hover { filter: brightness(1.08); }
+body.cozy-on .cozy-hero .cozy-course-name {
+  font: italic 600 12px/1 "Iowan Old Style", Georgia, serif;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(201,181,138,0.5);
 }
 
 body.cozy-on .cozy-hero { cursor: pointer; transition: transform 0.12s ease, box-shadow 0.18s; }
@@ -7544,9 +7567,12 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
     if (document.getElementById("cozy-hero")) return;
     const main = document.querySelector("main");
     if (!main) return;
+    const brandEl = document.querySelector(".brand-mini, header.app-header .brand");
+    const courseName = (brandEl ? brandEl.textContent : document.title).trim();
     const h = document.createElement("div");
     h.id = "cozy-hero"; h.className = "cozy-hero";
     h.innerHTML = `
+      <div class="cozy-course-name">${courseName}</div>
       <div class="cozy-hero-row">
         <div class="cozy-rank">
           <div class="cozy-rank-icon">⚖️</div>
@@ -7567,6 +7593,36 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
     main.insertBefore(h, main.firstChild);
     h.addEventListener("click", openStats);
     updateHero();
+  }
+
+  function injectTopCluster() {
+    if (document.getElementById("cozy-top-cluster")) return;
+    const c = document.createElement("div");
+    c.id = "cozy-top-cluster";
+    c.innerHTML = `
+      <div class="ctc-chip" id="ctc-streak" title="Day streak"><span>🔥</span><span id="ctc-streak-num">0</span></div>
+      <div class="ctc-chip" id="ctc-hp" title="Hearts"><span>❤️</span><span id="ctc-hp-num">5</span></div>
+      <button type="button" class="ctc-btn ctc-icon-only" id="ctc-fs" title="Fullscreen">⛶</button>
+      <button type="button" class="ctc-btn ctc-icon-only" id="ctc-menu" title="Settings menu">⚙</button>
+      <a class="ctc-btn ctc-hub" href="/" title="Back to NursingDuo hub">← Hub</a>
+    `;
+    document.body.appendChild(c);
+    const mirror = (srcId, dstId) => {
+      const src = document.getElementById(srcId);
+      const dst = document.getElementById(dstId);
+      if (!src || !dst) return;
+      const upd = () => { dst.textContent = src.textContent || "0"; };
+      upd();
+      new MutationObserver(upd).observe(src, { childList: true, characterData: true, subtree: true });
+    };
+    mirror("streak-count", "ctc-streak-num");
+    mirror("hearts-count", "ctc-hp-num");
+    c.querySelector("#ctc-fs").addEventListener("click", () => {
+      const fs = document.getElementById("fs-toggle"); if (fs) fs.click();
+    });
+    c.querySelector("#ctc-menu").addEventListener("click", () => {
+      const h = document.getElementById("hamburger-btn"); if (h) h.click();
+    });
   }
 
   function openStats() {
@@ -7704,6 +7760,7 @@ body.cozy-on .cozy-hero:hover::after { opacity: 1; color: var(--accent-1); }
     document.body.classList.add("cozy-on");
     injectHero();
     injectBottomNav();
+    injectTopCluster();
     applyTheme();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
