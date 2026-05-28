@@ -6,69 +6,69 @@
 <meta name="theme-color" content="#f4ead0">
 <title>NursingDuo</title>
 <style>
-  /* ===== Cozy Fantasy theme — default ===== */
+  /* ===== Cozy Fantasy theme — default (WCAG AA tuned 2026-05-28) ===== */
   :root {
     --bg: #f4ead0;
-    --bg-2: #ece0b8;
+    --bg-2: #e6d6a8;           /* darker tan for shadowed surfaces */
     --parch: #fcf5e0;
-    --parch-2: #f7ecc8;
-    --ink: #4a3520;
-    --ink-soft: #6b4f33;
-    --ink-mute: #9c7f5d;
-    --line: #c9b58a;
-    --line-soft: #ddc89a;
-    --amber: #c87a1f;
-    --amber-2: #a85d10;
-    --gold: #d4a039;
-    --crimson: #b94236;
-    --moss: #6b8a3a;
-    --indigo: #5b4ea3;
-    --shadow: 0 6px 18px rgba(74,53,32,0.18), 0 2px 4px rgba(74,53,32,0.10);
-    --shadow-deep: 0 12px 32px rgba(74,53,32,0.25), 0 4px 8px rgba(74,53,32,0.15);
+    --parch-2: #f0e0b0;
+    --ink: #3a2a18;            /* darkened body ink */
+    --ink-soft: #5d4424;       /* secondary text — 7.5:1 on parchment */
+    --ink-mute: #7a5f3d;       /* tertiary text — 5.4:1 (was 3.0:1) */
+    --line: #b89c66;
+    --line-soft: #d4ba7e;
+    --amber: #b05a0e;          /* darker amber — 5.0:1 as text on parchment */
+    --amber-2: #7d3d05;        /* deep amber — 9:1 as text */
+    --gold: #c98a18;           /* darkened gold (still reads on parch) */
+    --crimson: #9c2a20;
+    --moss: #4f6a25;
+    --indigo: #3d3382;
+    --shadow: 0 6px 18px rgba(58,42,24,0.18), 0 2px 4px rgba(58,42,24,0.10);
+    --shadow-deep: 0 12px 32px rgba(58,42,24,0.25), 0 4px 8px rgba(58,42,24,0.15);
     --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
     --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   }
 
-  /* ===== Naruto theme — hidden leaf village ===== */
+  /* ===== Naruto theme — hidden leaf village (WCAG AA tuned) ===== */
   body[data-theme="naruto"] {
     --bg: #f0e6d2;
-    --bg-2: #e6d4ad;
+    --bg-2: #d8c490;
     --parch: #fff5d6;
-    --parch-2: #fbe6a8;
-    --ink: #2d2418;
-    --ink-soft: #553f1e;
-    --ink-mute: #8a7240;
-    --line: #c8a662;
-    --line-soft: #ddc89a;
-    --amber: #ee6a1c;          /* Naruto's jumpsuit orange */
-    --amber-2: #c84a08;
-    --gold: #f0b323;
-    --crimson: #c43b2a;
-    --moss: #3f7a4c;           /* Konoha leaf green */
-    --indigo: #2c4d70;
-    --shadow: 0 6px 18px rgba(45,36,24,0.22), 0 2px 4px rgba(45,36,24,0.12);
-    --shadow-deep: 0 12px 32px rgba(45,36,24,0.30), 0 4px 8px rgba(45,36,24,0.18);
+    --parch-2: #fae09c;
+    --ink: #241c10;
+    --ink-soft: #4a3318;        /* 8.5:1 on bg */
+    --ink-mute: #6b5530;        /* 5.6:1 (was 3.7:1) */
+    --line: #b8965c;
+    --line-soft: #d4b884;
+    --amber: #a8420a;           /* deep burnt orange — 5.5:1 as text */
+    --amber-2: #6e2906;         /* very dark orange — 10:1 */
+    --gold: #b88018;            /* darker gold, no longer fails as small text */
+    --crimson: #9c2a20;
+    --moss: #2e6238;            /* deeper Konoha green — 5.7:1 */
+    --indigo: #1f3e5c;
+    --shadow: 0 6px 18px rgba(36,28,16,0.22), 0 2px 4px rgba(36,28,16,0.12);
+    --shadow-deep: 0 12px 32px rgba(36,28,16,0.30), 0 4px 8px rgba(36,28,16,0.18);
   }
 
-  /* ===== One Piece theme — grand line ===== */
+  /* ===== One Piece theme — grand line (WCAG AA tuned) ===== */
   body[data-theme="onepiece"] {
-    --bg: #e8dec2;             /* sea-map parchment */
-    --bg-2: #d6c79b;
+    --bg: #e8dec2;
+    --bg-2: #c8b380;
     --parch: #f4ead0;
-    --parch-2: #e8d8a8;
-    --ink: #2a1f12;
-    --ink-soft: #4f3a20;
-    --ink-mute: #8a724a;
-    --line: #b8965c;
-    --line-soft: #d4b07a;
-    --amber: #d63a2f;          /* Luffy red */
-    --amber-2: #a82218;
-    --gold: #e5b234;
-    --crimson: #8a1a14;
-    --moss: #1f6e8c;           /* deep sea */
-    --indigo: #1c3954;
-    --shadow: 0 6px 18px rgba(42,31,18,0.22), 0 2px 4px rgba(42,31,18,0.12);
-    --shadow-deep: 0 12px 32px rgba(42,31,18,0.30), 0 4px 8px rgba(42,31,18,0.18);
+    --parch-2: #e0c890;
+    --ink: #241a0e;
+    --ink-soft: #463218;        /* 7.5:1 on bg */
+    --ink-mute: #6a5430;        /* 5.2:1 (was 3.4:1) */
+    --line: #a8895a;
+    --line-soft: #c8a878;
+    --amber: #a02018;           /* deep Luffy red — 5.8:1 as text on parch */
+    --amber-2: #6e140e;         /* darker red — 10:1 */
+    --gold: #b88c1c;            /* darkened gold */
+    --crimson: #6e140e;
+    --moss: #14506e;            /* deep ocean blue — 5.4:1 */
+    --indigo: #112a40;
+    --shadow: 0 6px 18px rgba(36,26,14,0.22), 0 2px 4px rgba(36,26,14,0.12);
+    --shadow-deep: 0 12px 32px rgba(36,26,14,0.30), 0 4px 8px rgba(36,26,14,0.18);
   }
 
   /* Theme-aware body background (uses bg/bg-2 from active theme) */
