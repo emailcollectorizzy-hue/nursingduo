@@ -3192,27 +3192,38 @@ const sfx = (() => {
     themeSwitch(){ if (on()) { tone(440,0.06,"sine",0.08,0); tone(880,0.08,"sine",0.10,0.05); } }
   };
 })();
-// Haptic feedback (Android Chrome / most non-iOS browsers via navigator.vibrate).
-// Gated by state.haptic (settings drawer toggle). Patterns are short — phones with
-// strong vibration motors (e.g. Unihertz Titan series) get a crisp tap feel.
+// Haptic feedback (Android Chrome / Arc / Firefox / Edge / etc. via navigator.vibrate).
+// Gated by state.haptic (settings drawer toggle). Patterns are calibrated for the
+// Titan-class linear motor — values <20ms barely spin up the actuator, so the floor is 25ms.
+// Some in-app browsers (Arc Search) honor vibrate only during a direct user gesture; calls
+// from deferred setTimeouts may be silently dropped — the haptic at the click point still fires.
 const haptic = (() => {
   const supported = typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
   const fire = (pattern) => {
-    if (!supported || !state.haptic || reduceMotion) return;
-    try { navigator.vibrate(pattern); } catch (e) {}
+    if (!supported || !state.haptic || reduceMotion) return false;
+    try { return navigator.vibrate(pattern) === true; } catch (e) { return false; }
+  };
+  // Strength multiplier (state.hapticBoost: 0.7 light, 1.0 default, 1.4 strong, 1.8 max).
+  // Multiplies every "on" duration; pauses untouched so the rhythm stays intact.
+  const scale = (pat) => {
+    const k = state.hapticBoost || 1.0;
+    if (typeof pat === "number") return Math.max(20, Math.round(pat * k));
+    return pat.map((v, i) => i % 2 === 0 && i > 0 ? v : Math.max(20, Math.round(v * k)));
   };
   return {
     supported,
-    tap()     { fire(8); },           // light tap (button press)
-    select()  { fire(12); },          // choice / dropdown / option pick
-    reveal()  { fire([0, 14, 40, 14]); }, // soft double tap on answer reveal
-    correct() { fire([0, 18, 30, 22]); }, // success pulse
-    wrong()   { fire([0, 80, 40, 80]); }, // longer buzz pair
-    levelup() { fire([0, 24, 30, 24, 30, 60]); }, // celebration
-    streak()  { fire([0, 16, 20, 32]); },
-    chest()   { fire([0, 18, 25, 18, 25, 40]); },
-    powerup() { fire(28); },
-    skill()   { fire(40); },
+    fire,
+    test()    { return fire(scale([0, 60, 60, 80, 60, 120])); }, // long demo burst
+    tap()     { fire(scale(25)); },                // light tap (button press)
+    select()  { fire(scale(35)); },                // choice / dropdown / option pick
+    reveal()  { fire(scale([0, 35, 50, 35])); },   // double tap on answer reveal
+    correct() { fire(scale([0, 40, 40, 60])); },   // success pulse
+    wrong()   { fire(scale([0, 120, 60, 120])); }, // strong buzz pair (you screwed up)
+    levelup() { fire(scale([0, 50, 40, 50, 40, 90])); }, // celebration burst
+    streak()  { fire(scale([0, 35, 30, 60])); },
+    chest()   { fire(scale([0, 40, 35, 40, 35, 80])); },
+    powerup() { fire(scale(50)); },
+    skill()   { fire(scale(70)); },
   };
 })();
 // Ambient lo-fi BGM (Web Audio) — opt-in via state.bgmOn. Cheap sine pad cycle.
@@ -3392,16 +3403,34 @@ document.getElementById("sound-toggle").addEventListener("click", () => {
 applySound();
 // Haptic toggle — Android phones (Titan 2 etc.); iOS Safari has no Vibration API so we hide the row.
 if (state.haptic === undefined) state.haptic = haptic.supported;
+if (state.hapticBoost === undefined) state.hapticBoost = 1.4;  // Strong by default for Titan-class motors
+const HAPTIC_LEVELS = [
+  { v: 0,    label: "off",    icon: "📴" },
+  { v: 0.7,  label: "light",  icon: "📳" },
+  { v: 1.0,  label: "normal", icon: "📳" },
+  { v: 1.4,  label: "strong", icon: "📳" },
+  { v: 1.8,  label: "max",    icon: "📳" },
+];
 function applyHaptic() {
   const btn = document.getElementById("haptic-toggle");
   if (!btn) return;
   if (!haptic.supported) { btn.style.display = "none"; return; }
-  btn.innerHTML = (state.haptic ? "📳" : "📴") + " <span>Haptic feedback</span>";
+  const lv = state.haptic
+    ? (HAPTIC_LEVELS.find(l => Math.abs(l.v - state.hapticBoost) < 0.01) || HAPTIC_LEVELS[3])
+    : HAPTIC_LEVELS[0];
+  btn.innerHTML = lv.icon + ' <span>Haptics — ' + lv.label + '</span>';
 }
 document.getElementById("haptic-toggle")?.addEventListener("click", () => {
   if (!haptic.supported) { showToast("Haptics not supported on this device"); return; }
-  state.haptic = !state.haptic; saveState(); applyHaptic();
-  if (state.haptic) { haptic.correct(); showToast("📳 Haptics on"); } else showToast("📴 Haptics off");
+  // Cycle: off → light → normal → strong → max → off …
+  const i = HAPTIC_LEVELS.findIndex(l =>
+    (state.haptic ? Math.abs(l.v - state.hapticBoost) < 0.01 : l.v === 0));
+  const next = HAPTIC_LEVELS[(i + 1) % HAPTIC_LEVELS.length];
+  if (next.v === 0) { state.haptic = false; }
+  else { state.haptic = true; state.hapticBoost = next.v; }
+  saveState(); applyHaptic();
+  showToast(next.icon + " Haptics — " + next.label);
+  if (state.haptic) haptic.test();
 });
 applyHaptic();
 try {
