@@ -4520,9 +4520,26 @@ function masteryForSection(secId) { return MASTERY.filter(m => m.id.startsWith("
 
 function renderStudy() {
   const picker = document.getElementById("sec-jump");
-  picker.innerHTML = STUDY.map((s, i) =>
-    `<option value="${i}">${state.read.includes(s.id) ? "✓ " : ""}${escapeHtml(s.title)}</option>`
-  ).join("");
+  if (IS_COURSE) {
+    // Group flat 100+ sections by chapter via <optgroup> for usable dropdown nav
+    const groups = [], byCh = {};
+    STUDY.forEach((s, i) => {
+      const c = chOf(s.title);
+      if (!byCh[c]) { byCh[c] = []; groups.push(c); }
+      byCh[c].push({ s, i });
+    });
+    picker.innerHTML = groups.map(c =>
+      `<optgroup label="${escapeAttr(c)}">` +
+      byCh[c].map(({ s, i }) =>
+        `<option value="${i}">${state.read.includes(s.id) ? "✓ " : ""}${escapeHtml(chDisp(s.title))}</option>`
+      ).join("") +
+      `</optgroup>`
+    ).join("");
+  } else {
+    picker.innerHTML = STUDY.map((s, i) =>
+      `<option value="${i}">${state.read.includes(s.id) ? "✓ " : ""}${escapeHtml(s.title)}</option>`
+    ).join("");
+  }
   picker.value = currentSectionIdx;
   picker.addEventListener("change", () => goToSection(parseInt(picker.value)));
   document.getElementById("sec-prev").addEventListener("click", () => goToSection(currentSectionIdx - 1));
@@ -4937,7 +4954,9 @@ function finishSectionLesson() {
   if (firstTime) {
     state.read.push(s.id); state.lastSection = currentSectionIdx; saveState();
     const picker = document.getElementById("sec-jump");
-    if (picker.options[currentSectionIdx]) picker.options[currentSectionIdx].text = "✓ " + s.title;
+    if (picker.options[currentSectionIdx]) {
+      picker.options[currentSectionIdx].text = "✓ " + (IS_COURSE ? chDisp(s.title) : s.title);
+    }
     checkNewBadges();
   }
   // v2: perfect checkpoint → gild the section (legendary 👑), quest + one-time bonus
