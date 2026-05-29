@@ -3203,27 +3203,42 @@ const haptic = (() => {
     if (!supported || !state.haptic || reduceMotion) return false;
     try { return navigator.vibrate(pattern) === true; } catch (e) { return false; }
   };
-  // Strength multiplier (state.hapticBoost: 0.7 light, 1.0 default, 1.4 strong, 1.8 max).
-  // Multiplies every "on" duration; pauses untouched so the rhythm stays intact.
+  // Strength multiplier — vibrate() has no amplitude API, only duration; longer
+  // pulses + denser stacks read as "stronger" on linear motors. Floor raised to
+  // 30ms (the point where the Titan-class actuator fully spins up).
   const scale = (pat) => {
-    const k = state.hapticBoost || 1.0;
-    if (typeof pat === "number") return Math.max(20, Math.round(pat * k));
-    return pat.map((v, i) => i % 2 === 0 && i > 0 ? v : Math.max(20, Math.round(v * k)));
+    const k = state.hapticBoost || 1.4;
+    if (typeof pat === "number") return Math.max(30, Math.round(pat * k));
+    return pat.map((v, i) => i % 2 === 0 && i > 0 ? v : Math.max(30, Math.round(v * k)));
   };
+  // Stack: at the highest tier we replace each "on" pulse with a tight burst of
+  // sub-pulses (motor never fully decays). This perceptually doubles the strength
+  // of a single buzz beyond what raw duration can deliver.
+  const stack = (pat) => {
+    if ((state.hapticBoost || 0) < 1.7) return pat;  // only the strong/max/extra tiers
+    const out = [];
+    pat.forEach((v, i) => {
+      if (i % 2 === 0 && i > 0) { out.push(v); return; }   // pause kept as-is
+      const n = Math.max(2, Math.round(v / 40));
+      for (let j = 0; j < n; j++) { out.push(40); if (j < n - 1) out.push(15); }
+    });
+    return out;
+  };
+  const shape = (pat) => stack(scale(pat));
   return {
     supported,
     fire,
-    test()    { return fire(scale([0, 60, 60, 80, 60, 120])); }, // long demo burst
-    tap()     { fire(scale(25)); },                // light tap (button press)
-    select()  { fire(scale(35)); },                // choice / dropdown / option pick
-    reveal()  { fire(scale([0, 35, 50, 35])); },   // double tap on answer reveal
-    correct() { fire(scale([0, 40, 40, 60])); },   // success pulse
-    wrong()   { fire(scale([0, 120, 60, 120])); }, // strong buzz pair (you screwed up)
-    levelup() { fire(scale([0, 50, 40, 50, 40, 90])); }, // celebration burst
-    streak()  { fire(scale([0, 35, 30, 60])); },
-    chest()   { fire(scale([0, 40, 35, 40, 35, 80])); },
-    powerup() { fire(scale(50)); },
-    skill()   { fire(scale(70)); },
+    test()    { return fire(shape([0, 80, 60, 100, 60, 160])); },
+    tap()     { fire(shape(40)); },                  // light tap (button press)
+    select()  { fire(shape(50)); },
+    reveal()  { fire(shape([0, 50, 50, 50])); },     // double tap on answer reveal
+    correct() { fire(shape([0, 60, 40, 90])); },     // success pulse
+    wrong()   { fire(shape([0, 180, 60, 180])); },   // big buzz pair (you screwed up)
+    levelup() { fire(shape([0, 70, 40, 70, 40, 130])); }, // celebration burst
+    streak()  { fire(shape([0, 50, 30, 90])); },
+    chest()   { fire(shape([0, 60, 35, 60, 35, 120])); },
+    powerup() { fire(shape(70)); },
+    skill()   { fire(shape(100)); },
   };
 })();
 // Ambient lo-fi BGM (Web Audio) — opt-in via state.bgmOn. Cheap sine pad cycle.
@@ -3403,13 +3418,15 @@ document.getElementById("sound-toggle").addEventListener("click", () => {
 applySound();
 // Haptic toggle — Android phones (Titan 2 etc.); iOS Safari has no Vibration API so we hide the row.
 if (state.haptic === undefined) state.haptic = haptic.supported;
-if (state.hapticBoost === undefined) state.hapticBoost = 1.4;  // Strong by default for Titan-class motors
+if (state.hapticBoost === undefined) state.hapticBoost = 2.0;  // Strong default for Titan-class motors
 const HAPTIC_LEVELS = [
   { v: 0,    label: "off",    icon: "📴" },
   { v: 0.7,  label: "light",  icon: "📳" },
   { v: 1.0,  label: "normal", icon: "📳" },
   { v: 1.4,  label: "strong", icon: "📳" },
   { v: 1.8,  label: "max",    icon: "📳" },
+  { v: 2.4,  label: "extra",  icon: "📳" },
+  { v: 3.0,  label: "wild",   icon: "🔥" },
 ];
 function applyHaptic() {
   const btn = document.getElementById("haptic-toggle");
