@@ -2054,6 +2054,7 @@ body.in-lesson .focus-shell { display: flex; }
   </div>
   <div class="drawer-section drawer-settings">
     <button class="drawer-row" id="sound-toggle">🔇 <span>Sound effects</span></button>
+    <button class="drawer-row" id="haptic-toggle">📳 <span>Haptic feedback</span></button>
     <button class="drawer-row" id="dark-toggle">🌙 <span>Dark mode</span></button>
     <button class="drawer-row" id="mascot-pick-btn">🦉 <span>Mascot</span></button>
     <button class="drawer-row" id="sync-progress-btn">🔄 <span>Sync progress (across devices)</span></button>
@@ -2993,7 +2994,7 @@ function questProgress(type, amt = 1) {
     document.body.appendChild(stamp);
     const r = stamp.getBoundingClientRect();
     try { burst(window.innerWidth/2, window.innerHeight*0.42, "spark", 10); } catch(e){}
-    try { sfx.streak(); } catch(e){}
+    try { sfx.streak(); } catch(e){} haptic.streak();
     setTimeout(() => stamp.remove(), 1000);
     showToast("✓ Quest done — " + (newlyDone.lbl || "complete"));
   }
@@ -3191,6 +3192,29 @@ const sfx = (() => {
     themeSwitch(){ if (on()) { tone(440,0.06,"sine",0.08,0); tone(880,0.08,"sine",0.10,0.05); } }
   };
 })();
+// Haptic feedback (Android Chrome / most non-iOS browsers via navigator.vibrate).
+// Gated by state.haptic (settings drawer toggle). Patterns are short — phones with
+// strong vibration motors (e.g. Unihertz Titan series) get a crisp tap feel.
+const haptic = (() => {
+  const supported = typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
+  const fire = (pattern) => {
+    if (!supported || !state.haptic || reduceMotion) return;
+    try { navigator.vibrate(pattern); } catch (e) {}
+  };
+  return {
+    supported,
+    tap()     { fire(8); },           // light tap (button press)
+    select()  { fire(12); },          // choice / dropdown / option pick
+    reveal()  { fire([0, 14, 40, 14]); }, // soft double tap on answer reveal
+    correct() { fire([0, 18, 30, 22]); }, // success pulse
+    wrong()   { fire([0, 80, 40, 80]); }, // longer buzz pair
+    levelup() { fire([0, 24, 30, 24, 30, 60]); }, // celebration
+    streak()  { fire([0, 16, 20, 32]); },
+    chest()   { fire([0, 18, 25, 18, 25, 40]); },
+    powerup() { fire(28); },
+    skill()   { fire(40); },
+  };
+})();
 // Ambient lo-fi BGM (Web Audio) — opt-in via state.bgmOn. Cheap sine pad cycle.
 const bgm = (() => {
   let ctx = null, master = null, timer = null, playing = false;
@@ -3221,7 +3245,7 @@ const bgm = (() => {
 })();
 
 function tapFeedback() {
-  try { navigator.vibrate && navigator.vibrate(8); } catch(e) {}
+  haptic.tap();
   sfx.tap();
 }
 
@@ -3357,12 +3381,29 @@ document.getElementById("dark-toggle").addEventListener("click", () => {
   else { state.dark = false; state.catppuccin = false; }
   state.darkSet = true; saveState(); applyTheme();
 });
-function applySound() { document.getElementById("sound-toggle").textContent = state.sound ? "🔊" : "🔇"; }
+function applySound() {
+  const btn = document.getElementById("sound-toggle");
+  btn.innerHTML = (state.sound ? "🔊" : "🔇") + " <span>Sound effects</span>";
+}
 document.getElementById("sound-toggle").addEventListener("click", () => {
   state.sound = !state.sound; saveState(); applySound();
   if (state.sound) { sfx.resume(); sfx.correct(); showToast("🔊 Sound on"); } else showToast("🔇 Sound off");
 });
 applySound();
+// Haptic toggle — Android phones (Titan 2 etc.); iOS Safari has no Vibration API so we hide the row.
+if (state.haptic === undefined) state.haptic = haptic.supported;
+function applyHaptic() {
+  const btn = document.getElementById("haptic-toggle");
+  if (!btn) return;
+  if (!haptic.supported) { btn.style.display = "none"; return; }
+  btn.innerHTML = (state.haptic ? "📳" : "📴") + " <span>Haptic feedback</span>";
+}
+document.getElementById("haptic-toggle")?.addEventListener("click", () => {
+  if (!haptic.supported) { showToast("Haptics not supported on this device"); return; }
+  state.haptic = !state.haptic; saveState(); applyHaptic();
+  if (state.haptic) { haptic.correct(); showToast("📳 Haptics on"); } else showToast("📴 Haptics off");
+});
+applyHaptic();
 try {
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
     if (!state.darkSet) { state.dark = e.matches; applyTheme(); }
@@ -3782,7 +3823,7 @@ function comboFx() {
     p.className = "combo-pill show"; p.textContent = labels[tier];
     document.body.appendChild(p);
     setTimeout(() => p.remove(), 1300);
-    try { sfx.streak(); } catch(e){}
+    try { sfx.streak(); } catch(e){} haptic.streak();
     questProgress("COMBO_REACH", c);
     // Pack 2.3: aura on streak chip at thresholds 5 / 10 / 20.
     const streakEl = document.getElementById("streak");
@@ -4135,7 +4176,7 @@ function startWager(days, stake) {
   if (state.gems < stake) { showToast("💎 Not enough gems to wager"); return; }
   state.gems -= stake;
   state.wager = { active:true, stake, days, startDay:epochDay(), startStreak:state.dayStreak.count };
-  saveState(); try { sfx.streak(); } catch(e){}
+  saveState(); try { sfx.streak(); } catch(e){} haptic.streak();
   showToast(`🎲 Wager on — keep your streak ${days} days for ${stake*2} 💎`);
   v2RenderHome();
 }
@@ -4251,7 +4292,7 @@ function renderAchievements() {
   // persist newly-earned + celebrate (once)
   let changed=false;
   ACHIEVEMENTS.forEach(a=>{ if (a.got(state) && !gotPrev.has(a.id)) { state.badges.push(a.id); changed=true; } });
-  if (changed) { saveState(); try{ sfx.levelup(); }catch(e){} }
+  if (changed) { saveState(); try{ sfx.levelup(); }catch(e){} haptic.levelup(); }
   const p = document.getElementById("ach-prog"); if (p) p.textContent = `${gotCount}/${ACHIEVEMENTS.length}`;
 }
 
@@ -5382,7 +5423,7 @@ function runFlashGateInFocus(cards, gateKey, onComplete) {
       try { srsApply(cardId, "flashcard", outcome); } catch (e) {}
       try { touchDayStreak(); } catch (e) {}
       if (outcome === "wrong") {
-        try { sfx.wrong(); } catch (e) {}
+        try { sfx.wrong(); } catch (e) {} haptic.wrong();
         resetCombo();
         setMascotEmoji && setMascotEmoji("😬", 900);
         // Card repeats — push to end of queue. No XP awarded.
@@ -5391,7 +5432,7 @@ function runFlashGateInFocus(cards, gateKey, onComplete) {
         const repeats = seen.get(c);
         showXpToast(0, "wrong", repeats === 1 ? "You'll see this one again." : `Round ${repeats + 1} — keep going.`);
       } else {
-        try { sfx.correct(); } catch (e) {}
+        try { sfx.correct(); } catch (e) {} haptic.correct();
         const xpBase = outcome === "right-sure" ? 6 : outcome === "right-shaky" ? 4 : 2;
         const xp = xpBase + Math.min(comboNow() * 2, 16);
         awardXp(xp);
@@ -5483,7 +5524,7 @@ function runGateInFocus(gqs, gateKey, onComplete) {
         try { srsApply("qc:" + gq.id, "quiz", outcome); } catch (e) {}
         try { touchDayStreak(); } catch (e) {}
         if (ok) {
-          try { sfx.correct(); } catch (e) {}
+          try { sfx.correct(); } catch (e) {} haptic.correct();
           const cr = fopts.querySelector(".focus-option.correct");
           const earned = focusXp(5, conf, true, comboNow());
           if (cr) { const b = cr.getBoundingClientRect(); burst(b.left + b.width/2, b.top + b.height/2, "spark", 12); if (earned) awardXp(earned, b.left + b.width/2, b.top); }
@@ -5495,7 +5536,7 @@ function runGateInFocus(gqs, gateKey, onComplete) {
           const cMsg = conf === "sure" ? "Sure & correct!" : conf === "guess" ? "Lucky guess." : (comboNow() >= 5 ? "On fire 🔥" : comboNow() >= 3 ? `${comboNow()}× combo!` : "Nice.");
           showXpToast(earned, "correct", cMsg);
         } else {
-          try { sfx.wrong(); } catch (e) {}
+          try { sfx.wrong(); } catch (e) {} haptic.wrong();
           resetCombo();
           setMascotEmoji && setMascotEmoji("😬", 1100);
           focus.setActionState("incorrect");
@@ -6302,7 +6343,7 @@ function runCheckpointInFocus(cpData, sectionId, onComplete) {
         try { srsApply("q:" + c.id, "quiz", outcome); } catch (e) {}
         try { touchDayStreak(); } catch (e) {}
         if (ok) {
-          try { sfx.correct(); } catch (e) {}
+          try { sfx.correct(); } catch (e) {} haptic.correct();
           const cr = fopts.querySelector(".focus-option.correct");
           const earned = focusXp(8, conf, true, comboNow());
           if (cr) { const b = cr.getBoundingClientRect(); burst(b.left + b.width/2, b.top + b.height/2, "spark", 12); if (earned) awardXp(earned, b.left + b.width/2, b.top); }
@@ -6317,7 +6358,7 @@ function runCheckpointInFocus(cpData, sectionId, onComplete) {
           const cMsg = conf === "sure" ? "Sure & correct!" : conf === "guess" ? "Lucky guess." : (comboNow() >= 5 ? "On fire 🔥" : comboNow() >= 3 ? `${comboNow()}× combo!` : "Nice.");
           showXpToast(earned, "correct", cMsg);
         } else {
-          try { sfx.wrong(); } catch (e) {}
+          try { sfx.wrong(); } catch (e) {} haptic.wrong();
           resetCombo();
           setMascotEmoji && setMascotEmoji("😬", 1100);
           _cpWrong = (typeof _cpWrong === "number" ? _cpWrong : 0) + 1;
@@ -7390,6 +7431,7 @@ function renderCardFace() {
   </div>`;
   markRefContext(area);
   document.getElementById("fc-reveal-btn").addEventListener("click", () => {
+    haptic.reveal();
     const ab = document.getElementById("fc-answer-box");
     ab.innerHTML = flashAnswer(card); markRefContext(ab);
     const rvEl = document.getElementById("fc-reveal");
@@ -7408,13 +7450,13 @@ function renderCardFace() {
       if (outcome !== "wrong") {
         const r = ca.getBoundingClientRect(); awardXp(5, r.left + 40, r.top);
         if (ab) { ab.classList.remove("fc-flash-good"); void ab.offsetWidth; ab.classList.add("fc-flash-good"); }
-        try { sfx.correct(); } catch (e) {}
+        try { sfx.correct(); } catch (e) {} haptic.correct();
         const wasLap = cardsState.laps.some(l => l.card.fid === card.fid);
         cardsState.laps = cardsState.laps.filter(l => l.card.fid !== card.fid); // mastered — clear from laps
         if (wasLap) setMascotEmoji("💪", 1300); // Bonus: lap-mastered reaction
       } else {
         if (ab) { ab.classList.remove("fc-flash-bad"); void ab.offsetWidth; ab.classList.add("fc-flash-bad"); }
-        try { sfx.wrong(); } catch (e) {}
+        try { sfx.wrong(); } catch (e) {} haptic.wrong();
         setMascotEmoji("😬", 1100);
         if (cardsMode() === "teach") {
           const existing = cardsState.laps.findIndex(l => l.card.fid === card.fid);
