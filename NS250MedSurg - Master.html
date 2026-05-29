@@ -2316,7 +2316,8 @@ body.in-lesson .focus-shell { display: flex; }
 <!-- DRILL TAB -->
 <!-- CARDS TAB (flashcard deck: teach new → SRS review) -->
 <section class="tab-panel" id="tab-cards">
-  <div class="drill-controls">
+  <div id="cards-area"></div>
+  <div class="drill-controls" style="margin-top:18px;">
     <div class="drill-mode-toggle" id="cards-mode-toggle">
       <button data-cmode="teach" class="active">🎓 Learn</button>
       <button data-cmode="review">🔁 Review</button>
@@ -2329,7 +2330,6 @@ body.in-lesson .focus-shell { display: flex; }
     <span id="cards-prog-label">0 / 0 learned</span>
     <div class="progress-track"><div class="progress-fill" id="cards-prog-fill" style="width:0%"></div></div>
   </div>
-  <div id="cards-area"></div>
 </section>
 
 <!-- STATS TAB (per-chapter flashcard mastery + activity + risk) -->
@@ -5117,83 +5117,8 @@ document.addEventListener("keydown", e => {
   if (nextBtn) { e.preventDefault(); nextBtn.click(); }
 });
 
-// ============================================================
-// Step 6 — gesture flashcards: swipe right=Good (Shaky), up=Easy (Knew), left=Again (Don't know)
-// Touch-only; keyboard J/K/L/M still works. Activates only on a revealed flashcard in #tab-cards.
-(function () {
-  let drag = null;
-  let hints = null;
-  function ensureHints() {
-    if (hints) return hints;
-    hints = document.createElement("div");
-    hints.innerHTML = `<div class="swipe-hint left">← AGAIN</div><div class="swipe-hint right">GOOD →</div><div class="swipe-hint up">↑ EASY</div>`;
-    document.body.appendChild(hints);
-    return hints;
-  }
-  function getCard() {
-    const ct = document.getElementById("tab-cards");
-    if (!ct || !ct.classList.contains("active")) return null;
-    const rev = document.getElementById("fc-reveal");
-    if (!rev || !rev.classList.contains("open")) return null;          // only post-reveal
-    const conf = document.querySelector("#fc-conf-area [data-conf]");
-    if (!conf || conf.dataset.done) return null;                       // already rated
-    return document.querySelector("#cards-area .drill-card");
-  }
-  function clickConf(c) {
-    const bar = document.querySelector("#fc-conf-area [data-conf]");
-    if (!bar) return;
-    const b = bar.querySelector('.conf-btn[data-c="' + c + '"]');
-    if (b) b.click();
-  }
-  document.addEventListener("touchstart", e => {
-    const card = getCard();
-    if (!card) return;
-    const t = e.touches[0]; if (!t) return;
-    drag = { card, startX: t.clientX, startY: t.clientY };
-    card.classList.add("swiping");
-    ensureHints();
-  }, { passive: true });
-  document.addEventListener("touchmove", e => {
-    if (!drag) return;
-    const t = e.touches[0]; if (!t) return;
-    const dx = t.clientX - drag.startX;
-    const dy = t.clientY - drag.startY;
-    drag.dx = dx; drag.dy = dy;
-    const rot = Math.max(-12, Math.min(12, dx / 18));
-    drag.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
-    const T = 60;
-    document.querySelectorAll(".swipe-hint").forEach(h => h.classList.remove("show"));
-    if (Math.abs(dy) > Math.abs(dx) && dy < -T)        document.querySelector(".swipe-hint.up")?.classList.add("show");
-    else if (dx > T)                                    document.querySelector(".swipe-hint.right")?.classList.add("show");
-    else if (dx < -T)                                   document.querySelector(".swipe-hint.left")?.classList.add("show");
-  }, { passive: true });
-  document.addEventListener("touchend", () => {
-    if (!drag) return;
-    const { card, dx = 0, dy = 0 } = drag;
-    const T = 80;
-    document.querySelectorAll(".swipe-hint").forEach(h => h.classList.remove("show"));
-    card.classList.remove("swiping");
-    if (Math.abs(dy) > Math.abs(dx) && dy < -T) {
-      // Swipe up → Easy → "Knew it" (conf=3, +2 box)
-      card.classList.add("fly-out"); card.style.transform = `translate(0, -120vh)`;
-      setTimeout(() => clickConf("3"), 180);
-    } else if (dx > T) {
-      // Swipe right → Good → "Shaky" (conf=2, +1 box)
-      card.classList.add("fly-out"); card.style.transform = `translate(120vw, ${dy}px) rotate(20deg)`;
-      setTimeout(() => clickConf("2"), 180);
-    } else if (dx < -T) {
-      // Swipe left → Again → "Don't know" (conf=0, lap)
-      card.classList.add("fly-out"); card.style.transform = `translate(-120vw, ${dy}px) rotate(-20deg)`;
-      setTimeout(() => clickConf("0"), 180);
-    } else {
-      // Spring back
-      card.style.transition = "transform .25s cubic-bezier(.2,.7,.3,1)";
-      card.style.transform = "";
-      setTimeout(() => { card.style.transition = ""; }, 260);
-    }
-    drag = null;
-  }, { passive: true });
-})();
+// Card-swipe gestures removed 2026-05-29 — too sensitive on phone; keyboard (J/K/L/M)
+// + on-screen confidence buttons cover the same flows without false swipes.
 
 // ============================================================
 // v2 REHAUL — A5/A6/B/C shared helpers (modal, shortcuts, resume)
@@ -7473,7 +7398,8 @@ function renderCardFace() {
     const cardEl = area.querySelector(".drill-card");
     if (cardEl) { cardEl.classList.remove("fc-pop"); void cardEl.offsetWidth; cardEl.classList.add("fc-pop"); }
     document.getElementById("fc-reveal-btn").style.display = "none";
-    if (teach) { const wb = document.getElementById("fc-why-box"); if (wb) wb.classList.add("open"); }  // teaching: show the why on first exposure
+    // Auto-open the Why-it's-right block whenever the answer is revealed (learn OR review).
+    const wb = document.getElementById("fc-why-box"); if (wb) wb.classList.add("open");
     const ca = document.getElementById("fc-conf-area");
     ca.innerHTML = confidenceHtml();
     wireConfidence(ca, { id: "fc:" + card.fid, type: "flash", wasWrong: false, onPick: (outcome) => {
