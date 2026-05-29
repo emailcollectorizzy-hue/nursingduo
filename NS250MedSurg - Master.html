@@ -2257,6 +2257,7 @@ body.in-lesson .focus-shell { display: flex; }
     <button class="nav-btn" id="sec-prev">← Prev</button>
     <div class="section-picker-wrap">
       <div class="section-counter" id="sec-counter">Section 1 of 1</div>
+      <select id="sec-chap-jump" style="display:none;margin-bottom:4px;"></select>
       <select id="sec-jump"></select>
     </div>
     <button class="nav-btn" id="sec-next">Next →</button>
@@ -4520,31 +4521,67 @@ function masteryForSection(secId) { return MASTERY.filter(m => m.id.startsWith("
 
 function renderStudy() {
   const picker = document.getElementById("sec-jump");
+  const chapPicker = document.getElementById("sec-chap-jump");
   if (IS_COURSE) {
-    // Group flat 100+ sections by chapter via <optgroup> for usable dropdown nav
+    // Two-stage cascade: chapter picker (top) -> filtered section picker (bottom)
     const groups = [], byCh = {};
     STUDY.forEach((s, i) => {
       const c = chOf(s.title);
       if (!byCh[c]) { byCh[c] = []; groups.push(c); }
       byCh[c].push({ s, i });
     });
-    picker.innerHTML = groups.map(c =>
-      `<optgroup label="${escapeAttr(c)}">` +
-      byCh[c].map(({ s, i }) =>
-        `<option value="${i}">${state.read.includes(s.id) ? "✓ " : ""}${escapeHtml(chDisp(s.title))}</option>`
-      ).join("") +
-      `</optgroup>`
+    chapPicker.style.display = "block";
+    chapPicker.innerHTML = groups.map(c =>
+      `<option value="${escapeAttr(c)}">${escapeHtml(c)} (${byCh[c].length})</option>`
     ).join("");
+    const repopulate = (chap) => {
+      const items = byCh[chap] || [];
+      picker.innerHTML = items.map(({ s, i }) =>
+        `<option value="${i}">${state.read.includes(s.id) ? "✓ " : ""}${escapeHtml(chDisp(s.title))}</option>`
+      ).join("");
+    };
+    const curChap = chOf(STUDY[currentSectionIdx]?.title || "");
+    chapPicker.value = curChap;
+    repopulate(curChap);
+    picker.value = currentSectionIdx;
+    chapPicker.addEventListener("change", () => {
+      const chap = chapPicker.value;
+      repopulate(chap);
+      // Jump to the first section of the newly-selected chapter
+      const first = (byCh[chap] || [])[0];
+      if (first) goToSection(first.i);
+    });
   } else {
+    chapPicker.style.display = "none";
     picker.innerHTML = STUDY.map((s, i) =>
       `<option value="${i}">${state.read.includes(s.id) ? "✓ " : ""}${escapeHtml(s.title)}</option>`
     ).join("");
+    picker.value = currentSectionIdx;
   }
-  picker.value = currentSectionIdx;
   picker.addEventListener("change", () => goToSection(parseInt(picker.value)));
   document.getElementById("sec-prev").addEventListener("click", () => goToSection(currentSectionIdx - 1));
   document.getElementById("sec-next").addEventListener("click", () => goToSection(currentSectionIdx + 1));
   renderCurrentSection();
+}
+
+// When section changes (incl. via Prev/Next or Path), keep chapter picker + section list in sync.
+function syncSecCascade() {
+  if (!IS_COURSE) return;
+  const chapPicker = document.getElementById("sec-chap-jump");
+  const picker = document.getElementById("sec-jump");
+  if (!chapPicker || !picker) return;
+  const curTitle = STUDY[currentSectionIdx]?.title || "";
+  const curChap = chOf(curTitle);
+  if (chapPicker.value !== curChap) {
+    chapPicker.value = curChap;
+    // Repopulate sections to that chapter
+    const items = [];
+    STUDY.forEach((s, i) => { if (chOf(s.title) === curChap) items.push({ s, i }); });
+    picker.innerHTML = items.map(({ s, i }) =>
+      `<option value="${i}">${state.read.includes(s.id) ? "✓ " : ""}${escapeHtml(chDisp(s.title))}</option>`
+    ).join("");
+  }
+  picker.value = currentSectionIdx;
 }
 
 function goToSection(idx) {
@@ -4558,6 +4595,7 @@ function goToSection(idx) {
   currentSectionIdx = idx;
   state.lastSection = currentSectionIdx;
   saveState();
+  syncSecCascade();
   renderCurrentSection();
   window.scrollTo(0, 0);
 }
@@ -4954,9 +4992,9 @@ function finishSectionLesson() {
   if (firstTime) {
     state.read.push(s.id); state.lastSection = currentSectionIdx; saveState();
     const picker = document.getElementById("sec-jump");
-    if (picker.options[currentSectionIdx]) {
-      picker.options[currentSectionIdx].text = "✓ " + (IS_COURSE ? chDisp(s.title) : s.title);
-    }
+    // Find the option whose value == currentSectionIdx (cascade may filter)
+    const opt = Array.from(picker.options).find(o => o.value === String(currentSectionIdx));
+    if (opt) opt.text = "✓ " + (IS_COURSE ? chDisp(s.title) : s.title);
     checkNewBadges();
   }
   // v2: perfect checkpoint → gild the section (legendary 👑), quest + one-time bonus
