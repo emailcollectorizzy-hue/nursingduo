@@ -11,3 +11,8 @@
   from = "/ns216"
   to = "/NS216MaternalNewborn - Master.html"
   status = 200
+
+[[redirects]]
+  from = "/ns221"
+  to = "/NS221Pharmacology - Master.html"
+  status = 200
