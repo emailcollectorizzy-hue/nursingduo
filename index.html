@@ -147,6 +147,566 @@
     background-attachment: fixed;
   }
 
+  body[data-theme="original"] {
+    --bg: #131316;
+    --bg-2: #111114;
+    --parch: #1c1c21;
+    --parch-2: #26262d;
+    --parch-3: #1c1c22;
+    --ink: #ededf0;
+    --ink-soft: #ccccd2;
+    --ink-mute: #9a9aa5;
+    --line: #34343d;
+    --line-soft: #2a2a32;
+    --line-dim: #232329;
+    --amber: #e5484d;
+    --amber-2: #ac363a;
+    --gold: #e2b340;
+    --gold-light: #ebca79;
+    --crimson: #e5484d;
+    --moss: #46a758;
+    --teal: #8e8e99;
+    --teal-soft: #a2a2ab;
+    --teal-bg: #25252a;
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\25CF";
+  }
+  body[data-theme="original"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(229,72,77,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(142,142,153,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="light"] {
+    --bg: #fafafa;
+    --bg-2: #eeeeee;
+    --parch: #ffffff;
+    --parch-2: #f1f1f3;
+    --parch-3: #f6f6f6;
+    --ink: #1a1a1f;
+    --ink-soft: #3e3e45;
+    --ink-mute: #75757f;
+    --line: #e2e2e8;
+    --line-soft: #eeeef1;
+    --line-dim: #f6f6f8;
+    --amber: #5b6ef5;
+    --amber-2: #4452b8;
+    --gold: #d99a18;
+    --gold-light: #e4b85d;
+    --crimson: #e5484d;
+    --moss: #46a758;
+    --teal: #f59e0b;
+    --teal-soft: #f7af37;
+    --teal-bg: #f9ecd6;
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\25C6";
+  }
+  body[data-theme="light"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(91,110,245,0.12), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(245,158,11,0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="midnight"] {
+    --bg: #0b1020;
+    --bg-2: #0a0e1d;
+    --parch: #131a2e;
+    --parch-2: #1c243c;
+    --parch-3: #141a2e;
+    --ink: #e8ecf6;
+    --ink-soft: #c2c8d9;
+    --ink-mute: #8893ad;
+    --line: #28324d;
+    --line-soft: #202841;
+    --line-dim: #192137;
+    --amber: #f06595;
+    --amber-2: #b44c70;
+    --gold: #e2b340;
+    --gold-light: #ebca79;
+    --crimson: #ff6b81;
+    --moss: #4cd1a0;
+    --teal: #5b8def;
+    --teal-soft: #79a2f2;
+    --teal-bg: #17233f;
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\263E";
+  }
+  body[data-theme="midnight"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(240,101,149,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(91,141,239,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="paper"] {
+    --bg: #f5f1e6;
+    --bg-2: #e9e5da;
+    --parch: #fffdf6;
+    --parch-2: #efe9d8;
+    --parch-3: #f2eddf;
+    --ink: #2b2620;
+    --ink-soft: #514a40;
+    --ink-mute: #8a8170;
+    --line: #ded5bf;
+    --line-soft: #ebe5d5;
+    --line-dim: #f5f1e6;
+    --amber: #8a7320;
+    --amber-2: #685618;
+    --gold: #c0941a;
+    --gold-light: #d3b45f;
+    --crimson: #b3402f;
+    --moss: #6b8e23;
+    --teal: #b5651d;
+    --teal-soft: #c28146;
+    --teal-bg: #ebdcc8;
+    --font-display: "EB Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\2767";
+  }
+  body[data-theme="paper"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(138,115,32,0.12), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(181,101,29,0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="cyberpunk"] {
+    --bg: #0a0118;
+    --bg-2: #090116;
+    --parch: #140a2e;
+    --parch-2: #1f1142;
+    --parch-3: #14092d;
+    --ink: #eafcff;
+    --ink-soft: #cacfe9;
+    --ink-mute: #9b8bc9;
+    --line: #34206b;
+    --line-soft: #271753;
+    --line-dim: #1e1140;
+    --amber: #00e5ff;
+    --amber-2: #00acbf;
+    --gold: #ffe14d;
+    --gold-light: #ffea82;
+    --crimson: #ff3864;
+    --moss: #00ffa3;
+    --teal: #ff2bd6;
+    --teal-soft: #ff51dd;
+    --teal-bg: #2f0734;
+    --font-display: "JetBrains Mono", ui-monospace, Menlo, "SF Mono", monospace;
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\25C8";
+  }
+  body[data-theme="cyberpunk"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(0,229,255,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(255,43,214,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="retrowave"] {
+    --bg: #1a1033;
+    --bg-2: #170e2e;
+    --parch: #251447;
+    --parch-2: #311a5c;
+    --parch-3: #261548;
+    --ink: #ffe9f7;
+    --ink-soft: #e1c8ea;
+    --ink-mute: #b596d6;
+    --line: #44267a;
+    --line-soft: #381f66;
+    --line-dim: #2e1956;
+    --amber: #ff2e97;
+    --amber-2: #bf2271;
+    --gold: #ffd23f;
+    --gold-light: #ffe079;
+    --crimson: #ff2e63;
+    --moss: #36e0c0;
+    --teal: #ff8a3d;
+    --teal-soft: #ff9f60;
+    --teal-bg: #3c2234;
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\25BC";
+  }
+  body[data-theme="retrowave"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(255,46,151,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(255,138,61,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="forest"] {
+    --bg: #0e1a12;
+    --bg-2: #0d1710;
+    --parch: #15251a;
+    --parch-2: #1d3224;
+    --parch-3: #16261b;
+    --ink: #e7f3e8;
+    --ink-soft: #c2d5c4;
+    --ink-mute: #8aa78f;
+    --line: #2a4632;
+    --line-soft: #223928;
+    --line-dim: #1b2f21;
+    --amber: #6fcf6f;
+    --amber-2: #539b53;
+    --gold: #d2a93f;
+    --gold-light: #e0c379;
+    --crimson: #e06a5a;
+    --moss: #6fcf6f;
+    --teal: #c9a04a;
+    --teal-soft: #d3b16b;
+    --teal-bg: #2a2e1a;
+    --font-display: "EB Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\2766";
+  }
+  body[data-theme="forest"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(111,207,111,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(201,160,74,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="ocean"] {
+    --bg: #0a1929;
+    --bg-2: #091625;
+    --parch: #102a40;
+    --parch-2: #163a56;
+    --parch-3: #102a40;
+    --ink: #e3f1fb;
+    --ink-soft: #bbd2e3;
+    --ink-mute: #80a4bf;
+    --line: #1f4a6b;
+    --line-soft: #193d5a;
+    --line-dim: #14344d;
+    --amber: #4fc3f7;
+    --amber-2: #3b92b9;
+    --gold: #e2b340;
+    --gold-light: #ebca79;
+    --crimson: #ef6b6b;
+    --moss: #2dd4bf;
+    --teal: #2dd4bf;
+    --teal-soft: #53dccb;
+    --teal-bg: #0f3540;
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\2248";
+  }
+  body[data-theme="ocean"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(79,195,247,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(45,212,191,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="ume"] {
+    --bg: #fdf0f4;
+    --bg-2: #f0e4e8;
+    --parch: #fffafc;
+    --parch-2: #f7e3ea;
+    --parch-3: #faeaef;
+    --ink: #3a1d28;
+    --ink-soft: #603c4a;
+    --ink-mute: #9a6b7c;
+    --line: #e9c6d3;
+    --line-soft: #f2dbe3;
+    --line-dim: #f8eaf0;
+    --amber: #c2185b;
+    --amber-2: #921244;
+    --gold: #c9971a;
+    --gold-light: #d9b65f;
+    --crimson: #d23a5a;
+    --moss: #6b9e54;
+    --teal: #7b5ea7;
+    --teal-soft: #937bb7;
+    --teal-bg: #eadae8;
+    --font-display: "EB Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\2740";
+  }
+  body[data-theme="ume"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(194,24,91,0.12), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(123,94,167,0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="copper"] {
+    --bg: #1a1310;
+    --bg-2: #17110e;
+    --parch: #241a14;
+    --parch-2: #30231a;
+    --parch-3: #251b15;
+    --ink: #f3e6d8;
+    --ink-soft: #d8c5b2;
+    --ink-mute: #b0937a;
+    --line: #46342a;
+    --line-soft: #382a21;
+    --line-dim: #2e221b;
+    --amber: #c87941;
+    --amber-2: #965b31;
+    --gold: #d9a441;
+    --gold-light: #e4bf7a;
+    --crimson: #d2603f;
+    --moss: #8a9a4a;
+    --teal: #d9a441;
+    --teal-soft: #e0b463;
+    --teal-bg: #372917;
+    --font-display: "EB Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\25C6";
+  }
+  body[data-theme="copper"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(200,121,65,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(217,164,65,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="terminal"] {
+    --bg: #050805;
+    --bg-2: #040704;
+    --parch: #0c120c;
+    --parch-2: #121b12;
+    --parch-3: #0c120c;
+    --ink: #b9ffb9;
+    --ink-soft: #95d995;
+    --ink-mute: #5f9f5f;
+    --line: #1c2e1c;
+    --line-soft: #162316;
+    --line-dim: #111a11;
+    --amber: #00ff41;
+    --amber-2: #00bf31;
+    --gold: #aaff00;
+    --gold-light: #c4ff4c;
+    --crimson: #ff5555;
+    --moss: #00ff41;
+    --teal: #33ff77;
+    --teal-soft: #58ff8f;
+    --teal-bg: #0c2d16;
+    --font-display: "JetBrains Mono", ui-monospace, Menlo, "SF Mono", monospace;
+    --font-body: "JetBrains Mono", ui-monospace, Menlo, "SF Mono", monospace;
+    --border-style: solid;
+    --ornament-glyph: "\258C";
+  }
+  body[data-theme="terminal"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(0,255,65,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(51,255,119,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="organs"] {
+    --bg: #160d10;
+    --bg-2: #140c0e;
+    --parch: #211218;
+    --parch-2: #2c1a22;
+    --parch-3: #211419;
+    --ink: #f6e6ec;
+    --ink-soft: #dcc1ca;
+    --ink-mute: #b58a98;
+    --line: #3e2530;
+    --line-soft: #321d26;
+    --line-dim: #2a181f;
+    --amber: #e85d75;
+    --amber-2: #ae4658;
+    --gold: #d8a64a;
+    --gold-light: #e4c180;
+    --crimson: #d1495b;
+    --moss: #8bbf6a;
+    --teal: #8bbf6a;
+    --teal-soft: #a0cb85;
+    --teal-bg: #28281e;
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\271A";
+  }
+  body[data-theme="organs"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(232,93,117,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(139,191,106,0.11), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="lavender"] {
+    --bg: #f4f0fb;
+    --bg-2: #e8e4ee;
+    --parch: #fffdff;
+    --parch-2: #eae3f7;
+    --parch-3: #efeaf9;
+    --ink: #2c2440;
+    --ink-soft: #4f4668;
+    --ink-mute: #847aa3;
+    --line: #ddd2f0;
+    --line-soft: #ebe3f6;
+    --line-dim: #f5f0fa;
+    --amber: #7c4dff;
+    --amber-2: #5d3abf;
+    --gold: #c79a2e;
+    --gold-light: #d8b86d;
+    --crimson: #e0607a;
+    --moss: #5fa86f;
+    --teal: #b06ab3;
+    --teal-soft: #be85c1;
+    --teal-bg: #eadcf0;
+    --font-display: "EB Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\2726";
+  }
+  body[data-theme="lavender"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(124,77,255,0.12), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(176,106,179,0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="gpt"] {
+    --bg: #ffffff;
+    --bg-2: #f2f2f2;
+    --parch: #f7f7f8;
+    --parch-2: #ececf1;
+    --parch-3: #f6f6f8;
+    --ink: #202123;
+    --ink-soft: #4c4d55;
+    --ink-mute: #8e8ea0;
+    --line: #e3e3e8;
+    --line-soft: #ebebee;
+    --line-dim: #f1f1f3;
+    --amber: #10a37f;
+    --amber-2: #0c7a5f;
+    --gold: #c79a2e;
+    --gold-light: #d8b86d;
+    --crimson: #ef4146;
+    --moss: #10a37f;
+    --teal: #19c37d;
+    --teal-soft: #42ce94;
+    --teal-bg: #dcf6ec;
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\25C6";
+  }
+  body[data-theme="gpt"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(16,163,127,0.12), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(25,195,125,0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="claude"] {
+    --bg: #faf9f5;
+    --bg-2: #eeede9;
+    --parch: #ffffff;
+    --parch-2: #f0eee6;
+    --parch-3: #f5f4ee;
+    --ink: #2a2722;
+    --ink-soft: #504c44;
+    --ink-mute: #8a8478;
+    --line: #e4e0d5;
+    --line-soft: #efece6;
+    --line-dim: #f7f6f2;
+    --amber: #d97757;
+    --amber-2: #a35941;
+    --gold: #c79a2e;
+    --gold-light: #d8b86d;
+    --crimson: #c0392b;
+    --moss: #6b8e4e;
+    --teal: #b08968;
+    --teal-soft: #be9e83;
+    --teal-bg: #efe8e0;
+    --font-display: "EB Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+    --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\2767";
+  }
+  body[data-theme="claude"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(217,119,87,0.12), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(176,137,104,0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
+  body[data-theme="cute"] {
+    --bg: #fff5f9;
+    --bg-2: #f2e9ed;
+    --parch: #fffafd;
+    --parch-2: #ffe6f0;
+    --parch-3: #ffeef4;
+    --ink: #4a2a3a;
+    --ink-soft: #734b5d;
+    --ink-mute: #b07c92;
+    --line: #ffd1e3;
+    --line-soft: #ffe1ed;
+    --line-dim: #ffeef5;
+    --amber: #ff8fab;
+    --amber-2: #bf6b80;
+    --gold: #ffc857;
+    --gold-light: #ffd889;
+    --crimson: #ff6b8a;
+    --moss: #7ec98a;
+    --teal: #b794f6;
+    --teal-soft: #c4a7f8;
+    --teal-bg: #f4e6f9;
+    --font-display: "Baloo 2", "Quicksand", "Varela Round", system-ui, sans-serif;
+    --font-body: "Baloo 2", "Quicksand", "Varela Round", system-ui, sans-serif;
+    --border-style: solid;
+    --ornament-glyph: "\273F";
+  }
+  body[data-theme="cute"] {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(255,143,171,0.12), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(183,148,246,0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+  }
+
   ::selection { background: rgba(168,90,16,0.25); }
 
   /* ============================================================
@@ -1358,9 +1918,25 @@ const VISUAL_THEMES = {
   cozy:     "Cozy Codex",
   naruto:   "Hidden Leaf",
   onepiece: "Grand Line",
+  original:  "Original",
+  light:     "Light",
+  midnight:  "Midnight",
+  paper:     "Paper",
+  cyberpunk: "Cyberpunk",
+  retrowave: "Retrowave",
+  forest:    "Forest",
+  ocean:     "Ocean",
+  ume:       "Ume",
+  copper:    "Copper",
+  terminal:  "Terminal",
+  organs:    "Organs",
+  lavender:  "Lavender",
+  gpt:       "GPT",
+  claude:    "Claude",
+  cute:      "Cute",
 };
 const VISUAL_LOCKED = {};
-const THEME_HERO_ICON = { cozy: "⚖️", naruto: "🍥", onepiece: "🏴‍☠️" };
+const THEME_HERO_ICON = { cozy: "⚖️", naruto: "🍥", onepiece: "🏴‍☠️", original: "🎯", light: "☀️", midnight: "🌙", paper: "📜", cyberpunk: "🌃", retrowave: "🌆", forest: "🌲", ocean: "🌊", ume: "🌸", copper: "🥉", terminal: "💻", organs: "🫀", lavender: "💜", gpt: "🤖", claude: "🧡", cute: "🎀" };
 
 const PREF_KEY = "quizpage:prefs";
 function getPrefs() {
