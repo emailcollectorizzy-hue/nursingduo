@@ -1544,6 +1544,8 @@ input:focus,select:focus{ border-color:var(--accent-1) !important; outline:none;
 .ls-dot.cp{ border-radius:3px; }
 .ls-rail-count{ font-family:var(--font-dot); font-size:11px; color:var(--text-dim); letter-spacing:.08em; font-weight:700; }
 .ls-chunks{ position:relative; z-index:1; display:flex; flex-direction:column; gap:36px; padding-top:8vh; padding-bottom:26vh; }
+/* we manage scroll stability ourselves — browser scroll-anchoring causes jumps when recall cards expand/collapse */
+.ls-flow, .ls-chunks{ overflow-anchor:none; }
 .ls-chunk{ position:relative; scroll-margin-top:118px; }
 .ls-chunk-head{ margin:0 0 10px 4px; display:flex; flex-direction:column; gap:4px; }
 .ls-chunk-title{ margin:0; font-size:var(--t-h2); letter-spacing:-.02em; font-family:var(--font-display); }
@@ -5493,6 +5495,22 @@ function lsPruneBlocks() {
   }
 }
 
+// Swap an element's content while animating its height down — keeps the page
+// from jumping when a tall recall card collapses to its one-line passed state.
+function lsSwapShrink(el, html) {
+  if (PM.reduced) { el.innerHTML = html; return; }
+  const h0 = el.offsetHeight;
+  el.style.height = h0 + "px";
+  el.style.overflow = "hidden";
+  el.innerHTML = html;
+  el.style.transition = "height .45s var(--ease-out)";
+  requestAnimationFrame(() => {
+    const target = el.firstElementChild ? el.firstElementChild.offsetHeight : 0;
+    el.style.height = target + "px";
+    setTimeout(() => { el.style.height = ""; el.style.transition = ""; el.style.overflow = ""; }, 520);
+  });
+}
+
 // Inline recall check — a flashcard moment embedded in the scroll. "Don't know"
 // requeues to the end; the gate passes only when every card is rated above
 // don't-know. Same SRS keys + lessonGate semantics as ever.
@@ -5579,7 +5597,7 @@ function mountInlineRecall(secIdx, stepIdx) {
     saveState();
     _lsActiveRecall = null;
     try { questProgress("STUDY_STEPS", 1); } catch (e) {}
-    host.innerHTML = `<div class="ls-recall-done">✓ Recall passed — keep scrolling</div>`;
+    lsSwapShrink(host, `<div class="ls-recall-done">✓ Recall passed — keep scrolling ↓</div>`);
     lsGateComplete(secIdx, stepIdx);
   }
 
@@ -5605,8 +5623,9 @@ function lsGateComplete(secIdx, stepIdx) {
   if (newLock < steps.length) mountInlineRecall(secIdx, newLock);
   PM.reveal(block);
   try { sfx.correct(); } catch (e) {}
-  lsScrollToChunk(secIdx, stepIdx + 1, true);
-  setTimeout(() => lsCheckFinale(secIdx), 700);
+  // deliberately NO auto-scroll: the user stays exactly where they are; the
+  // blur below simply lifts and they continue scrolling at their own pace.
+  setTimeout(() => lsCheckFinale(secIdx), 800);
 }
 
 function renderLessonStep() {
