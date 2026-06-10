@@ -2099,9 +2099,6 @@ body.in-lesson .focus-shell { display: flex; }
     <span class="vital-chip streak-vc streak cold" id="streak" title="Day study streak">
       <span>🔥</span><span class="v-label">STR</span><span class="v-num" id="streak-count">0</span><span class="v-unit">d</span>
     </span>
-    <span class="vital-chip hp-vc hdr-hearts" id="hearts-chip" title="Hearts — spent on wrong Quiz/Checkpoint">
-      <span class="hh-i">❤️</span><span class="v-label">HP</span><span class="v-num" id="hearts-count">5</span>
-    </span>
     <button id="fs-toggle" title="Fullscreen">⛶</button>
   </div>
   <div class="xp-bar" id="xp-bar" title="XP to next level"><div class="xp-bar-fill" id="xp-bar-fill"></div></div>
@@ -2203,12 +2200,6 @@ body.in-lesson .focus-shell { display: flex; }
     <div class="me-arrow">→</div>
   </button>
 
-  <!-- B3: Smart "What Next" recommendations (3 cards, refresh button) -->
-  <div class="recs-wrap" id="recs-wrap">
-    <div class="recs-head"><span>🎯 Recommended for you</span><button id="recs-refresh" class="recs-refresh" type="button" title="Re-roll">↻</button></div>
-    <div class="recs-list" id="recs-list"></div>
-  </div>
-
   <div class="path-wrap" style="margin-bottom:18px;">
     <div class="path-title">🗺️ Your learning path</div>
     <div class="path" id="lesson-path"></div>
@@ -2226,31 +2217,12 @@ body.in-lesson .focus-shell { display: flex; }
   <div class="home-tiles" id="home-tiles">
     <div class="home-tile flat"><div class="ht-n"><span id="due-count">0</span></div><div class="ht-l">🔁 Due</div></div>
     <div class="home-tile flat"><div class="ht-n">🔥<span id="dash-streak">0</span></div><div class="ht-l">Streak</div></div>
-    <div class="home-tile" data-panel="ach-card" title="Achievements"><div class="ht-n">⭐<span id="hp-level">1</span></div><div class="ht-l">🏅 Level</div></div>
+    <div class="home-tile flat"><div class="ht-n">⭐<span id="hp-level">1</span></div><div class="ht-l">Level</div></div>
   </div>
-  <div class="goal-bar-track" style="margin:0 2px 4px;"><div class="goal-bar-fill" id="goal-bar"></div></div>
-  <div class="box-legend" id="goal-msg" style="margin-bottom:14px;font-size:12px;">box 1 → 5 · red = needs work, gold = mastered</div>
-  <details class="more-stats" style="margin-bottom:18px;"><summary>📊 SRS box spread &amp; goal</summary>
-    <div class="ms-body">
-      <div class="stat-strip" style="margin:6px 0 8px;">
-        <div class="sp"><div class="sp-n"><span id="goal-done">0</span><span class="sp-d">/<span id="goal-target">20</span></span></div><div class="sp-l">🎯 Goal today</div></div>
-      </div>
-      <div class="box-bar" id="box-bar"></div>
-    </div>
-  </details>
-
   <div class="quick-actions" style="margin-bottom:16px;">
     <button class="btn secondary" onclick="switchTab('study')">📖 Study</button>
     <button class="btn secondary" onclick="switchTab('quiz')">🎯 Quiz</button>
     <button class="btn ghost" id="quick-5-btn" onclick="startQuickQuiz()">⚡ Quick 5</button>
-  </div>
-
-  <!-- v2 P2 panels — hidden by default, opened from the home tiles via openPanel() -->
-  <div id="panel-stash" style="display:none;">
-    <div class="ach-card" id="ach-card">
-      <h3>🏅 Achievements <span class="ach-prog" id="ach-prog"></span></h3>
-      <div class="ach-grid" id="ach-grid"></div>
-    </div>
   </div>
 
   <details class="pcode" id="pcode-box">
@@ -2268,17 +2240,6 @@ body.in-lesson .focus-shell { display: flex; }
     </div>
   </details>
 
-  <details class="more-stats">
-    <summary>📊 More stats &amp; badges</summary>
-    <div class="ms-body">
-      <div class="ms-row">
-        <div class="ms-cell"><div class="ms-k"><span id="read-pct">0</span>%</div><div class="ms-l">📖 Read · <span id="read-count">0</span>/<span id="read-total">0</span></div><svg style="display:none"><circle id="ring-read" r="32" stroke-dasharray="201" stroke-dashoffset="201"></circle><circle id="ring-due" r="32" stroke-dasharray="201" stroke-dashoffset="201"></circle></svg></div>
-<div class="ms-cell"><div class="ms-k">🔥 <span id="dash-best-streak">0</span></div><div class="ms-l">Best streak</div></div>
-      </div>
-      <div style="margin-top:14px;"><div class="path-title" style="text-align:left;margin-bottom:8px;">🏆 Badges</div><div class="badge-row" id="badge-row"></div></div>
-      <div style="margin-top:14px;"><div class="path-title" style="text-align:left;margin-bottom:8px;">📈 Recent quiz attempts</div><div class="score-history" id="score-history"><em style="color: var(--text-dim); font-size: 14px;">No attempts yet.</em></div></div>
-    </div>
-  </details>
 </section>
 
 <!-- REVIEW TAB -->
@@ -3970,15 +3931,17 @@ function heartLossFx(x, y) {
   setTimeout(() => s.remove(), 750);
 }
 // Learning-safe: ONLY call from graded Quiz + section Checkpoint wrong answers.
-function spendHeartOnWrong(x, y) {
+function spendHeartOnWrong(x, y) { return; }  // hearts system removed (user pref)
+function _spendHeartOnWrong_legacy(x, y) {
   const before = state.hearts.count;
   const after = loseHeart();
   if (after < before) { heartLossFx(x, y); try { sfx.wrong(); } catch(e){} }
   renderHearts();
   return after;
 }
-// Gate the START of a Quiz / Checkpoint when out of hearts. Returns true if blocked.
-function heartsBlock(onPractice) {
+// Hearts system removed by user preference — never blocks, never penalizes.
+function heartsBlock(onPractice) { return false; }
+function _heartsBlock_legacy(onPractice) {
   if (heartsAvailable()) return false;
   const h = state.hearts;
   let wait = "soon";
@@ -4247,6 +4210,35 @@ function _wirePathNodes(wrap) {
   });
 }
 
+const WEEK_MAP = /*WEEK_MAP*/{"Circulatory Transition": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Hematologic & GI Adaptation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Hepatic Adaptation & Bilirubin": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Respiratory Adaptation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Thermoregulation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}}/*/WEEK_MAP*/;   // topic -> {w, label}, injected per course
+function _weekOf(ch) { return (WEEK_MAP && WEEK_MAP[ch]) ? WEEK_MAP[ch] : null; }
+// Group the path's chapter list into <optgroup>s by week so it's not one long list.
+// Topics without a week fall under "Other"; with no WEEK_MAP at all it's a flat list.
+function _chapterOptionsByWeek(chapters, byCh, curCh) {
+  const opt = (ch) => {
+    const inCh = byCh[ch];
+    const dn = inCh.filter(i => state.read.includes(STUDY[i].id)).length;
+    const tot = inCh.length;
+    const mark = dn === tot && tot ? "✓ " : "";
+    return `<option value="${escapeHtml(ch)}" ${ch === curCh ? "selected" : ""}>${mark}${escapeHtml(chDisp ? ch : ch)} · ${dn}/${tot}</option>`;
+  };
+  if (!WEEK_MAP || !Object.keys(WEEK_MAP).length) return chapters.map(opt).join("");
+  const groups = new Map();   // label -> {w, chs:[]}
+  const other = [];
+  chapters.forEach(ch => {
+    const wk = _weekOf(ch);
+    if (wk) { if (!groups.has(wk.label)) groups.set(wk.label, { w: wk.w, chs: [] }); groups.get(wk.label).chs.push(ch); }
+    else other.push(ch);
+  });
+  const ordered = Array.from(groups.entries()).sort((a, b) => a[1].w - b[1].w);
+  let html = ordered.map(([label, g]) => {
+    const dn = g.chs.reduce((n, ch) => n + byCh[ch].filter(i => state.read.includes(STUDY[i].id)).length, 0);
+    const tot = g.chs.reduce((n, ch) => n + byCh[ch].length, 0);
+    return `<optgroup label="${escapeAttr(label)} · ${dn}/${tot}">${g.chs.map(opt).join("")}</optgroup>`;
+  }).join("");
+  if (other.length) html += `<optgroup label="Other">${other.map(opt).join("")}</optgroup>`;
+  return html;
+}
 function renderLessonPath() {
   const wrap = document.getElementById("lesson-path");
   if (!wrap) return;
@@ -4283,14 +4275,8 @@ function renderLessonPath() {
 
   const bar = `<div class="path-chapter-bar">
     <button class="path-chapter-nav" id="path-prev-ch" type="button" title="Previous chapter" ${chPos <= 0 ? "disabled" : ""}>‹</button>
-    <select class="path-chapter-sel" id="ch-jump" aria-label="Chapter / exam guide">
-      ${chapters.map(ch => {
-        const inCh = byCh[ch];
-        const dn = inCh.filter(i => state.read.includes(STUDY[i].id)).length;
-        const tot = inCh.length;
-        const mark = dn === tot && tot ? "✓ " : "";
-        return `<option value="${escapeHtml(ch)}" ${ch === curCh ? "selected" : ""}>${mark}${escapeHtml(ch)} · ${dn}/${tot}</option>`;
-      }).join("")}
+    <select class="path-chapter-sel" id="ch-jump" aria-label="Week / topic">
+      ${_chapterOptionsByWeek(chapters, byCh, curCh)}
     </select>
     <button class="path-chapter-nav" id="path-next-ch" type="button" title="Next chapter" ${chPos >= chapters.length - 1 ? "disabled" : ""}>›</button>
   </div>
@@ -4574,12 +4560,7 @@ function renderHome() {
   const due = dueItems();
   const totalSrs = QUIZ.length + DRILLS.length;
   const duePct = totalSrs ? Math.round(due.length / totalSrs * 100) : 0;
-  document.getElementById("due-count").textContent = due.length;
-  document.getElementById("ring-due").setAttribute("stroke-dasharray", circ);
-  document.getElementById("ring-due").setAttribute("stroke-dashoffset", circ - (circ * Math.min(100,duePct) / 100));
-  const bc = boxCounts();
-  document.getElementById("box-bar").innerHTML = [1,2,3,4,5].map(b =>
-    `<div class="box-seg box-${b}" style="flex:${Math.max(bc[b],0.001)}" title="Box ${b}: ${bc[b]}">${bc[b]||""}</div>`).join("");
+  { const dc = document.getElementById("due-count"); if (dc) dc.textContent = due.length; }
   const tcMain = document.getElementById("tc-main"), tcSub = document.getElementById("tc-sub"), cta = document.getElementById("today-cta");
   if (cta && tcMain && tcSub) {   // Home CTA removed by user preference — Review tab owns Today's Set
     if (due.length) {
@@ -4614,56 +4595,8 @@ function renderHome() {
     }
   } catch (e) { console && console.warn && console.warn("resume cta:", e); }
 
-  // Daily goal
-  const gd = goalToday(), gt = state.dailyGoal;
-  document.getElementById("goal-done").textContent = gd;
-  document.getElementById("goal-target").textContent = gt;
-  const gbar = document.getElementById("goal-bar");
-  const gpct = Math.min(100, Math.round(gd/gt*100));
-  gbar.style.width = gpct + "%";
-  const gmsg = document.getElementById("goal-msg");
-  if (gd >= gt) { gmsg.textContent = "🎉 Goal hit — nice work!"; gbar.classList.remove("goal-hit"); void gbar.offsetWidth; gbar.classList.add("goal-hit"); }
-  else gmsg.textContent = `${gt-gd} more to hit today's goal`;
-
-  // Reading progress
-  const readN = state.read.length, totalN = STUDY.length;
-  const readPct = totalN ? Math.round((readN / totalN) * 100) : 0;
-  document.getElementById("read-pct").textContent = readPct;
-  document.getElementById("read-count").textContent = readN;
-  document.getElementById("read-total").textContent = totalN;
-  document.getElementById("ring-read").setAttribute("stroke-dasharray", circ);
-  document.getElementById("ring-read").setAttribute("stroke-dashoffset", circ - (circ * readPct / 100));
-
-  // Drill mastery ring (now reflects box 4-5 = real retention, not just tapped)
-  const drillTotal = DRILLS.length;
-  const drillMastered = DRILLS.filter(d => { const r = state.srs["d:"+drillKey(d)]; return r && r.box >= 4; }).length;
-  const drillPct = drillTotal ? Math.round((drillMastered / drillTotal) * 100) : 0;
-  document.getElementById("drill-pct").textContent = drillPct;
-  document.getElementById("drill-count").textContent = drillMastered;
-  document.getElementById("drill-total").textContent = drillTotal;
-  document.getElementById("ring-drill").setAttribute("stroke-dasharray", circ);
-  document.getElementById("ring-drill").setAttribute("stroke-dashoffset", circ - (circ * drillPct / 100));
-
-  // Streak card → day streak (the habit metric)
-  document.getElementById("dash-streak").textContent = state.dayStreak.count;
-  document.getElementById("dash-best-streak").textContent = state.dayStreak.best;
-
-  // Score history
-  const hist = document.getElementById("score-history");
-  if (!state.attempts.length) {
-    hist.innerHTML = `<em style="color: var(--text-dim); font-size: 14px;">No attempts yet — head to the Quiz tab.</em>`;
-  } else {
-    hist.innerHTML = state.attempts.slice(-5).reverse().map(a => {
-      const pct = Math.round((a.correct / a.total) * 100);
-      const cls = pct >= 85 ? "good" : pct >= 70 ? "mid" : "low";
-      const d = new Date(a.date);
-      const dStr = d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-      return `<div class="score-row"><span>${dStr} · ${a.mode}</span><span style="color: var(--text-dim); font-size: 13px;">${a.correct}/${a.total}</span><span class="score-pill ${cls}">${pct}%</span></div>`;
-    }).join("");
-  }
-
-  // Badges
-  renderBadges();
+  // Streak tile → day streak (the habit metric)
+  { const ds = document.getElementById("dash-streak"); if (ds) ds.textContent = state.dayStreak.count; }
 
   // Greeting
   const greet = document.getElementById("home-greeting");
