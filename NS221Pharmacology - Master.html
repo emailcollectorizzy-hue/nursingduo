@@ -1666,7 +1666,7 @@ select optgroup{ font-weight:800; color:var(--text); }
   text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin:10px 0 2px; }
 
 /* Compact Home: stat tiles + tap-to-open panel overlay */
-.home-tiles{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:14px 0 16px; }
+.home-tiles{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:14px 0 16px; }
 .home-tile{ border:2px solid var(--border); border-radius:14px; box-shadow:0 2px 0 var(--border);
   background:var(--surface); padding:11px 6px; text-align:center; cursor:pointer;
   transition:transform .06s, box-shadow .06s; }
@@ -2223,20 +2223,10 @@ body.in-lesson .focus-shell { display: flex; }
     <div class="resume-arrow">→</div>
   </button>
 
-  <button class="today-cta" id="today-cta">
-    <div>
-      <div class="tc-main" id="tc-main">▶ Start Today's Set</div>
-      <div class="tc-sub" id="tc-sub">Spaced review — the science-backed way to retain</div>
-    </div>
-    <div class="tc-go">→</div>
-  </button>
-
   <div class="home-tiles" id="home-tiles">
     <div class="home-tile flat"><div class="ht-n"><span id="due-count">0</span></div><div class="ht-l">🔁 Due</div></div>
     <div class="home-tile flat"><div class="ht-n">🔥<span id="dash-streak">0</span></div><div class="ht-l">Streak</div></div>
     <div class="home-tile" data-panel="ach-card" title="Achievements"><div class="ht-n">⭐<span id="hp-level">1</span></div><div class="ht-l">🏅 Level</div></div>
-    <div class="home-tile" data-panel="shop-card" title="Shop &amp; wager"><div class="ht-n">💎<span id="home-gems">0</span></div><div class="ht-l">Shop</div></div>
-    <div class="home-tile" data-panel="league-card" title="League"><div class="ht-n">🏆<span id="home-rank">–</span></div><div class="ht-l">League</div></div>
   </div>
   <div class="goal-bar-track" style="margin:0 2px 4px;"><div class="goal-bar-fill" id="goal-bar"></div></div>
   <div class="box-legend" id="goal-msg" style="margin-bottom:14px;font-size:12px;">box 1 → 5 · red = needs work, gold = mastered</div>
@@ -2249,15 +2239,6 @@ body.in-lesson .focus-shell { display: flex; }
     </div>
   </details>
 
-  <div class="quests-card" id="quests-card">
-    <h3>📋 Daily Quests <span id="quests-reset" style="margin-left:auto;font-size:11px;font-weight:600;color:var(--text-dim)"></span></h3>
-    <div id="quests-list"></div>
-    <div class="chest-row" id="chest-row" style="display:none;">
-      <button class="chest-btn" id="chest-btn" disabled>🎁</button>
-      <div class="chest-sub" id="chest-sub">Finish all 3 quests to open the chest</div>
-    </div>
-  </div>
-
   <div class="quick-actions" style="margin-bottom:16px;">
     <button class="btn secondary" onclick="switchTab('study')">📖 Study</button>
     <button class="btn secondary" onclick="switchTab('quiz')">🎯 Quiz</button>
@@ -2266,15 +2247,6 @@ body.in-lesson .focus-shell { display: flex; }
 
   <!-- v2 P2 panels — hidden by default, opened from the home tiles via openPanel() -->
   <div id="panel-stash" style="display:none;">
-    <div class="league-card" id="league-card">
-      <div class="lg-head"><span id="lg-tier-badge" class="lg-badge">🥉</span><div><div class="lg-name" id="lg-name">Bronze League</div><div class="lg-sub" id="lg-sub">Weekly XP race</div></div><span class="lg-timer" id="lg-timer"></span></div>
-      <div id="lg-board"></div>
-    </div>
-    <div class="shop-card" id="shop-card">
-      <h3>💎 Shop <span class="gem-bal" id="gem-bal">0</span></h3>
-      <div class="shop-grid" id="shop-grid"></div>
-      <div class="don-box" id="don-box"></div>
-    </div>
     <div class="ach-card" id="ach-card">
       <h3>🏅 Achievements <span class="ach-prog" id="ach-prog"></span></h3>
       <div class="ach-grid" id="ach-grid"></div>
@@ -4609,15 +4581,17 @@ function renderHome() {
   document.getElementById("box-bar").innerHTML = [1,2,3,4,5].map(b =>
     `<div class="box-seg box-${b}" style="flex:${Math.max(bc[b],0.001)}" title="Box ${b}: ${bc[b]}">${bc[b]||""}</div>`).join("");
   const tcMain = document.getElementById("tc-main"), tcSub = document.getElementById("tc-sub"), cta = document.getElementById("today-cta");
-  if (due.length) {
-    const mins = Math.max(1, Math.round(Math.min(state.dailyGoal, due.length) * 0.25));
-    tcMain.textContent = `▶ Start Today's Set · ${Math.min(state.dailyGoal, due.length)} items`;
-    tcSub.textContent = `~${mins} min · spaced review beats cramming ~4×`;
-    cta.disabled = false;
-  } else {
-    tcMain.textContent = "✅ All caught up";
-    tcSub.textContent = "Nothing due — answer quiz/drill items to schedule more";
-    cta.disabled = true;
+  if (cta && tcMain && tcSub) {   // Home CTA removed by user preference — Review tab owns Today's Set
+    if (due.length) {
+      const mins = Math.max(1, Math.round(Math.min(state.dailyGoal, due.length) * 0.25));
+      tcMain.textContent = `▶ Start Today's Set · ${Math.min(state.dailyGoal, due.length)} items`;
+      tcSub.textContent = `~${mins} min · spaced review beats cramming ~4×`;
+      cta.disabled = false;
+    } else {
+      tcMain.textContent = "✅ All caught up";
+      tcSub.textContent = "Nothing due — answer quiz/drill items to schedule more";
+      cta.disabled = true;
+    }
   }
 
   // Step 7 — weekly activity strip
@@ -8742,7 +8716,7 @@ function rvFinish() {
 }
 
 document.getElementById("rv-start").addEventListener("click", startTodaysSet);
-document.getElementById("today-cta").addEventListener("click", startTodaysSet);
+document.getElementById("today-cta")?.addEventListener("click", startTodaysSet);
 document.getElementById("home-resume")?.addEventListener("click", resumeLastLesson);
 document.getElementById("readiness-card")?.addEventListener("click", openReadinessBreakdown);
 document.getElementById("activity-strip")?.addEventListener("click", openReadinessBreakdown);
