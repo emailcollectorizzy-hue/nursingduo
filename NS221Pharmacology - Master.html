@@ -1875,44 +1875,32 @@ body.in-lesson .focus-shell { display: flex; }
   .focus-top .focus-progress > div { transition: none; }
 }
 
-/* === Lesson images: unified image-card (image + caption in a bordered box) ===
-   Text above and below uses the full column width. The image card sits inline,
-   compact (≤180-220px tall on laptop, ≤30vh on narrow). Click → fullscreen modal. */
+/* === Lesson images: pasted straight into the text (no card/box) ===
+   The image just flows in the column; caption is a plain italic line under it.
+   Click → fullscreen modal. */
 .lesson-card p:has(> img:only-child),
 .study-section p:has(> img:only-child) {
-  margin: 14px 0 0;
-  padding: 10px 10px 8px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 12px 12px 0 0;
-  border-bottom: 0;
+  margin: 20px 0 6px;
   text-align: center;
 }
 .lesson-card p:has(> img:only-child) > img,
 .study-section p:has(> img:only-child) > img {
   max-width: 100% !important;
-  max-height: 220px !important;
   width: auto !important;
   height: auto !important;
   object-fit: contain !important;
   margin: 0 auto !important;
-  border-radius: 8px !important;
-  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.15) !important;
+  border-radius: 10px !important;
   cursor: zoom-in;
   display: inline-block;
   transition: transform .12s;
 }
 .lesson-card p:has(> img:only-child) > img:hover,
 .study-section p:has(> img:only-child) > img:hover { transform: scale(1.01); }
-/* Caption paragraph (italic em immediately after image paragraph) — bottom half of the card */
+/* Caption paragraph (italic em immediately after image paragraph) — plain centered line */
 .lesson-card p:has(> img:only-child) + p,
 .study-section p:has(> img:only-child) + p {
-  margin: 0 0 14px;
-  padding: 8px 14px 12px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-top: 0;
-  border-radius: 0 0 12px 12px;
+  margin: 0 0 18px;
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--text-dim);
@@ -1921,23 +1909,6 @@ body.in-lesson .focus-shell { display: flex; }
 .lesson-card p:has(> img:only-child) + p > em:only-child,
 .study-section p:has(> img:only-child) + p > em:only-child {
   font-style: italic;
-}
-
-@media (max-width: 600px) {
-  /* Titan 2 / narrow: image card stays full-width but image height tightens */
-  .lesson-card p:has(> img:only-child) > img,
-  .study-section p:has(> img:only-child) > img {
-    max-height: 28vh !important;
-  }
-  .lesson-card p:has(> img:only-child),
-  .study-section p:has(> img:only-child) {
-    padding: 8px 8px 6px;
-  }
-  .lesson-card p:has(> img:only-child) + p,
-  .study-section p:has(> img:only-child) + p {
-    font-size: 12px;
-    padding: 6px 10px 10px;
-  }
 }
 
 /* === Celebration screen (step 4 — lesson/checkpoint-complete moment) === */
