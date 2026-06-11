@@ -1603,7 +1603,9 @@ input:focus,select:focus{ border-color:var(--accent-1) !important; outline:none;
 .img-slot-paste b{ color:var(--text); }
 .img-slot-hint{ font-size:12px; color:var(--text-dim); line-height:1.5; }
 .img-slot-fig{ margin:0; }
-.img-slot-fig img{ display:block; max-width:100%; height:auto; border-radius:var(--radius); box-shadow:var(--shadow-sm); }
+.img-slot-fig img{ display:block; width:100%; height:auto; border-radius:var(--radius); box-shadow:var(--shadow-sm); cursor:zoom-in; }
+.img-zoom-ov{ position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.88); display:flex; align-items:center; justify-content:center; padding:24px; cursor:zoom-out; animation:fadeIn var(--dur-fast) ease; }
+.img-zoom-ov img{ max-width:100%; max-height:100%; width:auto; height:auto; border-radius:10px; box-shadow:0 24px 80px rgba(0,0,0,.6); }
 .img-slot-cap{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:6px; flex-wrap:wrap; }
 .img-slot-actions{ display:flex; gap:4px; }
 .img-slot-actions button{ background:var(--surface-2); border:1px solid var(--border); color:var(--text-dim); border-radius:var(--radius-full); padding:3px 11px; font-size:11.5px; font-weight:600; cursor:pointer; transition:all var(--dur-fast); }
@@ -5273,6 +5275,20 @@ const PI = (() => {
   return { keyFor, get, set, remove, downscale };
 })();
 
+function openImgZoom(src) {
+  if (!src) return;
+  const ov = document.createElement("div");
+  ov.className = "img-zoom-ov";
+  const im = document.createElement("img");
+  im.src = src; im.alt = "";
+  ov.appendChild(im);
+  function close() { ov.remove(); document.removeEventListener("keydown", onKey); }
+  function onKey(e) { if (e.key === "Escape") close(); }
+  ov.addEventListener("click", close);
+  document.addEventListener("keydown", onKey);
+  document.body.appendChild(ov);
+}
+
 function hydrateImageSlots(root, sectionTitle) {
   if (!root) return;
   root.querySelectorAll("p, li").forEach(el => {
@@ -5329,13 +5345,15 @@ function wireImageSlot(widget) {
   widget.querySelector(".img-slot-link")?.addEventListener("click", () => window.open(searchUrl, "_blank", "noopener"));
   widget.querySelector(".img-slot-remove")?.addEventListener("click", () => { PI.remove(key); renderImageSlot(widget); });
   widget.querySelector(".img-slot-replace")?.addEventListener("click", () => { PI.remove(key); renderImageSlot(widget); });
+  const figImg = widget.querySelector(".img-slot-fig img");
+  if (figImg) figImg.addEventListener("click", () => openImgZoom(figImg.src));
   const zone = widget.querySelector(".img-slot-paste");
   if (!zone) return;
   const fileInput = widget.querySelector(".img-slot-file");
   function accept(blob) {
     if (!blob) return;
     zone.classList.add("busy");
-    PI.downscale(blob, 900, (dataUrl) => {
+    PI.downscale(blob, 1280, (dataUrl) => {
       zone.classList.remove("busy");
       if (!dataUrl) { try { showToast("⚠️ Couldn't read that image"); } catch (e) {} return; }
       if (PI.set(key, dataUrl)) { renderImageSlot(widget); try { showToast("✅ Image added"); } catch (e) {} }
