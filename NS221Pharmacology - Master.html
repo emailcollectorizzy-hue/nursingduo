@@ -5282,7 +5282,13 @@ function hydrateImageSlots(root, sectionTitle) {
     el.dataset.imgHydrated = "1";
     const m = txt.match(/Find\s*&(?:amp;)?\s*paste\s*[—-]\s*\[?([^\]:]+?)\]?\s*:\s*(.+)$/i);
     const category = (m ? m[1] : "Image").trim();
-    const desc = (m ? m[2] : txt.replace(/.*paste[^:]*:\s*/i, "")).trim();
+    // the .md may carry an Obsidian "🔍 Search images" link right after the placeholder (added by
+    // _imglinks.py) — it joins this paragraph; strip it so the widget's own search uses a clean desc.
+    let desc = (m ? m[2] : txt.replace(/.*paste[^:]*:\s*/i, "")).trim();
+    desc = desc.split("🔍")[0].replace(/\s*\[[^\]]*\]\([^)]*\)\s*$/, "").trim();
+    // also drop a following sibling that's only the search link (when it parsed as its own block)
+    const sib = el.nextElementSibling;
+    if (sib && (sib.textContent || "").trim().indexOf("🔍 Search images") === 0) sib.remove();
     const widget = document.createElement("div");
     widget.className = "img-slot";
     widget.dataset.imgkey = PI.keyFor((sectionTitle || "") + "|" + desc);
