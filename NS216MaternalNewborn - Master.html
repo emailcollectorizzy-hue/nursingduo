@@ -1591,6 +1591,23 @@ input:focus,select:focus{ border-color:var(--accent-1) !important; outline:none;
 .rc-answer .rc-a-box{ background:color-mix(in srgb, var(--accent-1) 8%, var(--surface)); border:1px solid var(--accent-line); border-radius:12px; padding:14px 18px; font-size:17px; line-height:1.55; margin-bottom:12px; }
 .rc-answer .fc-gate-confs{ padding:14px 0 0; justify-content:flex-start; }
 .ls-recall-done{ display:flex; align-items:center; gap:8px; color:var(--success); font-weight:700; font-size:14px; padding:14px 4px; }
+/* ===== Find & paste image slot ===== */
+.img-slot{ margin:18px 0; }
+.img-slot-empty{ border:1.5px dashed var(--accent-line); border-radius:var(--radius); background:var(--accent-soft); padding:16px 18px; display:flex; flex-direction:column; gap:10px; }
+.img-slot-desc{ font-size:14.5px; line-height:1.5; color:var(--text); }
+.img-slot-row{ display:flex; gap:10px; flex-wrap:wrap; }
+.img-slot-row .btn{ font-size:13px; padding:9px 16px; min-height:0; }
+.img-slot-paste{ border:1.5px dashed var(--border); border-radius:var(--radius-sm); background:var(--surface); padding:16px; text-align:center; font-size:13.5px; color:var(--text-dim); cursor:text; transition:border-color var(--dur-fast), background var(--dur-fast); outline:none; }
+.img-slot-paste:focus, .img-slot-paste.drag{ border-color:var(--accent-1); background:color-mix(in srgb, var(--accent-1) 7%, var(--surface)); color:var(--text); }
+.img-slot-paste.busy{ opacity:.6; }
+.img-slot-paste b{ color:var(--text); }
+.img-slot-hint{ font-size:12px; color:var(--text-dim); line-height:1.5; }
+.img-slot-fig{ margin:0; }
+.img-slot-fig img{ display:block; max-width:100%; height:auto; border-radius:var(--radius); box-shadow:var(--shadow-sm); }
+.img-slot-cap{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:6px; flex-wrap:wrap; }
+.img-slot-actions{ display:flex; gap:4px; }
+.img-slot-actions button{ background:var(--surface-2); border:1px solid var(--border); color:var(--text-dim); border-radius:var(--radius-full); padding:3px 11px; font-size:11.5px; font-weight:600; cursor:pointer; transition:all var(--dur-fast); }
+.img-slot-actions button:hover{ color:var(--text); border-color:var(--accent-line); }
 .ls-section{ position:relative; }
 .ls-section + .ls-section{ margin-top:4vh; border-top:1px solid var(--border); }
 .ls-finale .lesson-card{ text-align:center; }
@@ -4185,7 +4202,7 @@ function _wirePathNodes(wrap) {
   });
 }
 
-const WEEK_MAP = /*WEEK_MAP*/{"Circulatory Transition": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Hematologic & GI Adaptation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Hepatic Adaptation & Bilirubin": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Respiratory Adaptation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Thermoregulation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}}/*/WEEK_MAP*/;   // topic -> {w, label}, injected per course
+const WEEK_MAP = /*WEEK_MAP*/{"Postpartum Assessment & Nursing Care": {"w": 5, "label": "Week 5 — Postpartum"}, "Postpartum Depression & Mood Disorders": {"w": 5, "label": "Week 5 — Postpartum"}, "Postpartum Hemorrhage": {"w": 5, "label": "Week 5 — Postpartum"}, "Postpartum Infections — Endometritis & Mastitis": {"w": 5, "label": "Week 5 — Postpartum"}, "Postpartum Physiologic Adaptations": {"w": 5, "label": "Week 5 — Postpartum"}, "Postpartum Psychosocial Adaptation and Bonding": {"w": 5, "label": "Week 5 — Postpartum"}, "Thromboembolic Disorders": {"w": 5, "label": "Week 5 — Postpartum"}, "Uterine Involution & Lochia": {"w": 5, "label": "Week 5 — Postpartum"}, "Circulatory Transition": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Hematologic & GI Adaptation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Hepatic Adaptation & Bilirubin": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Respiratory Adaptation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}, "Thermoregulation": {"w": 6, "label": "Week 6 — Newborn Adaptation"}}/*/WEEK_MAP*/;   // topic -> {w, label}, injected per course
 function _weekOf(ch) { return (WEEK_MAP && WEEK_MAP[ch]) ? WEEK_MAP[ch] : null; }
 // Group chapters into weeks (ordered) for the cascading Week → Topic pickers.
 // Returns [{key, label, w, chs:[...]}], with an "Other" bucket last for unmapped
@@ -5224,11 +5241,120 @@ function lsRebuildSpy() {
   });
 }
 
+// ===== Find & Paste image slots =====
+// Where a study guide left a "📷 Find & paste — [Category]: description" placeholder, the
+// quizpage turns it into a widget: a button that opens a Google Images search for that exact
+// description, plus a paste/drop zone. Pasted images are downscaled and stored locally (per
+// device) so they persist across reloads. Complements /images — auto-filled spots already show
+// an <img>; only the leftover placeholders become widgets.
+const PI = (() => {
+  const KEY = "quizpage:img:" + (typeof STORAGE_KEY === "string" ? STORAGE_KEY : "default");
+  let map = null;
+  function load() { if (map) return map; try { map = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { map = {}; } return map; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(map || {})); return true; } catch (e) { try { showToast("⚠️ Storage full — couldn't save the image"); } catch (_) {} return false; } }
+  function keyFor(s) { let h = 5381; const str = "img|" + s; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return "i" + (h >>> 0).toString(36); }
+  function get(k) { return load()[k] || null; }
+  function set(k, v) { load(); map[k] = v; return save(); }
+  function remove(k) { load(); delete map[k]; save(); }
+  function downscale(blob, maxEdge, cb) {            // shrink to <=maxEdge jpeg → small + offline-safe
+    const img = new Image(), url = URL.createObjectURL(blob);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      const sc = Math.min(1, maxEdge / Math.max(w, h)); w = Math.round(w * sc); h = Math.round(h * sc);
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      let out = null; try { out = c.toDataURL("image/jpeg", 0.85); } catch (e) {}
+      cb(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+  return { keyFor, get, set, remove, downscale };
+})();
+
+function hydrateImageSlots(root, sectionTitle) {
+  if (!root) return;
+  root.querySelectorAll("p, li").forEach(el => {
+    if (el.dataset.imgHydrated || el.querySelector("img")) return;
+    const txt = (el.textContent || "").trim();
+    if (txt.indexOf("Find & paste") < 0 && txt.indexOf("Find &amp; paste") < 0) return;
+    el.dataset.imgHydrated = "1";
+    const m = txt.match(/Find\s*&(?:amp;)?\s*paste\s*[—-]\s*\[?([^\]:]+?)\]?\s*:\s*(.+)$/i);
+    const category = (m ? m[1] : "Image").trim();
+    const desc = (m ? m[2] : txt.replace(/.*paste[^:]*:\s*/i, "")).trim();
+    const widget = document.createElement("div");
+    widget.className = "img-slot";
+    widget.dataset.imgkey = PI.keyFor((sectionTitle || "") + "|" + desc);
+    widget.dataset.desc = desc; widget.dataset.cat = category;
+    renderImageSlot(widget);
+    el.replaceWith(widget);
+  });
+}
+
+function renderImageSlot(widget) {
+  const key = widget.dataset.imgkey, desc = widget.dataset.desc, category = widget.dataset.cat;
+  const stored = PI.get(key);
+  if (stored) {
+    widget.classList.add("filled");
+    widget.innerHTML = `<figure class="img-slot-fig">
+      <img src="${stored}" alt="${escapeAttr(desc)}" loading="lazy">
+      <figcaption class="img-slot-cap"><span class="eyebrow">📷 ${escapeHtml(category)}</span>
+        <span class="img-slot-actions"><button class="img-slot-link" type="button">🔍 Search</button> <button class="img-slot-replace" type="button">↻ Replace</button> <button class="img-slot-remove" type="button">✕ Remove</button></span></figcaption></figure>`;
+  } else {
+    widget.classList.remove("filled");
+    widget.innerHTML = `<div class="img-slot-empty">
+      <span class="eyebrow">📷 ${escapeHtml(category)} — FIND &amp; PASTE</span>
+      <div class="img-slot-desc">${escapeHtml(desc)}</div>
+      <div class="img-slot-row">
+        <button class="btn img-slot-link" type="button">🔍 Search Google Images</button>
+        <button class="btn secondary img-slot-pick" type="button">📁 Choose file</button>
+      </div>
+      <div class="img-slot-paste" tabindex="0" role="button" aria-label="Click then paste an image">📋 <b>Click here, then paste</b> your image (Ctrl/⌘+V) — or drop a file
+        <input type="file" accept="image/*" class="img-slot-file" hidden></div>
+      <div class="img-slot-hint">In Google Images: right-click the image → <b>Copy image</b>, click the box above, paste.</div></div>`;
+  }
+  wireImageSlot(widget);
+}
+
+function wireImageSlot(widget) {
+  const key = widget.dataset.imgkey, desc = widget.dataset.desc;
+  const searchUrl = "https://www.google.com/search?udm=2&q=" + encodeURIComponent(desc);
+  widget.querySelector(".img-slot-link")?.addEventListener("click", () => window.open(searchUrl, "_blank", "noopener"));
+  widget.querySelector(".img-slot-remove")?.addEventListener("click", () => { PI.remove(key); renderImageSlot(widget); });
+  widget.querySelector(".img-slot-replace")?.addEventListener("click", () => { PI.remove(key); renderImageSlot(widget); });
+  const zone = widget.querySelector(".img-slot-paste");
+  if (!zone) return;
+  const fileInput = widget.querySelector(".img-slot-file");
+  function accept(blob) {
+    if (!blob) return;
+    zone.classList.add("busy");
+    PI.downscale(blob, 900, (dataUrl) => {
+      zone.classList.remove("busy");
+      if (!dataUrl) { try { showToast("⚠️ Couldn't read that image"); } catch (e) {} return; }
+      if (PI.set(key, dataUrl)) { renderImageSlot(widget); try { showToast("✅ Image added"); } catch (e) {} }
+    });
+  }
+  widget.querySelector(".img-slot-pick")?.addEventListener("click", () => fileInput && fileInput.click());
+  fileInput?.addEventListener("change", e => { const f = e.target.files && e.target.files[0]; if (f) accept(f); });
+  zone.addEventListener("click", () => zone.focus());
+  zone.addEventListener("paste", e => {
+    const items = (e.clipboardData || {}).items || [];
+    for (const it of items) { if (it.type && it.type.indexOf("image") === 0) { e.preventDefault(); accept(it.getAsFile()); return; } }
+    const t = ((e.clipboardData && e.clipboardData.getData("text")) || "").trim();
+    if (/^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg)(\?\S*)?$/i.test(t)) { e.preventDefault(); if (PI.set(key, t)) { renderImageSlot(widget); try { showToast("✅ Image added"); } catch (e2) {} } }
+  });
+  zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("drag"); });
+  zone.addEventListener("dragleave", () => zone.classList.remove("drag"));
+  zone.addEventListener("drop", e => { e.preventDefault(); zone.classList.remove("drag"); const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f && f.type.indexOf("image") === 0) accept(f); });
+}
+
 function lsWireSection(secIdx) {
   const block = document.getElementById("ls-sec-" + secIdx);
   if (!block) return;
   const sx = STUDY[secIdx];
   const steps = lsPrepSteps(secIdx);
+  hydrateImageSlots(block, sx.title);
 
   block.querySelectorAll("[data-bookmark]").forEach(btn => btn.addEventListener("click", e => {
     e.stopPropagation();
