@@ -16,3 +16,8 @@
   from = "/ns221"
   to = "/NS221Pharmacology - Master.html"
   status = 200
+
+[[redirects]]
+  from = "/ns250-exam2"
+  to = "/NS250 Exam 2 ELI5 Review.html"
+  status = 200
