@@ -8837,5 +8837,149 @@ if (!state.pipHidden) {
   setTimeout(() => floatPip.setState("happy", "Welcome back. Tap me if you need a tip.", 2800), 600);
 }
 </script>
+
+<!--
+  ===== Cloud sync + Hub integration =====
+  SAFE no-op offline / on file://. On nursingduo.netlify.app: username+PIN auth via
+  Netlify Blobs, debounced push on save, pull-on-load with reload-if-newer.
+  Storage key = STORAGE_KEY of this master. Keep verbatim across masters so the hub's
+  `list` action sees them.
+-->
+<script>
+/* ===== Cloud sync shim (Netlify Blobs) ===== */
+(function cloudSync(){
+  if (typeof STORAGE_KEY !== "string") return;          // requirement #1
+  const CLOUD_URL = "/api/progress";
+  const AUTH_KEY  = "quizpage:cloudauth";               // shared across hub + all masters (same origin)
+  const META_KEY  = STORAGE_KEY + ":cloudmeta";         // per-course "last synced updatedAt"
+
+  const getAuth = () => { try { return JSON.parse(localStorage.getItem(AUTH_KEY) || "null"); } catch { return null; } };
+  const setAuth = (a) => { try { localStorage.setItem(AUTH_KEY, JSON.stringify(a)); } catch {} };
+  const clearAuth = () => { try { localStorage.removeItem(AUTH_KEY); } catch {} };
+  const localUpdatedAt = () => { try { return +(localStorage.getItem(META_KEY) || 0); } catch { return 0; } };
+  const setLocalUpdatedAt = (t) => { try { localStorage.setItem(META_KEY, String(t)); } catch {} };
+
+  async function api(action, extra) {
+    const auth = getAuth(); if (!auth) return null;
+    let res;
+    try {
+      res = await fetch(CLOUD_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, user: auth.user, pin: auth.pin, storageKey: STORAGE_KEY, ...extra })
+      });
+    } catch { return null; }
+    if (res.status === 401) { clearAuth(); promptAuth(true); return null; }
+    if (!res.ok) return null;
+    return res.json();
+  }
+
+  function promptAuth(wrong) {
+    if (document.getElementById("cs_modal")) return;
+    const m = document.createElement("div");
+    m.id = "cs_modal";
+    m.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;";
+    m.innerHTML = `
+      <div style="background:#1a1a1a;color:#fff;padding:24px;border-radius:14px;max-width:360px;width:100%;font:14px/1.5 system-ui,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div style="font-size:18px;font-weight:600;margin-bottom:4px;">☁️ Cloud sync</div>
+        <div style="opacity:.7;margin-bottom:16px;">${wrong ? "Wrong PIN. Try again." : "Sign in to sync progress across devices."}</div>
+        <label style="display:block;margin-bottom:10px;">Username<br><input id="cs_u" autocomplete="username" autocapitalize="none" autocorrect="off" style="width:100%;padding:8px;margin-top:4px;background:#000;color:#fff;border:1px solid #444;border-radius:6px;font:inherit;box-sizing:border-box;"></label>
+        <label style="display:block;margin-bottom:14px;">PIN (4–8 digits)<br><input id="cs_p" type="password" inputmode="numeric" pattern="\\d*" autocomplete="current-password" style="width:100%;padding:8px;margin-top:4px;background:#000;color:#fff;border:1px solid #444;border-radius:6px;font:inherit;box-sizing:border-box;"></label>
+        <div style="display:flex;gap:8px;">
+          <button id="cs_ok" style="flex:1;padding:10px;background:#3b82f6;color:#fff;border:0;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;">Sign in</button>
+          <button id="cs_skip" style="padding:10px 14px;background:transparent;color:#888;border:1px solid #444;border-radius:8px;font:inherit;cursor:pointer;">Skip</button>
+        </div>
+        <div style="font-size:12px;opacity:.55;margin-top:12px;">First time? Pick any username + PIN — that combo becomes your account.</div>
+      </div>`;
+    document.body.appendChild(m);
+    const finish = (auth) => { m.remove(); if (auth) { setAuth(auth); pullThenStart(); } else { attachAutoPush(); } };
+    m.querySelector("#cs_ok").onclick = () => {
+      const u = m.querySelector("#cs_u").value.trim();
+      const p = m.querySelector("#cs_p").value.trim();
+      if (!/^[a-z0-9_-]{2,32}$/i.test(u)) return alert("Username: 2–32 chars (letters, numbers, _ or -)");
+      if (!/^\d{4,8}$/.test(p)) return alert("PIN: 4–8 digits");
+      finish({ user: u, pin: p });
+    };
+    m.querySelector("#cs_skip").onclick = () => finish(null);
+    m.querySelector("#cs_p").addEventListener("keydown", e => { if (e.key === "Enter") m.querySelector("#cs_ok").click(); });
+  }
+
+  async function pullThenStart() {
+    const res = await api("get", {});
+    if (res && !res.empty && res.state && (res.updatedAt || 0) > localUpdatedAt()) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(res.state));
+        setLocalUpdatedAt(res.updatedAt);
+        location.reload();                 // simplest correct merge: reload with server state
+        return;
+      } catch {}
+    }
+    attachAutoPush();
+    if (res && res.empty) schedulePush();  // first device for this course → seed the cloud
+  }
+
+  let pushTimer = null;
+  function schedulePush() { clearTimeout(pushTimer); pushTimer = setTimeout(doPush, 2000); }
+  async function doPush() {
+    if (!getAuth()) return;
+    let raw; try { raw = localStorage.getItem(STORAGE_KEY); } catch { return; }
+    if (!raw) return;
+    let s; try { s = JSON.parse(raw); } catch { return; }
+    const updatedAt = Date.now();
+    const res = await api("put", { state: s, updatedAt });
+    if (res && res.ok) setLocalUpdatedAt(updatedAt);
+    // if res.stale: a newer device won; next load's pullThenStart() will reconcile.
+  }
+
+  function attachAutoPush() {
+    const orig = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(k, v) {
+      orig.call(this, k, v);
+      if (k === STORAGE_KEY && getAuth()) schedulePush();   // every state save → debounced push
+    };
+    document.addEventListener("visibilitychange", () => { if (document.hidden) { clearTimeout(pushTimer); doPush(); } });
+    window.addEventListener("pagehide", () => { clearTimeout(pushTimer); doPush(); });
+  }
+
+  window.cloudSync = {
+    signOut: () => { clearAuth(); location.reload(); },
+    status:  () => ({ auth: getAuth(), localUpdatedAt: localUpdatedAt() }),
+  };
+
+  function boot() {
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;   // file:// no-op
+    if (getAuth()) pullThenStart();
+    else promptAuth(false);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+<script>
+/* ===== Hub integration: "← Hub" back button + #tab= hash router ===== */
+(function hubLink(){
+  if (location.protocol !== "http:" && location.protocol !== "https:") return;
+  function addBackBtn() {
+    if (document.getElementById("hub-back-btn")) return;
+    const btn = document.createElement("a");
+    btn.id = "hub-back-btn"; btn.href = "/"; btn.innerHTML = "← Hub"; btn.title = "Back to course select";
+    btn.style.cssText = "font:600 12px/1 -apple-system,system-ui,sans-serif;text-decoration:none;color:#fff;background:rgba(20,20,28,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:7px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.14);box-shadow:0 2px 8px rgba(0,0,0,.25);";
+    // adapt to your header; fall back to fixed top-right
+    const slot = document.querySelector("header.app-header .header-quick") || document.querySelector("header.app-header .header-meta");
+    if (slot) slot.insertBefore(btn, slot.firstChild);
+    else { btn.style.cssText += "position:fixed;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));z-index:9998;"; document.body.appendChild(btn); }
+  }
+  function applyHash() {
+    const h = location.hash.slice(1); if (!h) return;
+    const tab = new URLSearchParams(h).get("tab");
+    if (tab && typeof switchTab === "function") { try { switchTab(tab); } catch {} }
+  }
+  function boot() { addBackBtn(); setTimeout(applyHash, 120); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+  window.addEventListener("hashchange", applyHash);
+})();
+</script>
+
 </body>
 </html>
